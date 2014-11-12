@@ -40,15 +40,16 @@ end eth_traffic_gen_v1_0_S_AXIS_RXD;
 architecture arch_imp of eth_traffic_gen_v1_0_S_AXIS_RXD is
 
 	-- Total number of output data                                              
-	constant NUMBER_OF_INPUT_WORDS : integer := 15;                                   
+	constant NUMBER_OF_INPUT_WORDS : integer := 16;                                   
 
   type FRAME is array (0 to NUMBER_OF_INPUT_WORDS-1) of std_logic_vector(C_S_AXIS_TDATA_WIDTH-1 downto 0);
 
+  -- Ethernet frame to expect - includes FCS (checksum) in the last word
   constant framedata : FRAME := (
                                   X"FFFFFFFF",X"1E00FFFF",X"A4A52737",X"01000608",
                                   X"04060008",X"1E000100",X"A4A52737",X"0101A8C0",
                                   X"00000000",X"A8C00000",X"00000A01",X"00000000",
-                                  X"00000000",X"00000000",X"00000000"
+                                  X"00000000",X"00000000",X"00000000",X"A63112B7"
                                   );
 
 	-- function called clogb2 that returns an integer which has the 

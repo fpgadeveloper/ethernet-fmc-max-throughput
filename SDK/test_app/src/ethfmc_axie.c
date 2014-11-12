@@ -178,20 +178,19 @@ int EthFMC_init_axiemac(unsigned mac_address,unsigned char *mac_eth_addr)
 
 	options = XAxiEthernet_GetOptions(axi_ethernet);
 	// Disable recognize flow control frames
-	//options &= ~XAE_FLOW_CONTROL_OPTION;
-	options |= XAE_FLOW_CONTROL_OPTION;
+	options &= ~XAE_FLOW_CONTROL_OPTION;
+	//options |= XAE_FLOW_CONTROL_OPTION;
 #ifdef USE_JUMBO_FRAMES
 	options |= XAE_JUMBO_OPTION;
 #endif
 	options |= XAE_TRANSMITTER_ENABLE_OPTION;
 	options |= XAE_RECEIVER_ENABLE_OPTION;
-	// Disable FCS Strip by MAC
-	//options &= ~XAE_FCS_STRIP_OPTION;
-	options |= XAE_FCS_STRIP_OPTION;
+	// Disable FCS strip
+	options &= ~XAE_FCS_STRIP_OPTION;
 	// Disable length/type error checking
-	//options &= ~XAE_LENTYPE_ERR_OPTION;
-	// Disable FCS insert by MAC
-	//options &= ~XAE_FCS_INSERT_OPTION;
+	options &= ~XAE_LENTYPE_ERR_OPTION;
+	// Disable FCS insert (we have included it in the frame)
+	options &= ~XAE_FCS_INSERT_OPTION;
 	//options |= XAE_MULTICAST_OPTION;
 	// Using promiscuous option to disable mac address filtering
 	// and allow the loopback to function.

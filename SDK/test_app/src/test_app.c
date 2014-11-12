@@ -29,6 +29,11 @@ int main()
 {
 	volatile Xuint32 reg;
 	volatile Xuint32 i;
+	volatile Xuint32 dropped_frames_0;
+	volatile Xuint32 dropped_frames_1;
+	volatile Xuint32 dropped_frames_2;
+	volatile Xuint32 dropped_frames_3;
+
 	/* the mac address of the board. this should be unique per board */
 	unsigned char mac_ethernet_address[] =
 	{ 0x00, 0x0a, 0x35, 0x00, 0x01, 0x02 };
@@ -73,34 +78,67 @@ int main()
 	reg = *eth_pkt_gen_3_p;
 	*eth_pkt_gen_3_p = reg & ~(0x00000001);
 
+	// Reset the reject frame interrupt flags
+	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_0_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_1_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_2_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_3_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+
 	// Delay
 	for(i=0; i<100000000; i++){}
 
 	// Force an error
 	reg = *eth_pkt_gen_0_p;
-	*eth_pkt_gen_0_p = reg | 0x00000004;
+	*eth_pkt_gen_0_p = reg | 0x00000002;
 	// Delay
 	for(i=0; i<100000; i++){}
 	reg = *eth_pkt_gen_0_p;
-	*eth_pkt_gen_0_p = reg & ~(0x00000004);
+	*eth_pkt_gen_0_p = reg & ~(0x00000002);
 
+
+	dropped_frames_0 = 0;
+	dropped_frames_1 = 0;
+	dropped_frames_2 = 0;
+	dropped_frames_3 = 0;
 
 	while (1) {
+		for(i=0; i<1000000; i++){
+			// Read the interrupt status register
+			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_0_BASEADDR,XAE_IS_OFFSET);
+			if((reg & XAE_INT_RXRJECT_MASK)){
+				// Reset the interrupt
+				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_0_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+				// Increment the counter
+				dropped_frames_0++;
+			}
+			// Read the interrupt status register
+			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_1_BASEADDR,XAE_IS_OFFSET);
+			if((reg & XAE_INT_RXRJECT_MASK)){
+				// Reset the interrupt
+				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_1_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+				// Increment the counter
+				dropped_frames_1++;
+			}
+			// Read the interrupt status register
+			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_2_BASEADDR,XAE_IS_OFFSET);
+			if((reg & XAE_INT_RXRJECT_MASK)){
+				// Reset the interrupt
+				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_2_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+				// Increment the counter
+				dropped_frames_2++;
+			}
+			// Read the interrupt status register
+			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_3_BASEADDR,XAE_IS_OFFSET);
+			if((reg & XAE_INT_RXRJECT_MASK)){
+				// Reset the interrupt
+				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_3_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+				// Increment the counter
+				dropped_frames_3++;
+			}
+		}
 		// Read from the bit error register
-		xil_printf("- Bit errors:      %8d %8d %8d %8d\n\r",
-					*(eth_pkt_gen_0_p+1),
-					*(eth_pkt_gen_1_p+1),
-					*(eth_pkt_gen_2_p+1),
-					*(eth_pkt_gen_3_p+1)
-					);
 		xil_printf("- Dropped packets: %8d %8d %8d %8d\n\r",
-					*(eth_pkt_gen_0_p+2),
-					*(eth_pkt_gen_1_p+2),
-					*(eth_pkt_gen_2_p+2),
-					*(eth_pkt_gen_3_p+2)
-					);
-		// Delay
-		for(i=0; i<100000000; i++){}
+					dropped_frames_0,dropped_frames_1,dropped_frames_2,dropped_frames_3);
 	}
 
 	return 0;

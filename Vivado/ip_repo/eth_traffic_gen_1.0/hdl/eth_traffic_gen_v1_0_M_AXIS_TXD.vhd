@@ -42,22 +42,24 @@ end eth_traffic_gen_v1_0_M_AXIS_TXD;
 architecture implementation of eth_traffic_gen_v1_0_M_AXIS_TXD is
 	--Total number of output data.
 	-- Total number of output data                                              
-	constant NUMBER_OF_OUTPUT_WORDS : integer := 15;                                   
+	constant NUMBER_OF_OUTPUT_WORDS : integer := 16;                                   
 
   type FRAME is array (0 to NUMBER_OF_OUTPUT_WORDS-1) of std_logic_vector(C_M_AXIS_TDATA_WIDTH-1 downto 0);
 
+  -- The ethernet frame that is sent
+  -- The last word is the FCS (checksum). Normally we wouldn't provide the FCS to the MAC
+  -- because it can calculate it automatically, but in our case, we need to provide it so
+  -- that when we generate forced errors in the frame, they will cause the FCS to be
+  -- incorrect for the frame. Thus the receiver MAC will reject it, and we can count a
+  -- rejected frame.
   constant framedata : FRAME := (
-                                 --X"000A3500",X"0102001E",X"3727A5A4",X"08004500",
-                                 --X"002E005B",X"40008006",X"7713C0A8",X"0101C0A8",
-                                 --X"010A0413",X"00078A39",X"D5BE0000",X"28585018",
-                                 --X"FFFF837C",X"00006173",X"6369696F",X"00000000"
                                   X"FFFFFFFF",X"1E00FFFF",X"A4A52737",X"01000608",
                                   X"04060008",X"1E000100",X"A4A52737",X"0101A8C0",
                                   X"00000000",X"A8C00000",X"00000A01",X"00000000",
-                                  X"00000000",X"00000000",X"00000000"
+                                  X"00000000",X"00000000",X"00000000",X"A63112B7"
                                   );
   
-	                                                                                  
+
 	-- Define the states of state machine                                             
 	-- The control state machine oversees the writing of input streaming data to the FIFO,
 	-- and outputs the streaming data from the FIFO                                   
@@ -148,7 +150,7 @@ begin
         sending_r <= sending;
         -- If not transmitting, wait for TREADY
         if(sending = '0') then
-          if((start = '1') or (tready = '1')) then
+          if((start = '1') or ((tready = '1') and (sending_r = '0'))) then
             sending <= '1';
           end if;
         -- If transmitting, wait for TLAST
