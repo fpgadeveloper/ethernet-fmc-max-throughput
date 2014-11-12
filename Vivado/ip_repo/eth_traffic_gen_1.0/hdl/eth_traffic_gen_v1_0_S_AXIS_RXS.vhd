@@ -15,7 +15,10 @@ entity eth_traffic_gen_v1_0_S_AXIS_RXS is
 	);
 	port (
 		-- Users to add ports here
-
+    rst_counters_i  : in std_logic;
+    last_data_i     : in std_logic;
+    dropped_pkts_o  : out std_logic_vector(31 downto 0);
+    max_delay_i     : in std_logic_vector(15 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -75,11 +78,21 @@ architecture arch_imp of eth_traffic_gen_v1_0_S_AXIS_RXS is
 	-- FIFO full flag
 	signal fifo_full_flag : std_logic;
 	-- FIFO write pointer
-	signal write_pointer : integer range 0 to bit_num-1 ;
+	signal write_pointer : integer range 0 to NUMBER_OF_INPUT_WORDS+1 ;
 	-- sink has accepted all the streaming data and stored in FIFO
 	signal writes_done : std_logic;
 
 	type BYTE_FIFO_TYPE is array (0 to (NUMBER_OF_INPUT_WORDS-1)) of std_logic_vector(((C_S_AXIS_TDATA_WIDTH/4)-1)downto 0);
+  
+	-- Counter for detecting lost packets
+	signal counter          : std_logic_vector(15 downto 0);
+  
+  signal pkt_lost         : std_logic;
+  signal pkt_lost_r       : std_logic;
+  signal pkt_lost_trigger : std_logic;
+  
+  signal dropped_pkts     : std_logic_vector(31 downto 0);
+  
 begin
 	-- I/O Connections assignments
 
@@ -172,8 +185,55 @@ begin
 
 	end generate FIFO_GEN;
 
-	-- Add user logic here
+  -- Timer for detecting lost packets
+	process(S_AXIS_ACLK)
+	begin
+	  if (rising_edge (S_AXIS_ACLK)) then
+	    if(S_AXIS_ARESETN = '0') then
+	      counter <= max_delay_i;
+	    else
+        -- Load counter when last data received from a packet
+	      if (last_data_i = '1') then
+          counter <= max_delay_i;
+        elsif (counter /= 0) then
+          counter <= counter - 1;
+	      end  if;
+	    end if;
+	  end if;
+	end process;
+  
+  pkt_lost <= '1' when (counter = 0) else '0';
 
-	-- User logic ends
+  -- Packet lost register
+	process(S_AXIS_ACLK)
+	begin
+	  if (rising_edge (S_AXIS_ACLK)) then
+	    if(S_AXIS_ARESETN = '0') then
+	      pkt_lost_r <= '0';
+	    else
+	      pkt_lost_r <= pkt_lost;
+	    end if;
+	  end if;
+	end process;
+  
+  pkt_lost_trigger <= '1' when ((pkt_lost = '1') and (pkt_lost_r = '0')) else '0';
+  
+  -- Packet lossed counter
+	process(S_AXIS_ACLK)
+	begin
+	  if (rising_edge (S_AXIS_ACLK)) then
+	    if((S_AXIS_ARESETN = '0') or (rst_counters_i = '1')) then
+	      dropped_pkts <= (others => '0');
+	    else
+        -- Increment counter when triggered
+	      if (pkt_lost_trigger = '1') then
+          dropped_pkts <= dropped_pkts + 1;
+	      end  if;
+	    end if;
+	  end if;
+	end process;
+  
+  -- Outputs
+  dropped_pkts_o <= dropped_pkts;
 
 end arch_imp;

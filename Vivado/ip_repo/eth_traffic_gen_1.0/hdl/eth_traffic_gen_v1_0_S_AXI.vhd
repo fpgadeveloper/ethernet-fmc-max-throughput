@@ -17,7 +17,12 @@ entity eth_traffic_gen_v1_0_S_AXI is
 	);
 	port (
 		-- Users to add ports here
-
+    rst_counters_o      : out std_logic;
+    force_error_o       : out std_logic;
+    force_drop_o        : out std_logic;
+    bit_errors_i        : in std_logic_vector(31 downto 0);
+    dropped_pkts_i      : in std_logic_vector(31 downto 0);
+    max_delay_o         : out std_logic_vector(15 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -118,6 +123,16 @@ architecture arch_imp of eth_traffic_gen_v1_0_S_AXI is
 	signal reg_data_out	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal byte_index	: integer;
 
+	signal slv_reg0_read	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal slv_reg1_read	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal slv_reg2_read	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal slv_reg3_read	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+
+	signal slv_reg0_def	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal slv_reg1_def	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal slv_reg2_def	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal slv_reg3_def	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+  
 begin
 	-- I/O Connections assignments
 
@@ -209,10 +224,10 @@ begin
 	begin
 	  if rising_edge(S_AXI_ACLK) then 
 	    if S_AXI_ARESETN = '0' then
-	      slv_reg0 <= (others => '0');
-	      slv_reg1 <= (others => '0');
-	      slv_reg2 <= (others => '0');
-	      slv_reg3 <= (others => '0');
+	      slv_reg0 <= slv_reg0_def;
+	      slv_reg1 <= slv_reg1_def;
+	      slv_reg2 <= slv_reg2_def;
+	      slv_reg3 <= slv_reg3_def;
 	    else
 	      loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
 	      if (slv_reg_wren = '1') then
@@ -341,7 +356,7 @@ begin
 	-- and the slave is ready to accept the read address.
 	slv_reg_rden <= axi_arready and S_AXI_ARVALID and (not axi_rvalid) ;
 
-	process (slv_reg0, slv_reg1, slv_reg2, slv_reg3, axi_araddr, S_AXI_ARESETN, slv_reg_rden)
+	process (slv_reg0_read, slv_reg1_read, slv_reg2_read, slv_reg3_read, axi_araddr, S_AXI_ARESETN, slv_reg_rden)
 	variable loc_addr :std_logic_vector(OPT_MEM_ADDR_BITS downto 0);
 	begin
 	  if S_AXI_ARESETN = '0' then
@@ -351,13 +366,13 @@ begin
 	    loc_addr := axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
 	    case loc_addr is
 	      when b"00" =>
-	        reg_data_out <= slv_reg0;
+	        reg_data_out <= slv_reg0_read;
 	      when b"01" =>
-	        reg_data_out <= slv_reg1;
+	        reg_data_out <= slv_reg1_read;
 	      when b"10" =>
-	        reg_data_out <= slv_reg2;
+	        reg_data_out <= slv_reg2_read;
 	      when b"11" =>
-	        reg_data_out <= slv_reg3;
+	        reg_data_out <= slv_reg3_read;
 	      when others =>
 	        reg_data_out  <= (others => '0');
 	    end case;
@@ -384,7 +399,54 @@ begin
 
 
 	-- Add user logic here
+  
+  -- Defaults
+  process( S_AXI_ACLK ) is
+  begin
+    slv_reg0_def <= (others => '0');
+    slv_reg0_def(31 downto 16) <= X"0064"; -- 100 decimal
+  end process;
+  process( S_AXI_ACLK ) is
+  begin
+    slv_reg1_def <= (others => '0');
+  end process;
+  process( S_AXI_ACLK ) is
+  begin
+    slv_reg2_def <= (others => '0');
+  end process;
+  process( S_AXI_ACLK ) is
+  begin
+    slv_reg3_def <= (others => '0');
+  end process;
+  
+  -- Output assignments
+  rst_counters_o    <= slv_reg0(0);
+  force_error_o     <= slv_reg0(1);
+  force_drop_o      <= slv_reg0(2);
+  max_delay_o       <= slv_reg0(31 downto 16);
 
+  -- Input assignments
+  -- Slave register 0
+  process(slv_reg0) is
+  begin
+    slv_reg0_read <= slv_reg0;
+  end process;
+  -- Slave register 1
+  process(bit_errors_i,slv_reg1) is
+  begin
+    slv_reg1_read <= bit_errors_i;
+  end process;
+  -- Slave register 2
+  process(dropped_pkts_i,slv_reg2) is
+  begin
+    slv_reg2_read <= dropped_pkts_i;
+  end process;
+  -- Slave register 3
+  process(slv_reg3) is
+  begin
+    slv_reg3_read <= slv_reg3;
+  end process;
+  
 	-- User logic ends
 
 end arch_imp;

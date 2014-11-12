@@ -1,4 +1,6 @@
 
+ PARAMETER NAME = E:\Github\fpgadeveloper\zedboard-qgige-max-throughput\SDK\test_app_bsp\system.mss
+
  PARAMETER VERSION = 2.2.0
 
 

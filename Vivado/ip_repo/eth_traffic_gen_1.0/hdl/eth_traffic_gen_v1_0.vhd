@@ -106,6 +106,7 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
 		C_M_START_COUNT	: integer	:= 32
 		);
 		port (
+    force_error_i : in std_logic;
     start_i       : in std_logic;
 		M_AXIS_ACLK	: in std_logic;
 		M_AXIS_ARESETN	: in std_logic;
@@ -123,7 +124,9 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
 		C_M_START_COUNT	: integer	:= 32
 		);
 		port (
+    force_drop_i  : in std_logic;
     start_o       : out std_logic;
+    last_data_i   : in std_logic;
 		M_AXIS_ACLK	: in std_logic;
 		M_AXIS_ARESETN	: in std_logic;
 		M_AXIS_TVALID	: out std_logic;
@@ -139,6 +142,8 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
 		C_S_AXIS_TDATA_WIDTH	: integer	:= 32
 		);
 		port (
+    rst_counters_i : in std_logic;
+    bit_errors_o   : out std_logic_vector(31 downto 0);
 		S_AXIS_ACLK	: in std_logic;
 		S_AXIS_ARESETN	: in std_logic;
 		S_AXIS_TREADY	: out std_logic;
@@ -154,6 +159,10 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
 		C_S_AXIS_TDATA_WIDTH	: integer	:= 32
 		);
 		port (
+    rst_counters_i  : in std_logic;
+    last_data_i     : in std_logic;
+    dropped_pkts_o  : out std_logic_vector(31 downto 0);
+    max_delay_i     : in std_logic_vector(15 downto 0);
 		S_AXIS_ACLK	: in std_logic;
 		S_AXIS_ARESETN	: in std_logic;
 		S_AXIS_TREADY	: out std_logic;
@@ -170,6 +179,12 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
 		C_S_AXI_ADDR_WIDTH	: integer	:= 4
 		);
 		port (
+    rst_counters_o      : out std_logic;
+    force_error_o       : out std_logic;
+    force_drop_o        : out std_logic;
+    bit_errors_i        : in std_logic_vector(31 downto 0);
+    dropped_pkts_i      : in std_logic_vector(31 downto 0);
+    max_delay_o         : out std_logic_vector(15 downto 0);
 		S_AXI_ACLK	: in std_logic;
 		S_AXI_ARESETN	: in std_logic;
 		S_AXI_AWADDR	: in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -194,7 +209,15 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
 		);
 	end component eth_traffic_gen_v1_0_S_AXI;
 
-  signal start : std_logic;
+  signal start        : std_logic;
+  signal rst_counters : std_logic;
+  signal force_error  : std_logic;
+  signal force_drop   : std_logic;
+  signal bit_errors   : std_logic_vector(31 downto 0);
+  signal dropped_pkts : std_logic_vector(31 downto 0);
+  signal max_delay    : std_logic_vector(15 downto 0);
+  signal txc_last_data_in : std_logic;
+  signal txd_tlast    : std_logic;
   
 begin
 
@@ -205,15 +228,18 @@ eth_traffic_gen_v1_0_M_AXIS_TXD_inst : eth_traffic_gen_v1_0_M_AXIS_TXD
 		C_M_START_COUNT	=> C_M_AXIS_TXD_START_COUNT
 	)
 	port map (
+    force_error_i => force_error,
     start_i       => start,
 		M_AXIS_ACLK	=> m_axis_txd_aclk,
 		M_AXIS_ARESETN	=> m_axis_txd_aresetn,
 		M_AXIS_TVALID	=> m_axis_txd_tvalid,
 		M_AXIS_TDATA	=> m_axis_txd_tdata,
 		M_AXIS_TKEEP	=> m_axis_txd_tkeep,
-		M_AXIS_TLAST	=> m_axis_txd_tlast,
+		M_AXIS_TLAST	=> txd_tlast,
 		M_AXIS_TREADY	=> m_axis_txd_tready
 	);
+
+  m_axis_txd_tlast <= txd_tlast;
 
 -- Instantiation of Axi Bus Interface M_AXIS_TXC
 eth_traffic_gen_v1_0_M_AXIS_TXC_inst : eth_traffic_gen_v1_0_M_AXIS_TXC
@@ -222,7 +248,9 @@ eth_traffic_gen_v1_0_M_AXIS_TXC_inst : eth_traffic_gen_v1_0_M_AXIS_TXC
 		C_M_START_COUNT	=> C_M_AXIS_TXC_START_COUNT
 	)
 	port map (
+    force_drop_i  => force_drop,
     start_o       => start,
+    last_data_i   => txc_last_data_in,
 		M_AXIS_ACLK	=> m_axis_txc_aclk,
 		M_AXIS_ARESETN	=> m_axis_txc_aresetn,
 		M_AXIS_TVALID	=> m_axis_txc_tvalid,
@@ -231,6 +259,8 @@ eth_traffic_gen_v1_0_M_AXIS_TXC_inst : eth_traffic_gen_v1_0_M_AXIS_TXC
 		M_AXIS_TLAST	=> m_axis_txc_tlast,
 		M_AXIS_TREADY	=> m_axis_txc_tready
 	);
+  
+  txc_last_data_in <= txd_tlast and m_axis_txd_tready;
 
 -- Instantiation of Axi Bus Interface S_AXIS_RXD
 eth_traffic_gen_v1_0_S_AXIS_RXD_inst : eth_traffic_gen_v1_0_S_AXIS_RXD
@@ -238,6 +268,8 @@ eth_traffic_gen_v1_0_S_AXIS_RXD_inst : eth_traffic_gen_v1_0_S_AXIS_RXD
 		C_S_AXIS_TDATA_WIDTH	=> C_S_AXIS_RXD_TDATA_WIDTH
 	)
 	port map (
+    rst_counters_i => rst_counters,
+    bit_errors_o  => bit_errors,
 		S_AXIS_ACLK	=> s_axis_rxd_aclk,
 		S_AXIS_ARESETN	=> s_axis_rxd_aresetn,
 		S_AXIS_TREADY	=> s_axis_rxd_tready,
@@ -253,6 +285,10 @@ eth_traffic_gen_v1_0_S_AXIS_RXS_inst : eth_traffic_gen_v1_0_S_AXIS_RXS
 		C_S_AXIS_TDATA_WIDTH	=> C_S_AXIS_RXS_TDATA_WIDTH
 	)
 	port map (
+    rst_counters_i  => rst_counters,
+    last_data_i     => s_axis_rxd_tlast,
+    dropped_pkts_o  => dropped_pkts,
+    max_delay_i     => max_delay,
 		S_AXIS_ACLK	=> s_axis_rxs_aclk,
 		S_AXIS_ARESETN	=> s_axis_rxs_aresetn,
 		S_AXIS_TREADY	=> s_axis_rxs_tready,
@@ -269,6 +305,12 @@ eth_traffic_gen_v1_0_S_AXI_inst : eth_traffic_gen_v1_0_S_AXI
 		C_S_AXI_ADDR_WIDTH	=> C_S_AXI_ADDR_WIDTH
 	)
 	port map (
+    rst_counters_o => rst_counters,
+    force_error_o  => force_error,
+    force_drop_o   => force_drop,
+    bit_errors_i   => bit_errors,
+    dropped_pkts_i => dropped_pkts,
+    max_delay_o    => max_delay,
 		S_AXI_ACLK	=> s_axi_aclk,
 		S_AXI_ARESETN	=> s_axi_aresetn,
 		S_AXI_AWADDR	=> s_axi_awaddr,

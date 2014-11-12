@@ -110,7 +110,10 @@ architecture tb of tb_loopback is
 
 
   signal end_of_simulation : boolean := false;
-     
+
+  --signal force_error : std_logic := '0';
+  --signal force_drop  : std_logic := '0';
+  
 begin
 
   -----------------------------------------------------------------------
@@ -120,6 +123,8 @@ begin
 eth_traffic_gen_v1_0_inst : entity work.eth_traffic_gen_v1_0
 	port map (
 		-- Users to add ports here
+    --force_error_i => force_error,
+    --force_drop_i  => force_drop,
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 		-- Ports of Axi Slave Bus Interface S_AXI
@@ -198,6 +203,20 @@ eth_traffic_gen_v1_0_inst : entity work.eth_traffic_gen_v1_0
   m_axis_txc_aclk <= aclk;
   m_axis_txc_aresetn <= aresetn;
   
+  ---- TXD to RXD loopback
+  --s_axis_rxd_tvalid	 <= m_axis_txd_tvalid;
+  --s_axis_rxd_tdata	 <= m_axis_txd_tdata;
+  --s_axis_rxd_keep    <= m_axis_txd_tkeep;
+  --s_axis_rxd_tlast	 <= m_axis_txd_tlast;
+  --m_axis_txd_tready  <= s_axis_rxd_tready;
+  --
+  ---- TXC to RXS loopback
+  --s_axis_rxs_tvalid  <= m_axis_txc_tvalid;
+  --s_axis_rxs_tdata	 <= m_axis_txc_tdata;
+  --s_axis_rxs_keep    <= m_axis_txc_tkeep;
+  --s_axis_rxs_tlast	 <= m_axis_txc_tlast;
+  --m_axis_txc_tready  <= s_axis_rxs_tready;
+  
   -----------------------------------------------------------------------
   -- Generate clock
   -----------------------------------------------------------------------
@@ -240,6 +259,34 @@ eth_traffic_gen_v1_0_inst : entity work.eth_traffic_gen_v1_0
     -- Ready for receive control data
     m_axis_txc_tready <= '1';
     
+    --for cycle in 0 to 5 loop
+    --  wait until m_axis_txc_tdata = X"A0000000";
+    --  wait for CLOCK_PERIOD*2;
+    --  m_axis_txc_tready <= '0';
+    --  wait for CLOCK_PERIOD*4;
+    --  m_axis_txc_tready <= '1';
+    --  
+    --  -- When last control word is sent:
+    --  -- * deassert TXC tready
+    --  -- * assert TXD tready
+    --  wait until m_axis_txc_tlast = '1';
+    --  wait for CLOCK_PERIOD;
+    --  m_axis_txc_tready <= '0';
+    --  wait for CLOCK_PERIOD*3;
+    --  m_axis_txd_tready <= '1';
+    --  
+    --  -- When last data word is sent:
+    --  -- * deassert TXD tready
+    --  -- * assert TXC tready
+    --  wait until m_axis_txd_tlast = '1';
+    --  wait for CLOCK_PERIOD;
+    --  m_axis_txd_tready <= '0';
+    --  wait for CLOCK_PERIOD*5;
+    --  m_axis_txc_tready <= '1';
+    --end loop;
+    --
+    --force_drop <= '1';
+    
     for cycle in 0 to 5 loop
       wait until m_axis_txc_tdata = X"A0000000";
       wait for CLOCK_PERIOD*2;
@@ -266,28 +313,8 @@ eth_traffic_gen_v1_0_inst : entity work.eth_traffic_gen_v1_0
       m_axis_txc_tready <= '1';
     end loop;
     
-    ---- Send data 10 times
-    --for cycle in 0 to 5 loop
-    --  s_axis_tvalid  <= '1';
-    --  -- Send 4 bytes on both transmitters
-    --  s_axis_tdata <= x"98FEDCBA";
-    --  wait for CLOCK_PERIOD;
-    --  -- Send 4 bytes on both transmitters
-    --  s_axis_tdata <= x"98FEDCBA";
-    --  wait for CLOCK_PERIOD;
-    --  for sync in 0 to 10 loop
-    --      -- Send sync (valid signal LOW)
-    --      s_axis_tdata <= (others => '0'); -- Zeroing data is not actually necessary
-    --      s_axis_tvalid  <= '0';
-    --      wait for CLOCK_PERIOD;
-    --  end loop;
-    --end loop;
+    wait for CLOCK_PERIOD*500;
     
-    wait for CLOCK_PERIOD*50;
-    
-    s_axis_rxd_tvalid <= '0';
-    s_axis_rxs_tvalid <= '0';
-
     -- End of test
     end_of_simulation <= true;           
     report "Not a real failure. Simulation finished successfully. Test completed successfully" severity failure;
