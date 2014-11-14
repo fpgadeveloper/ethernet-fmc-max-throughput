@@ -155,21 +155,6 @@ set_property PACKAGE_PIN L17 [get_ports {ref_clk_oe[0]}]
 set_property PACKAGE_PIN K19 [get_ports {ref_clk_fsel[0]}]
 set_property PACKAGE_PIN A22 [get_ports reset_port_3]
 
-current_instance design_1_i/axi_ethernet_0/eth_mac/U0
-set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp0 [get_cells {tri_mode_ethernet_mac_i/rgmii_interface/delay_rgmii_rx* tri_mode_ethernet_mac_i/rgmii_interface/rxdata_bus[*].delay_rgmii_rx*}]
-current_instance -quiet
-current_instance design_1_i/axi_ethernet_1/eth_mac/U0
-set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp0 [get_cells {rgmii_interface/delay_rgmii_rx* rgmii_interface/rxdata_bus[*].delay_rgmii_rx*}]
-current_instance -quiet
-current_instance design_1_i/axi_ethernet_2/eth_mac/U0
-set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp1 [get_cells {rgmii_interface/delay_rgmii_rx* rgmii_interface/rxdata_bus[*].delay_rgmii_rx*}]
-current_instance -quiet
-current_instance design_1_i/axi_ethernet_3/eth_mac/U0
-set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp1 [get_cells {rgmii_interface/delay_rgmii_rx* rgmii_interface/rxdata_bus[*].delay_rgmii_rx*}]
-current_instance -quiet
-
-set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp0 [get_cells design_1_i/axi_ethernet_0/eth_mac/U0/tri_mode_ethernet_mac_idelayctrl_common_i]
-set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp1 [get_cells design_1_i/idelay_ctrl_0/U0/idelayctrl_inst]
 
 create_clock -period 8.000 -name ref_clk_p[0] -waveform {0.000 4.000} [get_ports {ref_clk_p[0]}]
 
