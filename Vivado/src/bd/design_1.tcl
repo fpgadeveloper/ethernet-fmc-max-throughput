@@ -10,7 +10,7 @@
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2014.2
+set scripts_vivado_version 2014.3
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -54,37 +54,50 @@ set nRet 0
 set cur_design [current_bd_design -quiet]
 set list_cells [get_bd_cells -quiet]
 
-if { ${design_name} ne "" && ${cur_design} eq ${design_name} } {
+if { ${design_name} eq "" } {
+   # USE CASES:
+   #    1) Design_name not set
 
-   # Checks if design is empty or not
-   if { $list_cells ne "" } {
-      set errMsg "ERROR: Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
-      set nRet 1
-   } else {
-      puts "INFO: Constructing design in IPI design <$design_name>..."
-   }
-} elseif { ${cur_design} ne "" && ${cur_design} ne ${design_name} } {
+   set errMsg "ERROR: Please set the variable <design_name> to a non-empty value."
+   set nRet 1
 
-   if { $list_cells eq "" } {
-      puts "INFO: You have an empty design <${cur_design}>. Will go ahead and create design..."
-   } else {
-      set errMsg "ERROR: Design <${cur_design}> is not empty! Please do not source this script on non-empty designs."
-      set nRet 1
+} elseif { ${cur_design} ne "" && ${list_cells} eq "" } {
+   # USE CASES:
+   #    2): Current design opened AND is empty AND names same.
+   #    3): Current design opened AND is empty AND names diff; design_name NOT in project.
+   #    4): Current design opened AND is empty AND names diff; design_name exists in project.
+
+   if { $cur_design ne $design_name } {
+      puts "INFO: Changing value of <design_name> from <$design_name> to <$cur_design> since current design is empty."
+      set design_name [get_property NAME $cur_design]
    }
+   puts "INFO: Constructing design in IPI design <$cur_design>..."
+
+} elseif { ${cur_design} ne "" && $list_cells ne "" && $cur_design eq $design_name } {
+   # USE CASES:
+   #    5) Current design opened AND has components AND same names.
+
+   set errMsg "ERROR: Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
+   set nRet 1
+} elseif { [get_files -quiet ${design_name}.bd] ne "" } {
+   # USE CASES: 
+   #    6) Current opened design, has components, but diff names, design_name exists in project.
+   #    7) No opened design, design_name exists in project.
+
+   set errMsg "ERROR: Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
+   set nRet 2
+
 } else {
+   # USE CASES:
+   #    8) No opened design, design_name not in project.
+   #    9) Current opened design, has components, but diff names, design_name not in project.
 
-   if { [get_files -quiet ${design_name}.bd] eq "" } {
-      puts "INFO: Currently there is no design <$design_name> in project, so creating one..."
+   puts "INFO: Currently there is no design <$design_name> in project, so creating one..."
 
-      create_bd_design $design_name
+   create_bd_design $design_name
 
-      puts "INFO: Making design <$design_name> as current_bd_design."
-      current_bd_design $design_name
-
-   } else {
-      set errMsg "ERROR: Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
-      set nRet 3
-   }
+   puts "INFO: Making design <$design_name> as current_bd_design."
+   current_bd_design $design_name
 
 }
 
@@ -153,19 +166,19 @@ proc create_root_design { parentCell } {
   set reset_port_3 [ create_bd_port -dir O reset_port_3 ]
 
   # Create instance: axi_ethernet_0, and set properties
-  set axi_ethernet_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.1 axi_ethernet_0 ]
+  set axi_ethernet_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.2 axi_ethernet_0 ]
   set_property -dict [ list CONFIG.PHY_TYPE {RGMII}  ] $axi_ethernet_0
 
   # Create instance: axi_ethernet_1, and set properties
-  set axi_ethernet_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.1 axi_ethernet_1 ]
+  set axi_ethernet_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.2 axi_ethernet_1 ]
   set_property -dict [ list CONFIG.PHY_TYPE {RGMII} CONFIG.SupportLevel {0}  ] $axi_ethernet_1
 
   # Create instance: axi_ethernet_2, and set properties
-  set axi_ethernet_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.1 axi_ethernet_2 ]
+  set axi_ethernet_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.2 axi_ethernet_2 ]
   set_property -dict [ list CONFIG.PHY_TYPE {RGMII} CONFIG.SupportLevel {1}  ] $axi_ethernet_2
 
   # Create instance: axi_ethernet_3, and set properties
-  set axi_ethernet_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.1 axi_ethernet_3 ]
+  set axi_ethernet_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.2 axi_ethernet_3 ]
   set_property -dict [ list CONFIG.PHY_TYPE {RGMII} CONFIG.SupportLevel {0}  ] $axi_ethernet_3
 
   # Create instance: eth_traffic_gen_0, and set properties
@@ -181,11 +194,11 @@ proc create_root_design { parentCell } {
   set eth_traffic_gen_3 [ create_bd_cell -type ip -vlnv xilinx.com:user:eth_traffic_gen:1.0 eth_traffic_gen_3 ]
 
   # Create instance: ila_0, and set properties
-  set ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:4.0 ila_0 ]
-  set_property -dict [ list CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_NUM_MONITOR_SLOTS {1} CONFIG.C_NUM_OF_PROBES {4} CONFIG.C_PROBE0_WIDTH {40} CONFIG.C_PROBE1_WIDTH {40} CONFIG.C_PROBE2_WIDTH {40} CONFIG.C_PROBE3_WIDTH {40}  ] $ila_0
+  set ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:5.0 ila_0 ]
+  set_property -dict [ list CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_NUM_OF_PROBES {4} CONFIG.C_PROBE0_WIDTH {40} CONFIG.C_PROBE1_WIDTH {40} CONFIG.C_PROBE2_WIDTH {40} CONFIG.C_PROBE3_WIDTH {40}  ] $ila_0
 
   # Create instance: processing_system7_0, and set properties
-  set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.4 processing_system7_0 ]
+  set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
   set_property -dict [ list CONFIG.PCW_ENET0_PERIPHERAL_ENABLE {1} CONFIG.PCW_ENET1_PERIPHERAL_ENABLE {0} CONFIG.PCW_EN_CLK1_PORT {1} CONFIG.PCW_EN_CLK2_PORT {1} CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {125} CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {200} CONFIG.PCW_IRQ_F2P_INTR {1} CONFIG.PCW_USE_FABRIC_INTERRUPT {1} CONFIG.PCW_USE_S_AXI_HP0 {0} CONFIG.preset {ZedBoard*}  ] $processing_system7_0
 
   # Create instance: processing_system7_0_axi_periph, and set properties
@@ -229,19 +242,19 @@ proc create_root_design { parentCell } {
   # Create interface connections
   connect_bd_intf_net -intf_net axi_ethernet_0_m_axis_rxd [get_bd_intf_pins axi_ethernet_0/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_1/S_AXIS_RXD]
   connect_bd_intf_net -intf_net axi_ethernet_0_m_axis_rxs [get_bd_intf_pins axi_ethernet_0/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_1/S_AXIS_RXS]
-  connect_bd_intf_net -intf_net axi_ethernet_0_mdio [get_bd_intf_ports mdio_io_port_0] [get_bd_intf_pins axi_ethernet_0/mdio]
+  connect_bd_intf_net -intf_net axi_ethernet_0_mdio [get_bd_intf_ports mdio_io_port_0] [get_bd_intf_pins axi_ethernet_0/mdio_io]
   connect_bd_intf_net -intf_net axi_ethernet_0_rgmii [get_bd_intf_ports rgmii_port_0] [get_bd_intf_pins axi_ethernet_0/rgmii]
   connect_bd_intf_net -intf_net axi_ethernet_1_m_axis_rxd [get_bd_intf_pins axi_ethernet_1/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_0/S_AXIS_RXD]
   connect_bd_intf_net -intf_net axi_ethernet_1_m_axis_rxs [get_bd_intf_pins axi_ethernet_1/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_0/S_AXIS_RXS]
-  connect_bd_intf_net -intf_net axi_ethernet_1_mdio [get_bd_intf_ports mdio_io_port_1] [get_bd_intf_pins axi_ethernet_1/mdio]
+  connect_bd_intf_net -intf_net axi_ethernet_1_mdio [get_bd_intf_ports mdio_io_port_1] [get_bd_intf_pins axi_ethernet_1/mdio_io]
   connect_bd_intf_net -intf_net axi_ethernet_1_rgmii [get_bd_intf_ports rgmii_port_1] [get_bd_intf_pins axi_ethernet_1/rgmii]
   connect_bd_intf_net -intf_net axi_ethernet_2_m_axis_rxd [get_bd_intf_pins axi_ethernet_2/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_3/S_AXIS_RXD]
   connect_bd_intf_net -intf_net axi_ethernet_2_m_axis_rxs [get_bd_intf_pins axi_ethernet_2/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_3/S_AXIS_RXS]
-  connect_bd_intf_net -intf_net axi_ethernet_2_mdio [get_bd_intf_ports mdio_io_port_2] [get_bd_intf_pins axi_ethernet_2/mdio]
+  connect_bd_intf_net -intf_net axi_ethernet_2_mdio [get_bd_intf_ports mdio_io_port_2] [get_bd_intf_pins axi_ethernet_2/mdio_io]
   connect_bd_intf_net -intf_net axi_ethernet_2_rgmii [get_bd_intf_ports rgmii_port_2] [get_bd_intf_pins axi_ethernet_2/rgmii]
   connect_bd_intf_net -intf_net axi_ethernet_3_m_axis_rxd [get_bd_intf_pins axi_ethernet_3/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_2/S_AXIS_RXD]
   connect_bd_intf_net -intf_net axi_ethernet_3_m_axis_rxs [get_bd_intf_pins axi_ethernet_3/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_2/S_AXIS_RXS]
-  connect_bd_intf_net -intf_net axi_ethernet_3_mdio [get_bd_intf_ports mdio_io_port_3] [get_bd_intf_pins axi_ethernet_3/mdio]
+  connect_bd_intf_net -intf_net axi_ethernet_3_mdio [get_bd_intf_ports mdio_io_port_3] [get_bd_intf_pins axi_ethernet_3/mdio_io]
   connect_bd_intf_net -intf_net axi_ethernet_3_rgmii [get_bd_intf_ports rgmii_port_3] [get_bd_intf_pins axi_ethernet_3/rgmii]
   connect_bd_intf_net -intf_net eth_traffic_gen_0_M_AXIS_TXC [get_bd_intf_pins axi_ethernet_0/s_axis_txc] [get_bd_intf_pins eth_traffic_gen_0/M_AXIS_TXC]
   connect_bd_intf_net -intf_net eth_traffic_gen_0_M_AXIS_TXD [get_bd_intf_pins axi_ethernet_0/s_axis_txd] [get_bd_intf_pins eth_traffic_gen_0/M_AXIS_TXD]
@@ -318,14 +331,10 @@ proc create_root_design { parentCell } {
   connect_bd_net -net xlconcat_4_dout [get_bd_pins ila_0/probe3] [get_bd_pins xlconcat_4/dout]
 
   # Create address segments
-  create_bd_addr_seg -range 0x10000 -offset 0x0 [get_bd_addr_spaces axi_ethernet_0/eth_buf/S_AXI_2TEMAC] [get_bd_addr_segs axi_ethernet_0/eth_mac/s_axi/Reg] SEG_eth_mac_Reg
-  create_bd_addr_seg -range 0x10000 -offset 0x0 [get_bd_addr_spaces axi_ethernet_1/eth_buf/S_AXI_2TEMAC] [get_bd_addr_segs axi_ethernet_1/eth_mac/s_axi/Reg] SEG_eth_mac_Reg
-  create_bd_addr_seg -range 0x10000 -offset 0x0 [get_bd_addr_spaces axi_ethernet_2/eth_buf/S_AXI_2TEMAC] [get_bd_addr_segs axi_ethernet_2/eth_mac/s_axi/Reg] SEG_eth_mac_Reg
-  create_bd_addr_seg -range 0x10000 -offset 0x0 [get_bd_addr_spaces axi_ethernet_3/eth_buf/S_AXI_2TEMAC] [get_bd_addr_segs axi_ethernet_3/eth_mac/s_axi/Reg] SEG_eth_mac_Reg
-  create_bd_addr_seg -range 0x40000 -offset 0x43C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_ethernet_0/eth_buf/S_AXI/REG] SEG_eth_buf_REG
-  create_bd_addr_seg -range 0x40000 -offset 0x43C40000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_ethernet_2/eth_buf/S_AXI/REG] SEG_eth_buf_REG1
-  create_bd_addr_seg -range 0x40000 -offset 0x43CC0000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_ethernet_3/eth_buf/S_AXI/REG] SEG_eth_buf_REG3
-  create_bd_addr_seg -range 0x40000 -offset 0x43C80000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_ethernet_1/eth_buf/S_AXI/REG] SEG_eth_buf_REG4
+  create_bd_addr_seg -range 0x40000 -offset 0x41000000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_ethernet_0/s_axi/Reg] SEG_axi_ethernet_0_Reg
+  create_bd_addr_seg -range 0x40000 -offset 0x41040000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_ethernet_1/s_axi/Reg] SEG_axi_ethernet_1_Reg
+  create_bd_addr_seg -range 0x40000 -offset 0x41080000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_ethernet_2/s_axi/Reg] SEG_axi_ethernet_2_Reg
+  create_bd_addr_seg -range 0x40000 -offset 0x410C0000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_ethernet_3/s_axi/Reg] SEG_axi_ethernet_3_Reg
   create_bd_addr_seg -range 0x10000 -offset 0x43D00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs eth_traffic_gen_0/S_AXI/S_AXI_reg] SEG_eth_traffic_gen_0_S_AXI_reg
   create_bd_addr_seg -range 0x10000 -offset 0x43D10000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs eth_traffic_gen_1/S_AXI/S_AXI_reg] SEG_eth_traffic_gen_1_S_AXI_reg
   create_bd_addr_seg -range 0x10000 -offset 0x43D20000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs eth_traffic_gen_2/S_AXI/S_AXI_reg] SEG_eth_traffic_gen_2_S_AXI_reg
