@@ -46,25 +46,25 @@
  */
 
 #include <stdio.h>
-#include "xbasic_types.h"
+#include "xil_types.h"
 #include "platform.h"
 #include "ethfmc_axie.h"
 
 // Pointers to the Ethernet traffic generators
-Xuint32 *eth_pkt_gen_0_p = (Xuint32 *)XPAR_ETH_TRAFFIC_GEN_0_S_AXI_BASEADDR;
-Xuint32 *eth_pkt_gen_1_p = (Xuint32 *)XPAR_ETH_TRAFFIC_GEN_1_S_AXI_BASEADDR;
-Xuint32 *eth_pkt_gen_2_p = (Xuint32 *)XPAR_ETH_TRAFFIC_GEN_2_S_AXI_BASEADDR;
-Xuint32 *eth_pkt_gen_3_p = (Xuint32 *)XPAR_ETH_TRAFFIC_GEN_3_S_AXI_BASEADDR;
+u32 *eth_pkt_gen_0_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_0_S_AXI_BASEADDR;
+u32 *eth_pkt_gen_1_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_1_S_AXI_BASEADDR;
+u32 *eth_pkt_gen_2_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_2_S_AXI_BASEADDR;
+u32 *eth_pkt_gen_3_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_3_S_AXI_BASEADDR;
 
 
 int main()
 {
-	volatile Xuint32 reg;
-	volatile Xuint32 i;
-	volatile Xuint32 dropped_frames_0;
-	volatile Xuint32 dropped_frames_1;
-	volatile Xuint32 dropped_frames_2;
-	volatile Xuint32 dropped_frames_3;
+	volatile u32 reg;
+	volatile u32 i;
+	volatile u32 dropped_frames_0;
+	volatile u32 dropped_frames_1;
+	volatile u32 dropped_frames_2;
+	volatile u32 dropped_frames_3;
 
 	/* the mac address of the board. this should be unique per board */
 	unsigned char mac_ethernet_address[] =
