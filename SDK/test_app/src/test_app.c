@@ -48,7 +48,15 @@
 #include <stdio.h>
 #include "xil_types.h"
 #include "platform.h"
+#include "xscugic.h"
+#include "xiicps.h"
 #include "ethfmc_axie.h"
+#include "i2c_fmc.h"
+#include "eeprom_fmc.h"
+
+static int SetupInterrupts(XIicPs *IicPsPtr);
+XScuGic InterruptController;	/* The instance of the Interrupt Controller. */
+
 
 // Pointers to the Ethernet traffic generators
 u32 *eth_pkt_gen_0_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_0_S_AXI_BASEADDR;
@@ -72,6 +80,28 @@ int main()
 
 	init_platform();
 
+  /* Initialize I2C */
+  reg = I2CInitialize();
+  if(reg != XST_SUCCESS){
+  	xil_printf("Failed to initialize FMC I2C!\n\r");
+    return XST_FAILURE;
+  }
+  
+	// Setup the Interrupts
+	reg = SetupInterrupts(&IicInstance);
+	if (reg != XST_SUCCESS) {
+    	xil_printf("Failed to initialize interrupts!\n\r");
+		return XST_FAILURE;
+	}
+
+  /* Test the EEPROM */
+  reg = EepromTest();
+  if(reg != XST_SUCCESS){
+  	xil_printf("EEPROM failed the read/write test!\n\r");
+    return XST_FAILURE;
+  }
+
+  /* Configure the AXI Ethernet MACs and the PHYs */
 	xil_printf("Ethernet Port 0:\n\r");
 	EthFMC_init_axiemac(XPAR_AXIETHERNET_0_BASEADDR,mac_ethernet_address);
 	xil_printf("Ethernet Port 1:\n\r");
@@ -183,3 +213,68 @@ int main()
 
 	return 0;
 }
+
+
+/******************************************************************************/
+/**
+*
+* Setup the interrupts for IIC.
+*
+*******************************************************************************/
+static int SetupInterrupts(XIicPs *IicPsPtr)
+{
+	int Status;
+	XScuGic_Config *IntcConfig; /* Instance of the interrupt controller */
+
+	Xil_ExceptionInit();
+
+	/*
+	 * Initialize the interrupt controller driver so that it is ready to
+	 * use.
+	 */
+	IntcConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);
+	if (NULL == IntcConfig) {
+		return XST_FAILURE;
+	}
+
+	Status = XScuGic_CfgInitialize(&InterruptController, IntcConfig,
+					IntcConfig->CpuBaseAddress);
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
+
+
+	/*
+	 * Connect the interrupt controller interrupt handler to the hardware
+	 * interrupt handling logic in the processor.
+	 */
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,
+				(Xil_ExceptionHandler)XScuGic_InterruptHandler,
+				&InterruptController);
+
+	/*
+	 * Connect the device driver handler that will be called when an
+	 * interrupt for the device occurs, the handler defined above performs
+	 * the specific interrupt processing for the device.
+	 */
+	Status = XScuGic_Connect(&InterruptController, IIC_INTR_ID,
+			(Xil_InterruptHandler)XIicPs_MasterInterruptHandler,
+			(void *)IicPsPtr);
+	if (Status != XST_SUCCESS) {
+		return Status;
+	}
+
+	/*
+	 * Enable the interrupt for the Iic device.
+	 */
+	XScuGic_Enable(&InterruptController, IIC_INTR_ID);
+
+	/*
+	 * Enable interrupts in the Processor.
+	 */
+	Xil_ExceptionEnable();
+
+	return XST_SUCCESS;
+}
+
+

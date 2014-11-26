@@ -91,6 +91,8 @@ set_property IOSTANDARD LVDS_25 [get_ports ref_clk_p]
 set_property IOSTANDARD LVDS_25 [get_ports ref_clk_n]
 set_property IOSTANDARD LVCMOS25 [get_ports {ref_clk_oe[0]}]
 set_property IOSTANDARD LVCMOS25 [get_ports {ref_clk_fsel[0]}]
+set_property IOSTANDARD LVCMOS33 [get_ports iic_fmc_scl_io]
+set_property IOSTANDARD LVCMOS33 [get_ports iic_fmc_sda_io]
 set_property PACKAGE_PIN L21 [get_ports {rgmii_port_1_rd[0]}]
 set_property PACKAGE_PIN L22 [get_ports mdio_io_port_0_io]
 set_property PACKAGE_PIN T19 [get_ports {rgmii_port_1_rd[2]}]
@@ -154,7 +156,8 @@ set_property PACKAGE_PIN L19 [get_ports ref_clk_n]
 set_property PACKAGE_PIN L17 [get_ports {ref_clk_oe[0]}]
 set_property PACKAGE_PIN K19 [get_ports {ref_clk_fsel[0]}]
 set_property PACKAGE_PIN A22 [get_ports reset_port_3]
-
+set_property PACKAGE_PIN R7  [get_ports iic_fmc_scl_io]
+set_property PACKAGE_PIN U7  [get_ports iic_fmc_sda_io]
 
 create_clock -period 8.000 -name ref_clk_p -waveform {0.000 4.000} [get_ports ref_clk_p]
 
