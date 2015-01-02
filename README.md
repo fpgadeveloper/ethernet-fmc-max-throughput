@@ -1,12 +1,12 @@
 zedboard-qgige-max-throughput
 =============================
 
-Example design for the Ethernet FMC on the ZedBoard using a hardware
+Example design for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") on the [ZedBoard](http://zedboard.org "ZedBoard") using a hardware
 packet generator/checker to demonstrate maximum throughput.
 
 ### Description
 
-This project is used for testing the Ethernet FMC (http://ethernetfmc.com) at
+This project is used for testing the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") at
 maximum throughput. The design contains 4 AXI Ethernet blocks and 4
 hardware packet generator/checkers. The software application sets up
 the MACs in promiscuous mode which allows them to pass through all
@@ -31,7 +31,7 @@ bit errors that affect the system will result in dropped packets at the
 receiving MAC, therefore we use the software application to poll the MACs
 and count the rejected frames.
 
-This design is actually used as a production test for the Ethernet FMC
+This design is actually used as a production test for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 because it places maximum stress on the PHYs, which forces the maximum
 current consumption, heat dissipation and possibility for cross-talk
 between lanes. It can however be a very useful design for people who
@@ -45,8 +45,8 @@ Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
 * Vivado 2014.3.1
-* ZedBoard
-* Ethernet FMC (http://ethernetfmc.com)
+* [ZedBoard](http://zedboard.org "ZedBoard")
+* [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 * Two Ethernet cables
 
 ### License
@@ -66,4 +66,4 @@ companies around the world. I believe in sharing knowledge and
 I regularly contribute to the open source community.
 
 Jeff Johnson
-http://www.fpgadeveloper.com
+[FPGA Developer](http://www.fpgadeveloper.com "FPGA Developer")
