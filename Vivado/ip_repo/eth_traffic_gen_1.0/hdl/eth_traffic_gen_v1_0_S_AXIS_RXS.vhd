@@ -17,7 +17,6 @@ entity eth_traffic_gen_v1_0_S_AXIS_RXS is
 		-- Users to add ports here
     rst_counters_i  : in std_logic;
     last_data_i     : in std_logic;
-    dropped_pkts_o  : out std_logic_vector(31 downto 0);
     max_delay_i     : in std_logic_vector(15 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
@@ -233,7 +232,5 @@ begin
 	  end if;
 	end process;
   
-  -- Outputs
-  dropped_pkts_o <= dropped_pkts;
 
 end arch_imp;

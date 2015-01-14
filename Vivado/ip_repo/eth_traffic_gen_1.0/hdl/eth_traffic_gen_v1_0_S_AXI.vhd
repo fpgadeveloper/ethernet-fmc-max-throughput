@@ -20,9 +20,11 @@ entity eth_traffic_gen_v1_0_S_AXI is
     rst_counters_o      : out std_logic;
     force_error_o       : out std_logic;
     force_drop_o        : out std_logic;
+    insert_fcs_o        : out std_logic;
     bit_errors_i        : in std_logic_vector(31 downto 0);
-    dropped_pkts_i      : in std_logic_vector(31 downto 0);
     max_delay_o         : out std_logic_vector(15 downto 0);
+    fcs_word_o          : out std_logic_vector(31 downto 0);
+    pkt_word_len_o      : out std_logic_vector(31 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -404,6 +406,7 @@ begin
   process( S_AXI_ACLK ) is
   begin
     slv_reg0_def <= (others => '0');
+    slv_reg0_def(3) <= '1';
     slv_reg0_def(31 downto 16) <= X"0064"; -- 100 decimal
   end process;
   process( S_AXI_ACLK ) is
@@ -412,19 +415,23 @@ begin
   end process;
   process( S_AXI_ACLK ) is
   begin
-    slv_reg2_def <= (others => '0');
+    slv_reg2_def <= X"A1B35527"; -- 16 decimal
   end process;
   process( S_AXI_ACLK ) is
   begin
-    slv_reg3_def <= (others => '0');
+    slv_reg3_def <= X"00420010"; -- 16 decimal
   end process;
   
   -- Output assignments
   rst_counters_o    <= slv_reg0(0);
   force_error_o     <= slv_reg0(1);
   force_drop_o      <= slv_reg0(2);
+  insert_fcs_o      <= slv_reg0(3);  
   max_delay_o       <= slv_reg0(31 downto 16);
 
+  fcs_word_o        <= slv_reg2;
+  pkt_word_len_o    <= slv_reg3;
+  
   -- Input assignments
   -- Slave register 0
   process(slv_reg0) is
@@ -437,9 +444,9 @@ begin
     slv_reg1_read <= bit_errors_i;
   end process;
   -- Slave register 2
-  process(dropped_pkts_i,slv_reg2) is
+  process(slv_reg2) is
   begin
-    slv_reg2_read <= dropped_pkts_i;
+    slv_reg2_read <= slv_reg2;
   end process;
   -- Slave register 3
   process(slv_reg3) is

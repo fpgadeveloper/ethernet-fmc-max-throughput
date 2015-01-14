@@ -54,6 +54,22 @@
 #include "i2c_fmc.h"
 #include "eeprom_fmc.h"
 
+/*
+ * The following DEFINE sets the number of words
+ * to put in the payload of the Ethernet packets to send.
+ * The payload is filled with random data and the first 2
+ * bytes are 0x00. The actual payload size in bytes will
+ * be: (PAYLOAD_WORD_SIZE * 4) + 2
+ *
+ * Maximum value is 374 (1496 bytes + 2 pad bytes)
+ * Minimum value is 12 (48 bytes + 2 pad bytes)
+ *
+ */
+
+#define PAYLOAD_WORD_SIZE  374
+
+#define PAYLOAD_BYTE_SIZE	((PAYLOAD_WORD_SIZE*4)+2)
+
 static int SetupInterrupts(XIicPs *IicPsPtr);
 XScuGic InterruptController;	/* The instance of the Interrupt Controller. */
 
@@ -100,6 +116,41 @@ int main()
   	xil_printf("EEPROM failed the read/write test!\n\r");
     return XST_FAILURE;
   }
+  /*
+	// Don't insert FCS
+	reg = *eth_pkt_gen_0_p;
+	*eth_pkt_gen_0_p = reg & ~(0x00000008);
+	reg = *eth_pkt_gen_1_p;
+	*eth_pkt_gen_1_p = reg & ~(0x00000008);
+	reg = *eth_pkt_gen_2_p;
+	*eth_pkt_gen_2_p = reg & ~(0x00000008);
+	reg = *eth_pkt_gen_3_p;
+	*eth_pkt_gen_3_p = reg & ~(0x00000008);
+	*/
+	// Insert FCS
+	reg = *eth_pkt_gen_0_p;
+	*eth_pkt_gen_0_p = reg | (0x00000008);
+	reg = *eth_pkt_gen_1_p;
+	*eth_pkt_gen_1_p = reg | (0x00000008);
+	reg = *eth_pkt_gen_2_p;
+	*eth_pkt_gen_2_p = reg | (0x00000008);
+	reg = *eth_pkt_gen_3_p;
+	*eth_pkt_gen_3_p = reg | (0x00000008);
+
+	// Set packet payload length
+	*(eth_pkt_gen_0_p+3) = (PAYLOAD_BYTE_SIZE<<16) | PAYLOAD_WORD_SIZE;
+	*(eth_pkt_gen_1_p+3) = (PAYLOAD_BYTE_SIZE<<16) | PAYLOAD_WORD_SIZE;
+	*(eth_pkt_gen_2_p+3) = (PAYLOAD_BYTE_SIZE<<16) | PAYLOAD_WORD_SIZE;
+	*(eth_pkt_gen_3_p+3) = (PAYLOAD_BYTE_SIZE<<16) | PAYLOAD_WORD_SIZE;
+
+	/* Set FCS
+	 * - For PAYLOAD_WORD_SIZE 16, FCS = 0x58309809
+	 * - For PAYLOAD_WORD_SIZE 374, FCS = 0x89C8FF96
+	 */
+	*(eth_pkt_gen_0_p+2) = 0x89C8FF96;
+	*(eth_pkt_gen_1_p+2) = 0x89C8FF96;
+	*(eth_pkt_gen_2_p+2) = 0x89C8FF96;
+	*(eth_pkt_gen_3_p+2) = 0x89C8FF96;
 
   /* Configure the AXI Ethernet MACs and the PHYs */
 	xil_printf("Ethernet Port 0:\n\r");

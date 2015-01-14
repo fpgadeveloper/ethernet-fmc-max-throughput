@@ -19,6 +19,9 @@ entity eth_traffic_gen_v1_0_M_AXIS_TXD is
 		-- Users to add ports here
     start_i        : in std_logic;
     force_error_i  : in std_logic;
+    insert_fcs_i   : in std_logic;
+    fcs_word_i     : in std_logic_vector(31 downto 0);
+    pkt_word_len_i : in std_logic_vector(31 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -42,7 +45,7 @@ end eth_traffic_gen_v1_0_M_AXIS_TXD;
 architecture implementation of eth_traffic_gen_v1_0_M_AXIS_TXD is
 	--Total number of output data.
 	-- Total number of output data                                              
-	constant NUMBER_OF_OUTPUT_WORDS : integer := 16;                                   
+	constant NUMBER_OF_OUTPUT_WORDS : integer := 3;                                   
 
   type FRAME is array (0 to NUMBER_OF_OUTPUT_WORDS-1) of std_logic_vector(C_M_AXIS_TDATA_WIDTH-1 downto 0);
 
@@ -53,10 +56,13 @@ architecture implementation of eth_traffic_gen_v1_0_M_AXIS_TXD is
   -- incorrect for the frame. Thus the receiver MAC will reject it, and we can count a
   -- rejected frame.
   constant framedata : FRAME := (
-                                  X"FFFFFFFF",X"1E00FFFF",X"A4A52737",X"01000608",
-                                  X"04060008",X"1E000100",X"A4A52737",X"0101A8C0",
-                                  X"00000000",X"A8C00000",X"00000A01",X"00000000",
-                                  X"00000000",X"00000000",X"00000000",X"A63112B7"
+                                  X"FFFFFFFF",X"1E00FFFF",X"A4A52737"
+  
+  
+                                  -- X"FFFFFFFF",X"1E00FFFF",X"A4A52737",X"01000608",
+                                  -- X"04060008",X"1E000100",X"A4A52737",X"0101A8C0",
+                                  -- X"00000000",X"A8C00000",X"00000A01",X"00000000",
+                                  -- X"00000000",X"00000000",X"00000000",X"A63112B7"
                                   );
   
 
@@ -72,7 +78,7 @@ architecture implementation of eth_traffic_gen_v1_0_M_AXIS_TXD is
 	-- State variable                                                                 
 	signal  mst_exec_state : state;                                                   
 	-- Example design FIFO read pointer                                               
-	signal read_pointer : integer range 0 to NUMBER_OF_OUTPUT_WORDS+1;                               
+	signal read_pointer : std_logic_vector(15 downto 0);
 
 	-- AXI Stream internal signals
 	--streaming data valid
@@ -97,7 +103,13 @@ architecture implementation of eth_traffic_gen_v1_0_M_AXIS_TXD is
   signal force_error_r       : std_logic;
   signal force_error_trigger : std_logic;
   signal error_mask          : std_logic_vector(31 downto 0);
+  signal pkt_word_len        : std_logic_vector(15 downto 0);
+  signal ether_type          : std_logic_vector(15 downto 0);
 
+	-- Random number generator
+	signal lfsr          : std_logic_vector(31 downto 0);
+	signal lfsr_next     : std_logic_vector(31 downto 0);
+  
 begin
 	-- I/O Connections assignments
 
@@ -109,6 +121,26 @@ begin
   tready <= M_AXIS_TREADY;
   start <= start_i;
 
+  -- Register packet word length
+	process(M_AXIS_ACLK) is
+	begin                                                                                          
+	  if (rising_edge (M_AXIS_ACLK)) then                                                          
+	    if(M_AXIS_ARESETN = '0') then                                                              
+        pkt_word_len <= (others => '1');
+        ether_type <= (others => '0');
+      elsif(insert_fcs_i = '1') then
+        -- Actual packet word length = 3 (MAC addresses) + 1 (EtherType and padding) + payload + 1 (FCS)
+        pkt_word_len <= pkt_word_len_i(15 downto 0)+5;
+        ether_type(15 downto 8) <= pkt_word_len_i(23 downto 16);
+        ether_type(7 downto 0) <= pkt_word_len_i(31 downto 24);
+	    else
+        pkt_word_len <= pkt_word_len_i(15 downto 0)+4;
+        ether_type(15 downto 8) <= pkt_word_len_i(23 downto 16);
+        ether_type(7 downto 0) <= pkt_word_len_i(31 downto 24);
+	    end if;
+	  end if;                                                                                      
+	end process;
+  
   -- Register force error signal
 	process(M_AXIS_ACLK) is
 	begin                                                                                          
@@ -169,12 +201,12 @@ begin
 	--axis_tvalid is asserted when the control state machine's state is SEND_STREAM and
 	--number of output streaming data is less than the NUMBER_OF_OUTPUT_WORDS.
 	--axis_tvalid <= '1' when ((mst_exec_state = SEND_STREAM) and (read_pointer < NUMBER_OF_OUTPUT_WORDS)) else '0';
-	axis_tvalid <= '1' when ((sending = '1') and (read_pointer < NUMBER_OF_OUTPUT_WORDS)) else '0';
+	axis_tvalid <= '1' when ((sending = '1') and (read_pointer < pkt_word_len)) else '0';
 	                                                                                               
 	-- AXI tlast generation                                                                        
 	-- axis_tlast is asserted number of output streaming data is NUMBER_OF_OUTPUT_WORDS-1          
 	-- (0 to NUMBER_OF_OUTPUT_WORDS-1)                                                             
-	axis_tlast <= '1' when (read_pointer = NUMBER_OF_OUTPUT_WORDS-1) else '0';                     
+	axis_tlast <= '1' when (read_pointer = pkt_word_len-1) else '0';                     
 	                                                                                               
 	-- Delay the axis_tvalid and axis_tlast signal by one clock cycle                              
 	-- to match the latency of M_AXIS_TDATA                                                        
@@ -198,19 +230,29 @@ begin
 	begin                                                                            
 	  if (rising_edge (M_AXIS_ACLK)) then                                            
 	    if(M_AXIS_ARESETN = '0') then                                                
-	      read_pointer <= 0;                                                         
+	      read_pointer <= (others => '0');
+        lfsr <= (others => '1');
 	    else
         if (tx_en = '1') then
-          if (read_pointer < NUMBER_OF_OUTPUT_WORDS-1) then                         
-	          read_pointer <= read_pointer + 1;                                      
-          elsif (read_pointer = NUMBER_OF_OUTPUT_WORDS-1) then                         
-            read_pointer <= 0;
+          if (read_pointer < pkt_word_len-1) then                         
+	          read_pointer <= read_pointer + 1;
+            lfsr <= lfsr_next;
+          elsif (read_pointer = pkt_word_len-1) then                         
+            read_pointer <= (others => '0');
+            lfsr <= (others => '1');
           end if;
 	      end  if;                                                                   
 	    end  if;                                                                     
 	  end  if;                                                                       
 	end process;                                                                     
 
+  process (lfsr) is
+  begin
+    lfsr_next <= lfsr(30 downto 0) & lfsr(31);
+    lfsr_next(2) <= lfsr(1) xor lfsr(31);
+    lfsr_next(6) <= lfsr(5) xor lfsr(31);
+    lfsr_next(7) <= lfsr(6) xor lfsr(31);
+  end process;
 
 	--FIFO read enable generation 
 
@@ -225,10 +267,18 @@ begin
 	      if(M_AXIS_ARESETN = '0') then
 	    	  stream_data_out <= (others => '0');
 	      elsif (tx_en = '1') then
-	        stream_data_out <= framedata(read_pointer) xor error_mask;
+          if((axis_tlast = '1') and (insert_fcs_i = '1')) then
+            stream_data_out <= fcs_word_i xor error_mask;
+          elsif(read_pointer < X"0003") then
+            stream_data_out <= framedata(conv_integer(unsigned(read_pointer))) xor error_mask;
+          elsif(read_pointer = X"0003") then
+            stream_data_out <= (X"0000" & ether_type) xor error_mask;
+          else
+            stream_data_out <= lfsr xor error_mask;
+          end if;
 	      end if;
-	     end if;
-	   end process;
+	    end if;
+	  end process;
 
 	-- Add user logic here
 

@@ -1,25 +1,32 @@
 # Definitional proc to organize widgets for parameters.
 proc init_gui { IPINST } {
-	set Page0 [ipgui::add_page $IPINST -name "Page 0" -layout vertical]
-	set Component_Name [ipgui::add_param $IPINST -parent $Page0 -name Component_Name]
-	set C_S_AXIS_RXD_TDATA_WIDTH [ipgui::add_param $IPINST -parent $Page0 -name C_S_AXIS_RXD_TDATA_WIDTH]
-	set_property tooltip {AXI4Stream sink: Data Width} $C_S_AXIS_RXD_TDATA_WIDTH
-	set C_M_AXIS_TXD_TDATA_WIDTH [ipgui::add_param $IPINST -parent $Page0 -name C_M_AXIS_TXD_TDATA_WIDTH]
-	set_property tooltip {Width of S_AXIS address bus. The slave accepts the read and write addresses of width C_M_AXIS_TDATA_WIDTH.} $C_M_AXIS_TXD_TDATA_WIDTH
-	set C_M_AXIS_TXD_START_COUNT [ipgui::add_param $IPINST -parent $Page0 -name C_M_AXIS_TXD_START_COUNT]
-	set_property tooltip {Start count is the numeber of clock cycles the master will wait before initiating/issuing any transaction.} $C_M_AXIS_TXD_START_COUNT
-	set C_S_AXIS_RXS_TDATA_WIDTH [ipgui::add_param $IPINST -parent $Page0 -name C_S_AXIS_RXS_TDATA_WIDTH]
-	set_property tooltip {AXI4Stream sink: Data Width} $C_S_AXIS_RXS_TDATA_WIDTH
-	set C_M_AXIS_TXC_TDATA_WIDTH [ipgui::add_param $IPINST -parent $Page0 -name C_M_AXIS_TXC_TDATA_WIDTH]
-	set_property tooltip {Width of S_AXIS address bus. The slave accepts the read and write addresses of width C_M_AXIS_TDATA_WIDTH.} $C_M_AXIS_TXC_TDATA_WIDTH
-	set C_M_AXIS_TXC_START_COUNT [ipgui::add_param $IPINST -parent $Page0 -name C_M_AXIS_TXC_START_COUNT]
-	set_property tooltip {Start count is the numeber of clock cycles the master will wait before initiating/issuing any transaction.} $C_M_AXIS_TXC_START_COUNT
-	set C_S_AXI_DATA_WIDTH [ipgui::add_param $IPINST -parent $Page0 -name C_S_AXI_DATA_WIDTH]
-	set_property tooltip {Width of S_AXI data bus} $C_S_AXI_DATA_WIDTH
-	set C_S_AXI_ADDR_WIDTH [ipgui::add_param $IPINST -parent $Page0 -name C_S_AXI_ADDR_WIDTH]
-	set_property tooltip {Width of S_AXI address bus} $C_S_AXI_ADDR_WIDTH
-	set C_S_AXI_BASEADDR [ipgui::add_param $IPINST -parent $Page0 -name C_S_AXI_BASEADDR]
-	set C_S_AXI_HIGHADDR [ipgui::add_param $IPINST -parent $Page0 -name C_S_AXI_HIGHADDR]
+  #Adding Page
+  set Page_0  [  ipgui::add_page $IPINST -name "Page 0" -display_name {Page 0}]
+  set_property tooltip {Page 0} ${Page_0}
+  set Component_Name  [  ipgui::add_param $IPINST -name "Component_Name" -parent ${Page_0} -display_name {Component Name}]
+  set_property tooltip {Component Name} ${Component_Name}
+  set C_S_AXIS_RXD_TDATA_WIDTH  [  ipgui::add_param $IPINST -name "C_S_AXIS_RXD_TDATA_WIDTH" -parent ${Page_0} -display_name {C S AXIS RXD TDATA WIDTH}]
+  set_property tooltip {AXI4Stream sink: Data Width} ${C_S_AXIS_RXD_TDATA_WIDTH}
+  set C_M_AXIS_TXD_TDATA_WIDTH  [  ipgui::add_param $IPINST -name "C_M_AXIS_TXD_TDATA_WIDTH" -parent ${Page_0} -display_name {C M AXIS TXD TDATA WIDTH}]
+  set_property tooltip {Width of S_AXIS address bus. The slave accepts the read and write addresses of width C_M_AXIS_TDATA_WIDTH.} ${C_M_AXIS_TXD_TDATA_WIDTH}
+  set C_M_AXIS_TXD_START_COUNT  [  ipgui::add_param $IPINST -name "C_M_AXIS_TXD_START_COUNT" -parent ${Page_0} -display_name {C M AXIS TXD START COUNT}]
+  set_property tooltip {Start count is the numeber of clock cycles the master will wait before initiating/issuing any transaction.} ${C_M_AXIS_TXD_START_COUNT}
+  set C_S_AXIS_RXS_TDATA_WIDTH  [  ipgui::add_param $IPINST -name "C_S_AXIS_RXS_TDATA_WIDTH" -parent ${Page_0} -display_name {C S AXIS RXS TDATA WIDTH}]
+  set_property tooltip {AXI4Stream sink: Data Width} ${C_S_AXIS_RXS_TDATA_WIDTH}
+  set C_M_AXIS_TXC_TDATA_WIDTH  [  ipgui::add_param $IPINST -name "C_M_AXIS_TXC_TDATA_WIDTH" -parent ${Page_0} -display_name {C M AXIS TXC TDATA WIDTH}]
+  set_property tooltip {Width of S_AXIS address bus. The slave accepts the read and write addresses of width C_M_AXIS_TDATA_WIDTH.} ${C_M_AXIS_TXC_TDATA_WIDTH}
+  set C_M_AXIS_TXC_START_COUNT  [  ipgui::add_param $IPINST -name "C_M_AXIS_TXC_START_COUNT" -parent ${Page_0} -display_name {C M AXIS TXC START COUNT}]
+  set_property tooltip {Start count is the numeber of clock cycles the master will wait before initiating/issuing any transaction.} ${C_M_AXIS_TXC_START_COUNT}
+  set C_S_AXI_DATA_WIDTH  [  ipgui::add_param $IPINST -name "C_S_AXI_DATA_WIDTH" -parent ${Page_0} -display_name {C S AXI DATA WIDTH}]
+  set_property tooltip {Width of S_AXI data bus} ${C_S_AXI_DATA_WIDTH}
+  set C_S_AXI_ADDR_WIDTH  [  ipgui::add_param $IPINST -name "C_S_AXI_ADDR_WIDTH" -parent ${Page_0} -display_name {C S AXI ADDR WIDTH}]
+  set_property tooltip {Width of S_AXI address bus} ${C_S_AXI_ADDR_WIDTH}
+  set C_S_AXI_BASEADDR  [  ipgui::add_param $IPINST -name "C_S_AXI_BASEADDR" -parent ${Page_0} -display_name {C S AXI BASEADDR}]
+  set_property tooltip {C S AXI BASEADDR} ${C_S_AXI_BASEADDR}
+  set C_S_AXI_HIGHADDR  [  ipgui::add_param $IPINST -name "C_S_AXI_HIGHADDR" -parent ${Page_0} -display_name {C S AXI HIGHADDR}]
+  set_property tooltip {C S AXI HIGHADDR} ${C_S_AXI_HIGHADDR}
+
+
 }
 
 proc update_PARAM_VALUE.C_S_AXIS_RXD_TDATA_WIDTH { PARAM_VALUE.C_S_AXIS_RXD_TDATA_WIDTH } {

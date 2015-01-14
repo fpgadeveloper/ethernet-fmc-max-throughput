@@ -108,6 +108,9 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
 		port (
     force_error_i : in std_logic;
     start_i       : in std_logic;
+    insert_fcs_i  : in std_logic;
+    fcs_word_i     : in std_logic_vector(31 downto 0);
+    pkt_word_len_i : in std_logic_vector(31 downto 0);
 		M_AXIS_ACLK	: in std_logic;
 		M_AXIS_ARESETN	: in std_logic;
 		M_AXIS_TVALID	: out std_logic;
@@ -161,7 +164,6 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
 		port (
     rst_counters_i  : in std_logic;
     last_data_i     : in std_logic;
-    dropped_pkts_o  : out std_logic_vector(31 downto 0);
     max_delay_i     : in std_logic_vector(15 downto 0);
 		S_AXIS_ACLK	: in std_logic;
 		S_AXIS_ARESETN	: in std_logic;
@@ -182,9 +184,11 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
     rst_counters_o      : out std_logic;
     force_error_o       : out std_logic;
     force_drop_o        : out std_logic;
+    insert_fcs_o        : out std_logic;
     bit_errors_i        : in std_logic_vector(31 downto 0);
-    dropped_pkts_i      : in std_logic_vector(31 downto 0);
     max_delay_o         : out std_logic_vector(15 downto 0);
+    fcs_word_o          : out std_logic_vector(31 downto 0);
+    pkt_word_len_o      : out std_logic_vector(31 downto 0);
 		S_AXI_ACLK	: in std_logic;
 		S_AXI_ARESETN	: in std_logic;
 		S_AXI_AWADDR	: in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -213,9 +217,11 @@ architecture arch_imp of eth_traffic_gen_v1_0 is
   signal rst_counters : std_logic;
   signal force_error  : std_logic;
   signal force_drop   : std_logic;
+  signal insert_fcs   : std_logic;
   signal bit_errors   : std_logic_vector(31 downto 0);
-  signal dropped_pkts : std_logic_vector(31 downto 0);
   signal max_delay    : std_logic_vector(15 downto 0);
+  signal fcs_word     : std_logic_vector(31 downto 0);
+  signal pkt_word_len : std_logic_vector(31 downto 0);
   signal txc_last_data_in : std_logic;
   signal txd_tlast    : std_logic;
   
@@ -230,6 +236,9 @@ eth_traffic_gen_v1_0_M_AXIS_TXD_inst : eth_traffic_gen_v1_0_M_AXIS_TXD
 	port map (
     force_error_i => force_error,
     start_i       => start,
+    insert_fcs_i  => insert_fcs,
+    fcs_word_i     => fcs_word,
+    pkt_word_len_i => pkt_word_len,
 		M_AXIS_ACLK	=> m_axis_txd_aclk,
 		M_AXIS_ARESETN	=> m_axis_txd_aresetn,
 		M_AXIS_TVALID	=> m_axis_txd_tvalid,
@@ -287,7 +296,6 @@ eth_traffic_gen_v1_0_S_AXIS_RXS_inst : eth_traffic_gen_v1_0_S_AXIS_RXS
 	port map (
     rst_counters_i  => rst_counters,
     last_data_i     => s_axis_rxd_tlast,
-    dropped_pkts_o  => dropped_pkts,
     max_delay_i     => max_delay,
 		S_AXIS_ACLK	=> s_axis_rxs_aclk,
 		S_AXIS_ARESETN	=> s_axis_rxs_aresetn,
@@ -308,9 +316,11 @@ eth_traffic_gen_v1_0_S_AXI_inst : eth_traffic_gen_v1_0_S_AXI
     rst_counters_o => rst_counters,
     force_error_o  => force_error,
     force_drop_o   => force_drop,
+    insert_fcs_o   => insert_fcs,
     bit_errors_i   => bit_errors,
-    dropped_pkts_i => dropped_pkts,
     max_delay_o    => max_delay,
+    fcs_word_o     => fcs_word,
+    pkt_word_len_o => pkt_word_len,
 		S_AXI_ACLK	=> s_axi_aclk,
 		S_AXI_ARESETN	=> s_axi_aresetn,
 		S_AXI_AWADDR	=> s_axi_awaddr,
