@@ -14,6 +14,8 @@ packets, regardless of their destination MAC address. It also sets them
 up to receive the FCS (checksum) from the user design, rather than
 calculating and inserting it itself.
 
+![Ethernet FMC Max Throughput Test design](http://ethernetfmc.com/wp-content/uploads/2014/10/qgige_max_throughput.png "Ethernet FMC Max Throughput Test design")
+
 ### Background
 
 In order to test an Ethernet device at maximum throughput (back-to-back
@@ -48,6 +50,7 @@ You will also need the following:
 * [ZedBoard](http://zedboard.org "ZedBoard")
 * [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 * Two Ethernet cables
+* [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 
 ### License
 
