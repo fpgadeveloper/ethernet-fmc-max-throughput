@@ -3,8 +3,11 @@
 #
 #*****************************************************************************************
 
-# Set the reference directory to where the script is
-set origin_dir [file dirname [info script]]
+# Set the reference directory for source file relative paths (by default the value is script directory path)
+set origin_dir "."
+
+# Set the directory path for the original project from where this script was exported
+set orig_proj_dir "[file normalize "$origin_dir/zedboard_qgige_max_tp"]"
 
 # Create project
 create_project zedboard_qgige_max_tp $origin_dir/zedboard_qgige_max_tp
@@ -14,7 +17,7 @@ set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [get_projects zedboard_qgige_max_tp]
-set_property "board_part" "em.avnet.com:zed:part0:1.0" $obj
+set_property "board_part" "em.avnet.com:zed:part0:1.2" $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "source_mgmt_mode" "DisplayOnly" $obj
@@ -27,7 +30,7 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 # Set IP repository paths
 set obj [get_filesets sources_1]
-set_property "ip_repo_paths" "[file normalize "$origin_dir/src/ip/idelay_ctrl/hdl"] [file normalize "$origin_dir/ip_repo/eth_traffic_gen_1.0"]" $obj
+set_property "ip_repo_paths" "[file normalize "$origin_dir/ip_repo/eth_traffic_gen_1.0"]" $obj
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
