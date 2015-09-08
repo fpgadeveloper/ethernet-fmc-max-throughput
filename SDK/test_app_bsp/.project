@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>test_app_bsp</name>
-	<comment>Created by SDK v2014.2</comment>
+	<comment>Created by SDK v2015.2</comment>
 	<projects>
-		<project>design_1_wrapper_hw_platform_0</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -11,7 +10,7 @@
 			<arguments>
 				<dictionary>
 					<key>org.eclipse.cdt.core.errorOutputParser</key>
-					<value>org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.VCErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.MakeErrorParser;</value>
+					<value>org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.VCErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.MakeErrorParser;</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.append_environment</key>

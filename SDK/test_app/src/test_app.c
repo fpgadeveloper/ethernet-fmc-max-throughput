@@ -45,6 +45,8 @@
  *
  */
 
+#include "xparameters.h"
+#include "xgpiops.h"
 #include <stdio.h>
 #include "xil_types.h"
 #include "platform.h"
@@ -70,6 +72,8 @@
 
 #define PAYLOAD_BYTE_SIZE	((PAYLOAD_WORD_SIZE*4)+2)
 
+#define OUTPUT_PIN		10	/* Pin connected to LED/Output */
+
 static int SetupInterrupts(XIicPs *IicPsPtr);
 XScuGic InterruptController;	/* The instance of the Interrupt Controller. */
 
@@ -80,15 +84,32 @@ u32 *eth_pkt_gen_1_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_1_S_AXI_BASEADDR;
 u32 *eth_pkt_gen_2_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_2_S_AXI_BASEADDR;
 u32 *eth_pkt_gen_3_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_3_S_AXI_BASEADDR;
 
+XGpioPs Gpio;	/* The driver instance for GPIO Device. */
 
 int main()
 {
+	int Status;
+	XGpioPs_Config *ConfigPtr;
 	volatile u32 reg;
 	volatile u32 i;
 	volatile u32 dropped_frames_0;
 	volatile u32 dropped_frames_1;
 	volatile u32 dropped_frames_2;
 	volatile u32 dropped_frames_3;
+
+	/*
+	 * Initialize the GPIO driver.
+	 */
+	ConfigPtr = XGpioPs_LookupConfig(XPAR_XGPIOPS_0_DEVICE_ID);
+	Status = XGpioPs_CfgInitialize(&Gpio, ConfigPtr,
+					ConfigPtr->BaseAddr);
+	if (Status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
+
+	XGpioPs_SetDirectionPin(&Gpio, OUTPUT_PIN, 1);
+	XGpioPs_SetOutputEnablePin(&Gpio, OUTPUT_PIN, 1);
+	XGpioPs_WritePin(&Gpio, OUTPUT_PIN, 0x0);
 
 	/* the mac address of the board. this should be unique per board */
 	unsigned char mac_ethernet_address[] =
@@ -260,6 +281,13 @@ int main()
 		 */
 		xil_printf("Dropped frames (P0,P1,P2,P3): %8d %8d %8d %8d\n\r",
 					dropped_frames_0,dropped_frames_1,dropped_frames_2,dropped_frames_3);
+
+		if((dropped_frames_0 == dropped_frames_1) &&
+				(dropped_frames_1 == dropped_frames_2) &&
+				(dropped_frames_2 == dropped_frames_3) &&
+				(dropped_frames_0 >= 10)){
+			XGpioPs_WritePin(&Gpio, OUTPUT_PIN, 0x1);
+		}
 	}
 
 	return 0;

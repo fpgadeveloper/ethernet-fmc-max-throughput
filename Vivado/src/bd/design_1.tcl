@@ -1,7 +1,7 @@
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2014.4
+set scripts_vivado_version 2015.2
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -79,16 +79,16 @@ endgroup
 
 # Add the AXI Ethernet IPs
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.2 axi_ethernet_0
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:7.0 axi_ethernet_0
 endgroup
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.2 axi_ethernet_1
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:7.0 axi_ethernet_1
 endgroup
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.2 axi_ethernet_2
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:7.0 axi_ethernet_2
 endgroup
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:6.2 axi_ethernet_3
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:7.0 axi_ethernet_3
 endgroup
 
 # Configure ports 1 and 3 for "Don't include shared logic"
@@ -104,20 +104,20 @@ set_property -dict [list CONFIG.PHY_TYPE {RGMII}] [get_bd_cells axi_ethernet_3]
 # Make AXI Ethernet ports external: MDIO, RGMII and RESET
 # MDIO
 startgroup
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_io:1.0 mdio_io_port_0
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_0/mdio_io] [get_bd_intf_ports mdio_io_port_0]
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_io_port_0
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_0/mdio] [get_bd_intf_ports mdio_io_port_0]
 endgroup
 startgroup
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_io:1.0 mdio_io_port_1
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_1/mdio_io] [get_bd_intf_ports mdio_io_port_1]
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_io_port_1
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_1/mdio] [get_bd_intf_ports mdio_io_port_1]
 endgroup
 startgroup
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_io:1.0 mdio_io_port_2
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_2/mdio_io] [get_bd_intf_ports mdio_io_port_2]
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_io_port_2
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_2/mdio] [get_bd_intf_ports mdio_io_port_2]
 endgroup
 startgroup
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_io:1.0 mdio_io_port_3
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_3/mdio_io] [get_bd_intf_ports mdio_io_port_3]
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_io_port_3
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_3/mdio] [get_bd_intf_ports mdio_io_port_3]
 endgroup
 # RGMII
 startgroup
@@ -181,7 +181,7 @@ connect_bd_net [get_bd_pins axi_ethernet_2/ref_clk] [get_bd_pins processing_syst
 # Create differential IO buffer for the Ethernet FMC 125MHz clock
 
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.0 util_ds_buf_0
+create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.1 util_ds_buf_0
 endgroup
 connect_bd_net [get_bd_pins util_ds_buf_0/IBUF_OUT] [get_bd_pins axi_ethernet_0/gtx_clk]
 startgroup
@@ -334,7 +334,7 @@ connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_areset
 # Add the ILA for testing
 
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:ila:5.0 ila_0
+create_bd_cell -type ip -vlnv xilinx.com:ip:ila:5.1 ila_0
 endgroup
 startgroup
 set_property -dict [list CONFIG.C_PROBE3_WIDTH {40} CONFIG.C_PROBE2_WIDTH {40} CONFIG.C_PROBE1_WIDTH {40} CONFIG.C_PROBE0_WIDTH {40} CONFIG.C_NUM_OF_PROBES {4} CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_ENABLE_ILA_AXI_MON {false}] [get_bd_cells ila_0]
