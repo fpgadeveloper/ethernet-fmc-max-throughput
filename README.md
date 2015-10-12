@@ -46,7 +46,7 @@ In order to test the Ethernet FMC using this design, you need to use an
 Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
-* Vivado 2015.2
+* Vivado 2015.3
 * [ZedBoard](http://zedboard.org "ZedBoard")
 * [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 * Two Ethernet cables

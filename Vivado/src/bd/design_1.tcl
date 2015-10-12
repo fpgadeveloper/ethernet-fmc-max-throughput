@@ -1,7 +1,7 @@
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2015.2
+set scripts_vivado_version 2015.3
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -334,7 +334,7 @@ connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_areset
 # Add the ILA for testing
 
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:ila:5.1 ila_0
+create_bd_cell -type ip -vlnv xilinx.com:ip:ila:6.0 ila_0
 endgroup
 startgroup
 set_property -dict [list CONFIG.C_PROBE3_WIDTH {40} CONFIG.C_PROBE2_WIDTH {40} CONFIG.C_PROBE1_WIDTH {40} CONFIG.C_PROBE0_WIDTH {40} CONFIG.C_NUM_OF_PROBES {4} CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_ENABLE_ILA_AXI_MON {false}] [get_bd_cells ila_0]
