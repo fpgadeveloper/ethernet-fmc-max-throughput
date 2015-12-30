@@ -54,9 +54,9 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_sy
 endgroup
 apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_external "FIXED_IO, DDR" apply_board_preset "1" Master "Disable" Slave "Disable" }  [get_bd_cells processing_system7_0]
 
-# Configure the PS: Generate 200MHz clock, Enable HP0, Enable interrupts
+# Configure the PS: Generate 200MHz clock, Enable M_AXI_GP0, Enable interrupts
 startgroup
-set_property -dict [list CONFIG.PCW_I2C0_PERIPHERAL_ENABLE {1} CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {125} CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {200} CONFIG.PCW_USE_FABRIC_INTERRUPT {1} CONFIG.PCW_EN_CLK1_PORT {1} CONFIG.PCW_EN_CLK2_PORT {1} CONFIG.PCW_IRQ_F2P_INTR {1}] [get_bd_cells processing_system7_0]
+set_property -dict [list CONFIG.PCW_USE_M_AXI_GP0 {1} CONFIG.PCW_I2C0_PERIPHERAL_ENABLE {1} CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {125} CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {200} CONFIG.PCW_USE_FABRIC_INTERRUPT {1} CONFIG.PCW_EN_CLK1_PORT {1} CONFIG.PCW_EN_CLK2_PORT {1} CONFIG.PCW_IRQ_F2P_INTR {1}] [get_bd_cells processing_system7_0]
 endgroup
 
 # Connect the FCLK_CLK0 to the PS GP0
@@ -100,6 +100,12 @@ set_property -dict [list CONFIG.PHY_TYPE {RGMII}] [get_bd_cells axi_ethernet_0]
 set_property -dict [list CONFIG.PHY_TYPE {RGMII}] [get_bd_cells axi_ethernet_1]
 set_property -dict [list CONFIG.PHY_TYPE {RGMII}] [get_bd_cells axi_ethernet_2]
 set_property -dict [list CONFIG.PHY_TYPE {RGMII}] [get_bd_cells axi_ethernet_3]
+
+# Configure all AXI Ethernet for no frame filter and no statistics counter (saves LUTs)
+set_property -dict [list CONFIG.Frame_Filter {false} CONFIG.Statistics_Counters {false}] [get_bd_cells axi_ethernet_0]
+set_property -dict [list CONFIG.Frame_Filter {false} CONFIG.Statistics_Counters {false}] [get_bd_cells axi_ethernet_1]
+set_property -dict [list CONFIG.Frame_Filter {false} CONFIG.Statistics_Counters {false}] [get_bd_cells axi_ethernet_2]
+set_property -dict [list CONFIG.Frame_Filter {false} CONFIG.Statistics_Counters {false}] [get_bd_cells axi_ethernet_3]
 
 # Make AXI Ethernet ports external: MDIO, RGMII and RESET
 # MDIO
@@ -330,86 +336,6 @@ connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_areset
 connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_txc_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
 connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_rxd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
 connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_rxs_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-
-# Add the ILA for testing
-
-startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:ila:6.0 ila_0
-endgroup
-startgroup
-set_property -dict [list CONFIG.C_PROBE3_WIDTH {40} CONFIG.C_PROBE2_WIDTH {40} CONFIG.C_PROBE1_WIDTH {40} CONFIG.C_PROBE0_WIDTH {40} CONFIG.C_NUM_OF_PROBES {4} CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_ENABLE_ILA_AXI_MON {false}] [get_bd_cells ila_0]
-endgroup
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins ila_0/clk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-
-# Add the concats to the ILA ports
-
-startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_1
-endgroup
-connect_bd_net [get_bd_pins xlconcat_1/dout] [get_bd_pins ila_0/probe0]
-startgroup
-set_property -dict [list CONFIG.NUM_PORTS {6}] [get_bd_cells xlconcat_1]
-endgroup
-
-startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_2
-endgroup
-connect_bd_net [get_bd_pins xlconcat_2/dout] [get_bd_pins ila_0/probe1]
-startgroup
-set_property -dict [list CONFIG.NUM_PORTS {6}] [get_bd_cells xlconcat_2]
-endgroup
-
-startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_3
-endgroup
-connect_bd_net [get_bd_pins xlconcat_3/dout] [get_bd_pins ila_0/probe2]
-startgroup
-set_property -dict [list CONFIG.NUM_PORTS {6}] [get_bd_cells xlconcat_3]
-endgroup
-
-startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_4
-endgroup
-connect_bd_net [get_bd_pins xlconcat_4/dout] [get_bd_pins ila_0/probe3]
-startgroup
-set_property -dict [list CONFIG.NUM_PORTS {6}] [get_bd_cells xlconcat_4]
-endgroup
-
-# Hook up probe 0 to GEN0 M_AXIS_TXC port (Ethernet port 0 transmit control)
-
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins xlconcat_1/In0] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net [get_bd_pins xlconcat_1/In1] [get_bd_pins eth_traffic_gen_0/m_axis_txc_tdata] [get_bd_pins axi_ethernet_0/s_axis_txc_tdata]
-connect_bd_net [get_bd_pins xlconcat_1/In2] [get_bd_pins eth_traffic_gen_0/m_axis_txc_tvalid] [get_bd_pins axi_ethernet_0/s_axis_txc_tvalid]
-connect_bd_net [get_bd_pins xlconcat_1/In3] [get_bd_pins axi_ethernet_0/s_axis_txc_tready] [get_bd_pins eth_traffic_gen_0/m_axis_txc_tready]
-connect_bd_net [get_bd_pins xlconcat_1/In4] [get_bd_pins eth_traffic_gen_0/m_axis_txc_tkeep] [get_bd_pins axi_ethernet_0/s_axis_txc_tkeep]
-connect_bd_net [get_bd_pins xlconcat_1/In5] [get_bd_pins eth_traffic_gen_0/m_axis_txc_tlast] [get_bd_pins axi_ethernet_0/s_axis_txc_tlast]
-
-# Hook up probe 1 to GEN0 M_AXIS_TXD port (Ethernet port 0 transmit data)
-
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins xlconcat_2/In0] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net [get_bd_pins xlconcat_2/In1] [get_bd_pins eth_traffic_gen_0/m_axis_txd_tdata] [get_bd_pins axi_ethernet_0/s_axis_txd_tdata]
-connect_bd_net [get_bd_pins xlconcat_2/In2] [get_bd_pins eth_traffic_gen_0/m_axis_txd_tvalid] [get_bd_pins axi_ethernet_0/s_axis_txd_tvalid]
-connect_bd_net [get_bd_pins xlconcat_2/In3] [get_bd_pins axi_ethernet_0/s_axis_txd_tready] [get_bd_pins eth_traffic_gen_0/m_axis_txd_tready]
-connect_bd_net [get_bd_pins xlconcat_2/In4] [get_bd_pins eth_traffic_gen_0/m_axis_txd_tkeep] [get_bd_pins axi_ethernet_0/s_axis_txd_tkeep]
-connect_bd_net [get_bd_pins xlconcat_2/In5] [get_bd_pins eth_traffic_gen_0/m_axis_txd_tlast] [get_bd_pins axi_ethernet_0/s_axis_txd_tlast]
-
-# Hook up probe 2 to MAC0 M_AXIS_RXS port (Ethernet port 0 receive control)
-
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins xlconcat_3/In0] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net [get_bd_pins xlconcat_3/In1] [get_bd_pins axi_ethernet_0/m_axis_rxs_tdata] [get_bd_pins eth_traffic_gen_1/s_axis_rxs_tdata]
-connect_bd_net [get_bd_pins xlconcat_3/In2] [get_bd_pins axi_ethernet_0/m_axis_rxs_tvalid] [get_bd_pins eth_traffic_gen_1/s_axis_rxs_tvalid]
-connect_bd_net [get_bd_pins xlconcat_3/In3] [get_bd_pins eth_traffic_gen_1/s_axis_rxs_tready] [get_bd_pins axi_ethernet_0/m_axis_rxs_tready]
-connect_bd_net [get_bd_pins xlconcat_3/In4] [get_bd_pins axi_ethernet_0/m_axis_rxs_tkeep] [get_bd_pins eth_traffic_gen_1/s_axis_rxs_keep]
-connect_bd_net [get_bd_pins xlconcat_3/In5] [get_bd_pins axi_ethernet_0/m_axis_rxs_tlast] [get_bd_pins eth_traffic_gen_1/s_axis_rxs_tlast]
-
-# Hook up probe 3 to MAC0 M_AXIS_RXD port (Ethernet port 0 receive data)
-
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins xlconcat_4/In0] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net [get_bd_pins xlconcat_4/In1] [get_bd_pins axi_ethernet_0/m_axis_rxd_tdata] [get_bd_pins eth_traffic_gen_1/s_axis_rxd_tdata]
-connect_bd_net [get_bd_pins xlconcat_4/In2] [get_bd_pins axi_ethernet_0/m_axis_rxd_tvalid] [get_bd_pins eth_traffic_gen_1/s_axis_rxd_tvalid]
-connect_bd_net [get_bd_pins xlconcat_4/In3] [get_bd_pins eth_traffic_gen_1/s_axis_rxd_tready] [get_bd_pins axi_ethernet_0/m_axis_rxd_tready]
-connect_bd_net [get_bd_pins xlconcat_4/In4] [get_bd_pins axi_ethernet_0/m_axis_rxd_tkeep] [get_bd_pins eth_traffic_gen_1/s_axis_rxd_keep]
-connect_bd_net [get_bd_pins xlconcat_4/In5] [get_bd_pins axi_ethernet_0/m_axis_rxd_tlast] [get_bd_pins eth_traffic_gen_1/s_axis_rxd_tlast]
 
 
 # Restore current instance

@@ -1,8 +1,17 @@
-zedboard-qgige-max-throughput
-=============================
+ethernet-fmc-max-throughput
+===========================
 
-Example design for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") on the [ZedBoard](http://zedboard.org "ZedBoard") using a hardware
+Example design for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") using an FPGA based hardware
 packet generator/checker to demonstrate maximum throughput.
+
+### Supported carrier boards
+
+* [ZedBoard](http://zedboard.org "ZedBoard")
+  * LPC connector (use zedboard.xdc)
+* [MicroZed 7Z010 and 7Z020](http://microzed.org "MicroZed 7Z010") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
+  * LPC connector (use mzfmc-7z010.xdc, or mzfmc-7z020.xdc)
+* [PicoZed 7Z010, 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier](http://zedboard.org/product/picozed-carrier-card "PicoZed FMC Carrier")
+  * LPC connector (use pzfmc-7z010.xdc, or pzfmc-7z015.xdc, or pzfmc-7z020.xdc, or pzfmc-7z030.xdc)
 
 ### Description
 
@@ -47,8 +56,8 @@ Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
 * Vivado 2015.4
-* [ZedBoard](http://zedboard.org "ZedBoard")
 * [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
+* Supported FMC carrier board (see list of supported carriers above)
 * Two Ethernet cables
 * [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 
