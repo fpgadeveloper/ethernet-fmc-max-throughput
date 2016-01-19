@@ -55,6 +55,7 @@
 #include "ethfmc_axie.h"
 #include "i2c_fmc.h"
 #include "eeprom_fmc.h"
+#include "xeth_traffic_gen.h"
 
 /*
  * The following DEFINE sets the number of words
@@ -77,12 +78,16 @@
 static int SetupInterrupts(XIicPs *IicPsPtr);
 XScuGic InterruptController;	/* The instance of the Interrupt Controller. */
 
+XEth_traffic_gen eth_pkt_gen_0;
+XEth_traffic_gen eth_pkt_gen_1;
+XEth_traffic_gen eth_pkt_gen_2;
+XEth_traffic_gen eth_pkt_gen_3;
 
 // Pointers to the Ethernet traffic generators
-u32 *eth_pkt_gen_0_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_0_S_AXI_BASEADDR;
-u32 *eth_pkt_gen_1_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_1_S_AXI_BASEADDR;
-u32 *eth_pkt_gen_2_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_2_S_AXI_BASEADDR;
-u32 *eth_pkt_gen_3_p = (u32 *)XPAR_ETH_TRAFFIC_GEN_3_S_AXI_BASEADDR;
+XEth_traffic_gen *eth_pkt_gen_0_p = &eth_pkt_gen_0;
+XEth_traffic_gen *eth_pkt_gen_1_p = &eth_pkt_gen_1;
+XEth_traffic_gen *eth_pkt_gen_2_p = &eth_pkt_gen_2;
+XEth_traffic_gen *eth_pkt_gen_3_p = &eth_pkt_gen_3;
 
 XGpioPs Gpio;	/* The driver instance for GPIO Device. */
 
@@ -137,41 +142,61 @@ int main()
   	xil_printf("EEPROM failed the read/write test!\n\r");
     return XST_FAILURE;
   }
-  /*
-	// Don't insert FCS
-	reg = *eth_pkt_gen_0_p;
-	*eth_pkt_gen_0_p = reg & ~(0x00000008);
-	reg = *eth_pkt_gen_1_p;
-	*eth_pkt_gen_1_p = reg & ~(0x00000008);
-	reg = *eth_pkt_gen_2_p;
-	*eth_pkt_gen_2_p = reg & ~(0x00000008);
-	reg = *eth_pkt_gen_3_p;
-	*eth_pkt_gen_3_p = reg & ~(0x00000008);
-	*/
-	// Insert FCS
-	reg = *eth_pkt_gen_0_p;
-	*eth_pkt_gen_0_p = reg | (0x00000008);
-	reg = *eth_pkt_gen_1_p;
-	*eth_pkt_gen_1_p = reg | (0x00000008);
-	reg = *eth_pkt_gen_2_p;
-	*eth_pkt_gen_2_p = reg | (0x00000008);
-	reg = *eth_pkt_gen_3_p;
-	*eth_pkt_gen_3_p = reg | (0x00000008);
 
-	// Set packet payload length
-	*(eth_pkt_gen_0_p+3) = (PAYLOAD_BYTE_SIZE<<16) | PAYLOAD_WORD_SIZE;
-	*(eth_pkt_gen_1_p+3) = (PAYLOAD_BYTE_SIZE<<16) | PAYLOAD_WORD_SIZE;
-	*(eth_pkt_gen_2_p+3) = (PAYLOAD_BYTE_SIZE<<16) | PAYLOAD_WORD_SIZE;
-	*(eth_pkt_gen_3_p+3) = (PAYLOAD_BYTE_SIZE<<16) | PAYLOAD_WORD_SIZE;
+  // Initialize Ethernet Traffic Generators
+  XEth_traffic_gen_Initialize(eth_pkt_gen_0_p,XPAR_ETH_TRAFFIC_GEN_0_DEVICE_ID);
+  XEth_traffic_gen_Initialize(eth_pkt_gen_1_p,XPAR_ETH_TRAFFIC_GEN_1_DEVICE_ID);
+  XEth_traffic_gen_Initialize(eth_pkt_gen_2_p,XPAR_ETH_TRAFFIC_GEN_2_DEVICE_ID);
+  XEth_traffic_gen_Initialize(eth_pkt_gen_3_p,XPAR_ETH_TRAFFIC_GEN_3_DEVICE_ID);
+  XEth_traffic_gen_CfgInitialize(eth_pkt_gen_0_p,XEth_traffic_gen_LookupConfig(XPAR_ETH_TRAFFIC_GEN_0_DEVICE_ID));
+  XEth_traffic_gen_CfgInitialize(eth_pkt_gen_1_p,XEth_traffic_gen_LookupConfig(XPAR_ETH_TRAFFIC_GEN_1_DEVICE_ID));
+  XEth_traffic_gen_CfgInitialize(eth_pkt_gen_2_p,XEth_traffic_gen_LookupConfig(XPAR_ETH_TRAFFIC_GEN_2_DEVICE_ID));
+  XEth_traffic_gen_CfgInitialize(eth_pkt_gen_3_p,XEth_traffic_gen_LookupConfig(XPAR_ETH_TRAFFIC_GEN_3_DEVICE_ID));
 
-	/* Set FCS
-	 * - For PAYLOAD_WORD_SIZE 16, FCS = 0x58309809
-	 * - For PAYLOAD_WORD_SIZE 374, FCS = 0x89C8FF96
-	 */
-	*(eth_pkt_gen_0_p+2) = 0x89C8FF96;
-	*(eth_pkt_gen_1_p+2) = 0x89C8FF96;
-	*(eth_pkt_gen_2_p+2) = 0x89C8FF96;
-	*(eth_pkt_gen_3_p+2) = 0x89C8FF96;
+  // Set MAC addresses
+  XEth_traffic_gen_Set_dst_mac_lo_V(eth_pkt_gen_0_p,0xFFFF1E00);
+  XEth_traffic_gen_Set_dst_mac_hi_V(eth_pkt_gen_0_p,0xFFFF);
+  XEth_traffic_gen_Set_src_mac_lo_V(eth_pkt_gen_0_p,0xA4A52737);
+  XEth_traffic_gen_Set_src_mac_hi_V(eth_pkt_gen_0_p,0xFFFF);
+
+  XEth_traffic_gen_Set_dst_mac_lo_V(eth_pkt_gen_1_p,0xFFFF1E00);
+  XEth_traffic_gen_Set_dst_mac_hi_V(eth_pkt_gen_1_p,0xFFFF);
+  XEth_traffic_gen_Set_src_mac_lo_V(eth_pkt_gen_1_p,0xA4A52737);
+  XEth_traffic_gen_Set_src_mac_hi_V(eth_pkt_gen_1_p,0xFFFF);
+
+  XEth_traffic_gen_Set_dst_mac_lo_V(eth_pkt_gen_2_p,0xFFFF1E00);
+  XEth_traffic_gen_Set_dst_mac_hi_V(eth_pkt_gen_2_p,0xFFFF);
+  XEth_traffic_gen_Set_src_mac_lo_V(eth_pkt_gen_2_p,0xA4A52737);
+  XEth_traffic_gen_Set_src_mac_hi_V(eth_pkt_gen_2_p,0xFFFF);
+
+  XEth_traffic_gen_Set_dst_mac_lo_V(eth_pkt_gen_3_p,0xFFFF1E00);
+  XEth_traffic_gen_Set_dst_mac_hi_V(eth_pkt_gen_3_p,0xFFFF);
+  XEth_traffic_gen_Set_src_mac_lo_V(eth_pkt_gen_3_p,0xA4A52737);
+  XEth_traffic_gen_Set_src_mac_hi_V(eth_pkt_gen_3_p,0xFFFF);
+
+  // Set packet payload length
+  XEth_traffic_gen_Set_pkt_len_V(eth_pkt_gen_0_p,PAYLOAD_WORD_SIZE);
+  XEth_traffic_gen_Set_pkt_len_V(eth_pkt_gen_1_p,PAYLOAD_WORD_SIZE);
+  XEth_traffic_gen_Set_pkt_len_V(eth_pkt_gen_2_p,PAYLOAD_WORD_SIZE);
+  XEth_traffic_gen_Set_pkt_len_V(eth_pkt_gen_3_p,PAYLOAD_WORD_SIZE);
+
+  // Reset force error
+  XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_0_p,0);
+  XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_1_p,0);
+  XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,0);
+  XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,0);
+
+  // Continuous operation
+  XEth_traffic_gen_EnableAutoRestart(eth_pkt_gen_0_p);
+  XEth_traffic_gen_EnableAutoRestart(eth_pkt_gen_1_p);
+  XEth_traffic_gen_EnableAutoRestart(eth_pkt_gen_2_p);
+  XEth_traffic_gen_EnableAutoRestart(eth_pkt_gen_3_p);
+
+  // Start the Ethernet Traffic Generators
+  XEth_traffic_gen_Start(eth_pkt_gen_0_p);
+  XEth_traffic_gen_Start(eth_pkt_gen_1_p);
+  XEth_traffic_gen_Start(eth_pkt_gen_2_p);
+  XEth_traffic_gen_Start(eth_pkt_gen_3_p);
 
   /* Configure the AXI Ethernet MACs and the PHYs */
 	xil_printf("Ethernet Port 0:\n\r");
@@ -208,24 +233,17 @@ int main()
 		 * that our method for counting dropped frames is actually
 		 * working.
 		 */
+		// Set force error
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_0_p,1);
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_1_p,1);
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,1);
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,1);
 
-		reg = *eth_pkt_gen_0_p;
-		*eth_pkt_gen_0_p = reg | 0x00000002;
-		reg = *eth_pkt_gen_1_p;
-		*eth_pkt_gen_1_p = reg | 0x00000002;
-		reg = *eth_pkt_gen_2_p;
-		*eth_pkt_gen_2_p = reg | 0x00000002;
-		reg = *eth_pkt_gen_3_p;
-		*eth_pkt_gen_3_p = reg | 0x00000002;
-		// Reset the force error
-		reg = *eth_pkt_gen_0_p;
-		*eth_pkt_gen_0_p = reg & ~(0x00000002);
-		reg = *eth_pkt_gen_1_p;
-		*eth_pkt_gen_1_p = reg & ~(0x00000002);
-		reg = *eth_pkt_gen_2_p;
-		*eth_pkt_gen_2_p = reg & ~(0x00000002);
-		reg = *eth_pkt_gen_3_p;
-		*eth_pkt_gen_3_p = reg & ~(0x00000002);
+		// Reset force error
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_0_p,0);
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_1_p,0);
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,0);
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,0);
 
 		/* Poll for dropped packets and increment counters
 		 * -----------------------------------------------

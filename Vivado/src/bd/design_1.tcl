@@ -224,45 +224,45 @@ endgroup
 # Add the Ethernet traffic generators
 
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:user:eth_traffic_gen:1.0 eth_traffic_gen_0
+create_bd_cell -type ip -vlnv opsero.com:hls:eth_traffic_gen:1.0 eth_traffic_gen_0
 endgroup
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:user:eth_traffic_gen:1.0 eth_traffic_gen_1
+create_bd_cell -type ip -vlnv opsero.com:hls:eth_traffic_gen:1.0 eth_traffic_gen_1
 endgroup
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:user:eth_traffic_gen:1.0 eth_traffic_gen_2
+create_bd_cell -type ip -vlnv opsero.com:hls:eth_traffic_gen:1.0 eth_traffic_gen_2
 endgroup
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:user:eth_traffic_gen:1.0 eth_traffic_gen_3
+create_bd_cell -type ip -vlnv opsero.com:hls:eth_traffic_gen:1.0 eth_traffic_gen_3
 endgroup
 
 # Connect the generators to the MACs
 
 # GEN0 -> MAC0
-connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_0/M_AXIS_TXD] [get_bd_intf_pins axi_ethernet_0/s_axis_txd]
-connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_0/M_AXIS_TXC] [get_bd_intf_pins axi_ethernet_0/s_axis_txc]
+connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_0/m_axis_txd] [get_bd_intf_pins axi_ethernet_0/s_axis_txd]
+connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_0/m_axis_txc] [get_bd_intf_pins axi_ethernet_0/s_axis_txc]
 # GEN1 -> MAC1
-connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_1/M_AXIS_TXD] [get_bd_intf_pins axi_ethernet_1/s_axis_txd]
-connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_1/M_AXIS_TXC] [get_bd_intf_pins axi_ethernet_1/s_axis_txc]
+connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_1/m_axis_txd] [get_bd_intf_pins axi_ethernet_1/s_axis_txd]
+connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_1/m_axis_txc] [get_bd_intf_pins axi_ethernet_1/s_axis_txc]
 # GEN2 -> MAC2
-connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_2/M_AXIS_TXD] [get_bd_intf_pins axi_ethernet_2/s_axis_txd]
-connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_2/M_AXIS_TXC] [get_bd_intf_pins axi_ethernet_2/s_axis_txc]
+connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_2/m_axis_txd] [get_bd_intf_pins axi_ethernet_2/s_axis_txd]
+connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_2/m_axis_txc] [get_bd_intf_pins axi_ethernet_2/s_axis_txc]
 # GEN3 -> MAC3
-connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_3/M_AXIS_TXD] [get_bd_intf_pins axi_ethernet_3/s_axis_txd]
-connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_3/M_AXIS_TXC] [get_bd_intf_pins axi_ethernet_3/s_axis_txc]
+connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_3/m_axis_txd] [get_bd_intf_pins axi_ethernet_3/s_axis_txd]
+connect_bd_intf_net [get_bd_intf_pins eth_traffic_gen_3/m_axis_txc] [get_bd_intf_pins axi_ethernet_3/s_axis_txc]
 
 # GEN1 <- MAC0
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_0/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_1/S_AXIS_RXD]
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_0/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_1/S_AXIS_RXS]
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_0/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_1/s_axis_rxd]
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_0/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_1/s_axis_rxs]
 # GEN0 <- MAC1
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_1/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_0/S_AXIS_RXD]
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_1/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_0/S_AXIS_RXS]
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_1/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_0/s_axis_rxd]
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_1/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_0/s_axis_rxs]
 # GEN3 <- MAC2
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_2/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_3/S_AXIS_RXD]
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_2/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_3/S_AXIS_RXS]
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_2/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_3/s_axis_rxd]
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_2/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_3/s_axis_rxs]
 # GEN2 <- MAC3
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_3/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_2/S_AXIS_RXD]
-connect_bd_intf_net [get_bd_intf_pins axi_ethernet_3/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_2/S_AXIS_RXS]
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_3/m_axis_rxd] [get_bd_intf_pins eth_traffic_gen_2/s_axis_rxd]
+connect_bd_intf_net [get_bd_intf_pins axi_ethernet_3/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_2/s_axis_rxs]
 
 # Connect the AXI-lite buses
 
@@ -271,10 +271,10 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_s
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_1/s_axi]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_2/s_axi]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_3/s_axi]
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_0/S_AXI]
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_1/S_AXI]
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_2/S_AXI]
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_3/S_AXI]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_0/s_axi_p0]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_1/s_axi_p0]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_2/s_axi_p0]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_3/s_axi_p0]
 endgroup
 
 # Connect the AXI streaming clocks
@@ -284,41 +284,7 @@ connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins ax
 connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins axi_ethernet_2/axis_clk] [get_bd_pins processing_system7_0/FCLK_CLK0]
 connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins axi_ethernet_3/axis_clk] [get_bd_pins processing_system7_0/FCLK_CLK0]
 
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_0/m_axis_txc_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_0/s_axis_rxs_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_0/m_axis_txd_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_0/s_axis_rxd_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_1/m_axis_txc_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_1/s_axis_rxs_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_1/m_axis_txd_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_1/s_axis_rxd_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_2/m_axis_txc_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_2/s_axis_rxs_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_2/m_axis_txd_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_2/s_axis_rxd_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_3/m_axis_txc_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_3/s_axis_rxs_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_3/m_axis_txd_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins eth_traffic_gen_3/s_axis_rxd_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-
 # Connect the resets
-
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_0/m_axis_txc_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_0/s_axis_rxs_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_0/m_axis_txd_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_0/s_axis_rxd_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_1/m_axis_txc_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_1/s_axis_rxs_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_1/m_axis_txd_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_1/s_axis_rxd_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_2/m_axis_txc_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_2/s_axis_rxs_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_2/m_axis_txd_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_2/s_axis_rxd_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_3/m_axis_txc_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_3/s_axis_rxs_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_3/m_axis_txd_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins eth_traffic_gen_3/s_axis_rxd_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
 
 connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_txd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
 connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_txc_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
