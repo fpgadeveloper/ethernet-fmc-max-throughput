@@ -4,7 +4,7 @@ ethernet-fmc-max-throughput
 Example design for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") using an FPGA based hardware
 packet generator/checker to demonstrate maximum throughput.
 
-### Supported carrier boards
+## Supported carrier boards
 
 * [ZedBoard](http://zedboard.org "ZedBoard")
   * LPC connector (use zedboard.xdc)
@@ -13,19 +13,18 @@ packet generator/checker to demonstrate maximum throughput.
 * [PicoZed 7Z010, 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier](http://zedboard.org/product/picozed-carrier-card "PicoZed FMC Carrier")
   * LPC connector (use pzfmc-7z010.xdc, or pzfmc-7z015.xdc, or pzfmc-7z020.xdc, or pzfmc-7z030.xdc)
 
-### Description
+## Description
 
 This project is used for testing the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") at
 maximum throughput. The design contains 4 AXI Ethernet blocks and 4
-hardware traffic generators/checkers. The software application sets up
-the MACs in promiscuous mode which allows them to pass through all
-packets, regardless of their destination MAC address. It also sets them
-up to receive the FCS (checksum) from the user design, rather than
-calculating and inserting it itself.
+hardware traffic generators/checkers. The traffic generators will both
+generate Ethernet frames and check received frames for bit errors. The
+transmitted frames contain fixed destination and source MAC addresses,
+the Ethertype, a payload of random data and the FCS checksum.
 
 ![Ethernet FMC Max Throughput Test design](http://ethernetfmc.com/wp-content/uploads/2014/10/qgige_max_throughput.png "Ethernet FMC Max Throughput Test design")
 
-### Requirements
+## Requirements
 
 In order to test the Ethernet FMC using this design, you need to use an
 Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
@@ -38,7 +37,7 @@ You will also need the following:
 * Two Ethernet cables
 * [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 
-### Background
+## Background
 
 In order to test an Ethernet device at maximum throughput (back-to-back
 packets at 1Gbps), one could setup the MACs to loopback to each other
@@ -52,28 +51,39 @@ These generator/checkers drive the AXI Ethernet cores (the MACs) with a
 continuous stream of packets. By using the FPGA to generate the Ethernet
 packets, we are able to exploit almost 100% of the potential bandwidth.
 
-### Catching Errors
+## MAC Setup
+
+The software application sets up the MACs in promiscuous mode which
+allows them to pass through all packets, regardless of their destination
+MAC address. It also sets them up to receive the FCS (checksum) from the
+user design, rather than calculating and inserting it itself.
+
+## Detecting Bit Errors
+
+### Counting Dropped Frames
 
 Due to the FCS (checksum) which is present in every Ethernet packet, most bit
 errors that are injected into the system will result in dropped packets at
 the receiving MAC (ie. the receiving MAC will reject packets where the FCS does
-not match the frame data). Therefore, in order to detect bit errors in this
-design, we use the software application to poll the MACs and count the
-rejected frames.
+not match the frame data). Therefore, our primary method for detection of bit
+errors involves polling the MACs for rejected frames. The number of rejected
+frames is tracked by the software application.
 
-To ensure that the MACs are truly rejecting frames with bad checksums, we inject
-one bit error into one packet per second, on all 4 ports. In order to inject a
-bit error, our design needs to also supply the FCS to the transmit interface of
-the MACs. We cannot inject a bit error, then allow the MACs to append the correct
-FCS for the erroneous packet, or it will not be dropped on the receiving end.
-The bit error must be injected after the FCS has been calculated.
+To ensure that the MACs are truly rejecting frames with bit errors, we inject
+one bit error into one packet per second, on all 4 ports. Our design supplies
+the FCS to the transmit interface of the MACs, rather than having the MACs 
+calculate and append the FCS. This allows us to inject a bit error that should
+render the FCS incorrect for the frame.
 
-To detect the errors that do not result in rejected frames, the Ethernet Traffic
-Generator IP needs to read the received packets and compare them with the transmitted
-frames. Any bit errors need to be counted and accessible to the processor through
-a software register.
+### Checking Received Frames
 
-### Ethernet Traffic Generator IP
+The checksum should prevent most bit errors from getting through the receiving MAC
+however it is not an infallible detection system. To detect the errors that do not
+result in rejected frames, the Ethernet Traffic Generator IP reads the received packets
+and compares them with the known transmitted frame. Any bit errors are counted and
+accessible to the processor through a software register.
+
+## Ethernet Traffic Generator IP
 
 The traffic generator IP was designed in Vivado HLS (High-level Synthesis) and is coded
 in C++. Vivado HLS allows hardware algorithms to be programmed in the C/C++ language which
@@ -91,7 +101,7 @@ software registers of the DUT. The RTL testbench connects the output of the DUT 
 of the DUT (RX frames). To run the simulation, simply open the Vivado project and select 
 Run Simulation->Run Behavioral Simulation.
 
-### Other applications
+## Other applications
 
 This design is actually used as a production test for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 because it places maximum stress on the PHYs, which forces the maximum
@@ -100,17 +110,17 @@ between lanes. It can however be a very useful design for people who
 need to communicate over Ethernet with another FPGA or an Ethernet
 device that can support the high throughput.
 
-### License
+## License
 
 Feel free to modify the code for your specific application.
 
-### Fork and share
+## Fork and share
 
 If you port this project to another hardware platform, please send me the
 code or push it onto GitHub and send me the link so I can post it on my
 website. The more people that benefit, the better.
 
-### About the author
+## About the author
 
 I'm an FPGA consultant and I provide FPGA design services to innovative
 companies around the world. I believe in sharing knowledge and

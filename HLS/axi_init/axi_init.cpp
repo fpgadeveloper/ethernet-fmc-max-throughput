@@ -42,9 +42,5 @@ void axi_init(volatile int *a){
   addr = (0x44A00010 >> 2);
   *(a+addr) = 0x1;
 
-  // enable auto restart and start
-  addr = (0x44A00000 >> 2);
-  *(a+addr) = 0x81;
-
 }
 

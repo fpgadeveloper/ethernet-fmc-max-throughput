@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Opsero Electronic Design Inc.  All rights reserved.
+ * Copyright (c) 2016 Opsero Electronic Design Inc.  All rights reserved.
  *
  */
 
@@ -15,33 +15,36 @@
  *  - poll the rejected frame interrupt flag for about 1 second
  *  - increment counters when dropped frames are detected
  *  - display the value of the counters
+ *  - display the value of the bit error counters
  *
- * The console will display the dropped frame counts for all
- * ports about once a second. The values should be incrementing
- * by one for each reading. In normal operation, the value of
- * the counter for each port should be the same which indicates
- * that there have been no dropped packets besides those in
- * which an error was forced by the Ethernet packet generator.
+ * The console will display the dropped frame and bit error
+ * counts for all ports about once a second. The dropped frame
+ * values should be incrementing by one for each reading.
+ * The bit error counts should always be zero.
+ * In normal operation, the dropped frame counter for each
+ * port should be the same which indicates that there have
+ * been no dropped packets besides those in which an error was
+ * forced by the Ethernet Traffic Generator.
  *
  * Example (normal) output:
  *
- * Dropped frames (P0,P1,P2,P3):    1     1     1     1
- * Dropped frames (P0,P1,P2,P3):    2     2     2     2
- * Dropped frames (P0,P1,P2,P3):    3     3     3     3
- * Dropped frames (P0,P1,P2,P3):    4     4     4     4
- * Dropped frames (P0,P1,P2,P3):    5     5     5     5
- * Dropped frames (P0,P1,P2,P3):    6     6     6     6
- * Dropped frames (P0,P1,P2,P3):    7     7     7     7
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    1:0     1:0     1:0     1:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    2:0     2:0     2:0     2:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    3:0     3:0     3:0     3:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    4:0     4:0     4:0     4:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    5:0     5:0     5:0     5:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    6:0     6:0     6:0     6:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    7:0     7:0     7:0     7:0
  *
  * Example output where a frame was lost on port 2:
  *
- * Dropped frames (P0,P1,P2,P3):    1     1     1     1
- * Dropped frames (P0,P1,P2,P3):    2     2     2     2
- * Dropped frames (P0,P1,P2,P3):    3     3     4     3
- * Dropped frames (P0,P1,P2,P3):    4     4     5     4
- * Dropped frames (P0,P1,P2,P3):    5     5     6     5
- * Dropped frames (P0,P1,P2,P3):    6     6     7     6
- * Dropped frames (P0,P1,P2,P3):    7     7     8     7
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    1:0     1:0     1:0     1:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    2:0     2:0     2:0     2:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    3:0     3:0     4:0     3:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    4:0     4:0     5:0     4:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    5:0     5:0     6:0     5:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    6:0     6:0     7:0     6:0
+ * Dropped frames:Bit errors (P0,P1,P2,P3):    7:0     7:0     8:0     7:0
  *
  */
 
@@ -101,6 +104,10 @@ int main()
 	volatile u32 dropped_frames_1;
 	volatile u32 dropped_frames_2;
 	volatile u32 dropped_frames_3;
+	volatile u32 bit_errors_0;
+	volatile u32 bit_errors_1;
+	volatile u32 bit_errors_2;
+	volatile u32 bit_errors_3;
 
 	/*
 	 * Initialize the GPIO driver.
@@ -185,18 +192,6 @@ int main()
   XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_1_p,0);
   XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,0);
   XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,0);
-
-  // Continuous operation
-  XEth_traffic_gen_EnableAutoRestart(eth_pkt_gen_0_p);
-  XEth_traffic_gen_EnableAutoRestart(eth_pkt_gen_1_p);
-  XEth_traffic_gen_EnableAutoRestart(eth_pkt_gen_2_p);
-  XEth_traffic_gen_EnableAutoRestart(eth_pkt_gen_3_p);
-
-  // Start the Ethernet Traffic Generators
-  XEth_traffic_gen_Start(eth_pkt_gen_0_p);
-  XEth_traffic_gen_Start(eth_pkt_gen_1_p);
-  XEth_traffic_gen_Start(eth_pkt_gen_2_p);
-  XEth_traffic_gen_Start(eth_pkt_gen_3_p);
 
   /* Configure the AXI Ethernet MACs and the PHYs */
 	xil_printf("Ethernet Port 0:\n\r");
@@ -287,6 +282,13 @@ int main()
 				dropped_frames_3++;
 			}
 		}
+
+		// Read the bit error counters
+		bit_errors_0 = XEth_traffic_gen_Get_err_count_V(eth_pkt_gen_0_p);
+		bit_errors_1 = XEth_traffic_gen_Get_err_count_V(eth_pkt_gen_1_p);
+		bit_errors_2 = XEth_traffic_gen_Get_err_count_V(eth_pkt_gen_2_p);
+		bit_errors_3 = XEth_traffic_gen_Get_err_count_V(eth_pkt_gen_3_p);
+
 		/* Display the dropped frame counter values
 		 * ----------------------------------------
 		 * Using good Ethernet cables and an environment with low EMI,
@@ -297,8 +299,11 @@ int main()
 		 * the same value always.
 		 *
 		 */
-		xil_printf("Dropped frames (P0,P1,P2,P3): %8d %8d %8d %8d\n\r",
-					dropped_frames_0,dropped_frames_1,dropped_frames_2,dropped_frames_3);
+		xil_printf("Dropped frames:Bit errors (P0,P1,P2,P3): %4d:%-4d %4d:%-4d %4d:%-4d %4d:%-4d\n\r",
+					dropped_frames_0,bit_errors_0,
+					dropped_frames_1,bit_errors_1,
+					dropped_frames_2,bit_errors_2,
+					dropped_frames_3,bit_errors_3);
 
 		if((dropped_frames_0 == dropped_frames_1) &&
 				(dropped_frames_1 == dropped_frames_2) &&

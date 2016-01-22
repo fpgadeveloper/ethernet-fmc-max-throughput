@@ -13,7 +13,7 @@ if exist .\%1.tcl (
     echo Core %1 already built
   ) else (
     echo Building core %1
-    %vivado_hls% -f %1.tcl
+    call %vivado_hls% -f %1.tcl
   )
 )
 cd ..
