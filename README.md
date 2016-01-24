@@ -8,10 +8,16 @@ packet generator/checker to demonstrate maximum throughput.
 
 * [ZedBoard](http://zedboard.org "ZedBoard")
   * LPC connector (use zedboard.xdc)
-* [MicroZed 7Z010 and 7Z020](http://microzed.org "MicroZed 7Z010") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
-  * LPC connector (use mzfmc-7z010.xdc, or mzfmc-7z020.xdc)
-* [PicoZed 7Z010, 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier](http://zedboard.org/product/picozed-carrier-card "PicoZed FMC Carrier")
-  * LPC connector (use pzfmc-7z010.xdc, or pzfmc-7z015.xdc, or pzfmc-7z020.xdc, or pzfmc-7z030.xdc)
+* [MicroZed 7Z020](http://microzed.org "MicroZed 7Z020") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
+  * LPC connector (use mzfmc-7z020.xdc)
+* [PicoZed 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier](http://zedboard.org/product/picozed-carrier-card "PicoZed FMC Carrier")
+  * LPC connector (use pzfmc-7z015.xdc, or pzfmc-7z020.xdc, or pzfmc-7z030.xdc)
+
+### Note about 7Z010 devices:
+
+This repository contains the build scripts and constraints for the MicroZed 7Z010 and PicoZed 7Z010, however
+those devices do not contain sufficient resources for the design, so those versions of the project do not
+result in a bitstream. The project will eventually be redesigned to fit those devices.
 
 ## Description
 
