@@ -1,4 +1,4 @@
-SET vivado=C:\Xilinx\Vivado\2015.4\bin\vivado.bat
+SET vivado=C:\Xilinx\Vivado\2016.1\bin\vivado.bat
 pushd ..\HLS
 call build-hls-cores.bat
 popd

@@ -532,7 +532,7 @@ void init_params(ap_uint<32> *dst_mac_lo,
 	// Initialize sub-blocks with software register values
 	// Only gets executed once
 	if(init_flag == 0){
-		if((*pkt_len ==16) or (*pkt_len == 374)){
+		if((*pkt_len != 0)){
 			// calculate the MAC address frame words
 			combine_mac_addr(*dst_mac_lo,*dst_mac_hi,*src_mac_lo,*src_mac_hi,
 					&params.mac_addr_0,&params.mac_addr_1,&params.mac_addr_2);
@@ -567,10 +567,10 @@ void eth_traffic_gen(stream<axiWord>& m_axis_txc,stream<axiWord>& m_axis_txd,
 		ap_uint<32> *src_mac_hi,
 		ap_uint<32> *pkt_len,
 		ap_uint<32> *err_count) {
-#pragma HLS INTERFACE axis depth=128 port=m_axis_txc
-#pragma HLS INTERFACE axis depth=128 port=m_axis_txd
-#pragma HLS INTERFACE axis depth=128 port=s_axis_rxs
-#pragma HLS INTERFACE axis depth=128 port=s_axis_rxd
+#pragma HLS INTERFACE axis port=m_axis_txc
+#pragma HLS INTERFACE axis port=m_axis_txd
+#pragma HLS INTERFACE axis port=s_axis_rxs
+#pragma HLS INTERFACE axis port=s_axis_rxd
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS INTERFACE s_axilite port=force_error bundle=p0
 #pragma HLS INTERFACE s_axilite port=dst_mac_lo bundle=p0
