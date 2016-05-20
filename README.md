@@ -10,13 +10,7 @@ packet generator/checker to demonstrate maximum throughput.
   * LPC connector (use zedboard.xdc)
 * [MicroZed 7Z020](http://microzed.org "MicroZed 7Z020") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
   * LPC connector (use mzfmc-7z020.xdc)
-
-### Future support
-
-This repository contains designs for the following boards, however they should not be considered functional at this stage.
-Please contact me for more information.
-
-* [PicoZed 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier](http://zedboard.org/product/picozed-carrier-card "PicoZed FMC Carrier")
+* [PicoZed 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier Card V2](http://zedboard.org/product/picozed-fmc-carrier-card-v2 "PicoZed FMC Carrier Card V2")
   * LPC connector (use pzfmc-7z015.xdc, or pzfmc-7z020.xdc, or pzfmc-7z030.xdc)
 
 ### Note about 7Z010 devices:
