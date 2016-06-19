@@ -4,7 +4,6 @@
 ******************************************************************************/
 
 #include "eeprom_fmc.h"
-#include "xil_types.h"
 #include "i2c_fmc.h"
 #include "sleep.h"
 
