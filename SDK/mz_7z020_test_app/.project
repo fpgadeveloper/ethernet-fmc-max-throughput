@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>test_app</name>
-	<comment>Created by SDK v2016.1. test_app_bsp - ps7_cortexa9_0</comment>
+	<name>mz_7z020_test_app</name>
+	<comment>Created by SDK v2016.2. mz_7z020_test_app_bsp - ps7_cortexa9_0</comment>
 	<projects>
-		<project>test_app_bsp</project>
+		<project>mz_7z020_test_app_bsp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

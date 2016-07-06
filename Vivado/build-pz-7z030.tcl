@@ -1,23 +1,25 @@
 #
-# build.tcl: Tcl script for re-creating project 'pz_7z030_qgige_max_tp'
+# build.tcl: Tcl script for re-creating project 'pz_7z030_max_tp'
 #
 #*****************************************************************************************
+
+set design_name pz_7z030_max_tp
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir "."
 
 # Set the directory path for the original project from where this script was exported
-set orig_proj_dir "[file normalize "$origin_dir/pz_7z030_qgige_max_tp"]"
+set orig_proj_dir "[file normalize "$origin_dir/$design_name"]"
 
 # Create project
-create_project pz_7z030_qgige_max_tp ./pz_7z030_qgige_max_tp
+create_project $design_name $origin_dir/$design_name
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
 
 # Set project properties
-set obj [get_projects pz_7z030_qgige_max_tp]
-set_property "board_part" "em.avnet.com:picozed_7030:part0:1.0" $obj
+set obj [get_projects $design_name]
+set_property "board_part" "em.avnet.com:picozed_7030_fmc2:part0:1.1" $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "sim.ip.auto_export_scripts" "1" $obj
 set_property "simulator_language" "Mixed" $obj
@@ -34,7 +36,7 @@ set_property "ip_repo_paths" "[file normalize "$origin_dir/../HLS"]" $obj
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
-set_property "top" "design_1_wrapper" $obj
+set_property "top" "${design_name}_wrapper" $obj
 
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
@@ -117,15 +119,16 @@ set obj [get_runs impl_1]
 # set the current impl run
 current_run -implementation [get_runs impl_1]
 
-puts "INFO: Project created:pz_7z030_qgige_max_tp"
+puts "INFO: Project created:${design_name}"
 
 # Create block design
 source $origin_dir/src/bd/design_1.tcl
 
 # Generate the wrapper
-make_wrapper -files [get_files design_1.bd] -top -import
-set_property used_in_simulation false [get_files design_1_wrapper.vhd]
-set_property used_in_simulation false [get_files design_1.bd]
+make_wrapper -files [get_files *${design_name}.bd] -top
+add_files -norecurse ${design_name}/${design_name}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.vhd
+set_property used_in_simulation false [get_files ${design_name}_wrapper.vhd]
+set_property used_in_simulation false [get_files ${design_name}.bd]
 
 # Create block design for simulation
 source $origin_dir/src/bd/design_2.tcl
@@ -135,4 +138,8 @@ make_wrapper -files [get_files design_2.bd] -top -import
 set_property used_in_synthesis false [get_files design_2_wrapper.vhd]
 set_property used_in_synthesis false [get_files design_2.bd]
 set_property used_in_implementation false [get_files design_2.bd]
+
+# Update the compile order
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_1
 
