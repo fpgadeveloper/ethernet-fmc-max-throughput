@@ -94,9 +94,9 @@ void combine_mac_addr(ap_uint<32> dst_mac_lo,
  */
 ap_uint<32> calc_ethertype(unsigned int pkt_len) {
 #pragma HLS pipeline II=1 enable_flush
-	ap_uint<8> uint8_hi;
-	ap_uint<8> uint8_lo;
-	ap_uint<16> pkt_len_bytes;
+	ap_uint<8> uint8_hi = 0;
+	ap_uint<8> uint8_lo = 0;
+	ap_uint<16> pkt_len_bytes = 0;
 
 	// Convert the packet length in words, to packet length in bytes
 	pkt_len_bytes = (pkt_len * 4) + 2;
@@ -159,7 +159,7 @@ void txc_handler(stream<axiWord>& txc,
 
 	static axiWord currWord = {0, 0xF, 0};
 	static ap_uint<32> i = 0;
-	ap_uint<1> trig;
+	ap_uint<1> trig = 0;
 
 	switch(txcState) {
 	case TXC_IDLE:
@@ -351,22 +351,15 @@ void rxs_handler(stream<axiWord>& rxs){
  */
 ap_uint<32> error_count(ap_uint<32> data, ap_uint<32> expected){
 #pragma HLS pipeline II=1 enable_flush
-	ap_uint<32> error_mask;
-	ap_uint<32> error_count;
+	ap_uint<32> error_mask = 0;
+	ap_uint<32> error_count = 0;
+	ap_uint<32> i = 0;
 
 	error_mask = data xor expected;
 
-	error_count = error_mask[0] +
-			error_mask[1] + error_mask[11] + error_mask[21] +
-			error_mask[2] + error_mask[12] + error_mask[22] +
-			error_mask[3] + error_mask[13] + error_mask[23] +
-			error_mask[4] + error_mask[14] + error_mask[24] +
-			error_mask[5] + error_mask[15] + error_mask[25] +
-			error_mask[6] + error_mask[16] + error_mask[26] +
-			error_mask[7] + error_mask[17] + error_mask[27] +
-			error_mask[8] + error_mask[18] + error_mask[28] +
-			error_mask[9] + error_mask[19] + error_mask[29] +
-			error_mask[10] + error_mask[20] + error_mask[30] + error_mask[31];
+	for(i = 0; i<32; i++){
+		error_count += error_mask[i];
+	}
 
 	return(error_count);
 }
@@ -500,7 +493,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 void error_counter(stream<ap_uint<32> >& err_strm,ap_uint<32> *err_count) {
 #pragma HLS pipeline II=1 enable_flush
 	static ap_uint<32> errors = 0;
-	  ap_uint<32> count;
+	  ap_uint<32> count = 0;
 
 	if(!err_strm.empty()){
 		err_strm.read(count);
