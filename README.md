@@ -36,8 +36,8 @@ In order to test the Ethernet FMC using this design, you need to use an
 Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
-* Vivado 2016.2
-* Vivado HLS 2016.2
+* Vivado 2016.3
+* Vivado HLS 2016.3
 * [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 * Supported FMC carrier board (see list of supported carriers above)
 * Two Ethernet cables
@@ -126,11 +126,9 @@ If you port this project to another hardware platform, please send me the
 code or push it onto GitHub and send me the link so I can post it on my
 website. The more people that benefit, the better.
 
-## About the author
+### About us
 
-I'm an FPGA consultant and I provide FPGA design services to innovative
-companies around the world. I believe in sharing knowledge and
-I regularly contribute to the open source community.
-
-Jeff Johnson
-[FPGA Developer](http://www.fpgadeveloper.com "FPGA Developer")
+This project was developed by [Opsero Inc.](http://opsero.com "Opsero Inc."),
+a tight-knit team of FPGA experts delivering FPGA products and design services to start-ups and tech companies. 
+Follow our blog, [FPGA Developer](http://www.fpgadeveloper.com "FPGA Developer"), for news, tutorials and
+updates on the awesome projects we work on.

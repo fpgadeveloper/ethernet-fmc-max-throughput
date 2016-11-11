@@ -124,16 +124,28 @@ int main()
 
 	init_platform();
 
-  // Initialize Ethernet Traffic Generators
-  XEth_traffic_gen_Initialize(eth_pkt_gen_0_p,XPAR_ETH_TRAFFIC_GEN_0_DEVICE_ID);
-  XEth_traffic_gen_Initialize(eth_pkt_gen_1_p,XPAR_ETH_TRAFFIC_GEN_1_DEVICE_ID);
-  XEth_traffic_gen_Initialize(eth_pkt_gen_2_p,XPAR_ETH_TRAFFIC_GEN_2_DEVICE_ID);
-  XEth_traffic_gen_Initialize(eth_pkt_gen_3_p,XPAR_ETH_TRAFFIC_GEN_3_DEVICE_ID);
-  XEth_traffic_gen_CfgInitialize(eth_pkt_gen_0_p,XEth_traffic_gen_LookupConfig(XPAR_ETH_TRAFFIC_GEN_0_DEVICE_ID));
-  XEth_traffic_gen_CfgInitialize(eth_pkt_gen_1_p,XEth_traffic_gen_LookupConfig(XPAR_ETH_TRAFFIC_GEN_1_DEVICE_ID));
-  XEth_traffic_gen_CfgInitialize(eth_pkt_gen_2_p,XEth_traffic_gen_LookupConfig(XPAR_ETH_TRAFFIC_GEN_2_DEVICE_ID));
-  XEth_traffic_gen_CfgInitialize(eth_pkt_gen_3_p,XEth_traffic_gen_LookupConfig(XPAR_ETH_TRAFFIC_GEN_3_DEVICE_ID));
-
+	// Initialize Ethernet Traffic Generators
+	Status = XEth_traffic_gen_Initialize(eth_pkt_gen_0_p,XPAR_ETH_TRAFFIC_GEN_0_DEVICE_ID);
+	if (Status != XST_SUCCESS) {
+		xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 0\n\r");
+		return XST_FAILURE;
+	}
+	Status = XEth_traffic_gen_Initialize(eth_pkt_gen_1_p,XPAR_ETH_TRAFFIC_GEN_1_DEVICE_ID);
+	if (Status != XST_SUCCESS) {
+		xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 1\n\r");
+		return XST_FAILURE;
+	}
+	Status = XEth_traffic_gen_Initialize(eth_pkt_gen_2_p,XPAR_ETH_TRAFFIC_GEN_2_DEVICE_ID);
+	if (Status != XST_SUCCESS) {
+		xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 2\n\r");
+		return XST_FAILURE;
+	}
+	Status = XEth_traffic_gen_Initialize(eth_pkt_gen_3_p,XPAR_ETH_TRAFFIC_GEN_3_DEVICE_ID);
+	if (Status != XST_SUCCESS) {
+		xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 3\n\r");
+		return XST_FAILURE;
+	}
+	
   // Set MAC addresses
   XEth_traffic_gen_Set_dst_mac_lo_V(eth_pkt_gen_0_p,0xFFFF1E00);
   XEth_traffic_gen_Set_dst_mac_hi_V(eth_pkt_gen_0_p,0xFFFF);
@@ -208,12 +220,6 @@ int main()
 		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,1);
 		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,1);
 
-		// Reset force error
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_0_p,0);
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_1_p,0);
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,0);
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,0);
-
 		/* Poll for dropped packets and increment counters
 		 * -----------------------------------------------
 		 * This loop will repeatedly poll the rejected frame
@@ -256,6 +262,12 @@ int main()
 				dropped_frames_3++;
 			}
 		}
+
+		// Reset force error
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_0_p,0);
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_1_p,0);
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,0);
+		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,0);
 
 		// Read the bit error counters
 		bit_errors_0 = XEth_traffic_gen_Get_err_count_V(eth_pkt_gen_0_p);

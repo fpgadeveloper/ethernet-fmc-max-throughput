@@ -48,62 +48,19 @@ struct axiWord {
   ap_uint<1> last;
 };
 
-struct param_struct {
-	ap_uint<32> mac_addr_0;
-	ap_uint<32> mac_addr_1;
-	ap_uint<32> mac_addr_2;
-	ap_uint<32> pkt_len;
-	ap_uint<32> ethertype;
-	ap_uint<32> fcs;
-};
-
-/* ----------------------------------------------
- * Combine MAC addresses
- * ----------------------------------------------
- * Combines DST and SRC MAC addresses into the 3 words that
- * are used in the Ethernet frame.
- *
- */
-void combine_mac_addr(ap_uint<32> dst_mac_lo,
-		ap_uint<32> dst_mac_hi,
-		ap_uint<32> src_mac_lo,
-		ap_uint<32> src_mac_hi,
-		ap_uint<32> *mac_addr_0,ap_uint<32> *mac_addr_1,ap_uint<32> *mac_addr_2) {
-#pragma HLS pipeline II=1 enable_flush
-	ap_uint<16> uint16_hi_0;
-	ap_uint<16> uint16_lo_0;
-	ap_uint<16> uint16_hi_1;
-	ap_uint<16> uint16_lo_1;
-	// combine dest and src mac addresses into the 3 x 32 bit words
-	uint16_hi_0 = dst_mac_hi.range(15,0);
-	uint16_lo_0 = dst_mac_lo.range(31,16);
-	*mac_addr_0 = uint16_hi_0.concat(uint16_lo_0);
-
-	uint16_hi_1 = dst_mac_lo.range(15,0);
-	uint16_lo_1 = src_mac_hi.range(15,0);
-	*mac_addr_1 = uint16_hi_1.concat(uint16_lo_1);
-
-	*mac_addr_2 = src_mac_lo;
-}
-
 /* ----------------------------------------------
  * Ethertype calculator
  * ----------------------------------------------
  * Generates the Ethertype word based on the packet length.
  *
  */
-ap_uint<32> calc_ethertype(unsigned int pkt_len) {
-#pragma HLS pipeline II=1 enable_flush
-	ap_uint<8> uint8_hi = 0;
-	ap_uint<8> uint8_lo = 0;
-	ap_uint<16> pkt_len_bytes = 0;
+ap_uint<32> calc_ethertype(ap_uint<32> pkt_len) {
+	ap_uint<16> pkt_len_bytes;
 
 	// Convert the packet length in words, to packet length in bytes
 	pkt_len_bytes = (pkt_len * 4) + 2;
 	// Then switch byte order to form the Ethertype
-	uint8_hi = pkt_len_bytes.range(7,0);
-	uint8_lo = pkt_len_bytes.range(15,8);
-	return(uint8_hi.concat(uint8_lo));
+	return((pkt_len_bytes.range(7,0),pkt_len_bytes.range(15,8)));
 }
 
 /* ----------------------------------------------
@@ -113,7 +70,6 @@ ap_uint<32> calc_ethertype(unsigned int pkt_len) {
  *
  */
 ap_uint<32> lfsr_next(ap_uint<32> *lfsr) {
-#pragma HLS pipeline II=1 enable_flush
 	if((*lfsr)[31] == 1){
 		*lfsr = (((*lfsr) ^ 0x00000062) << 1) | 1;
 	}
@@ -137,60 +93,13 @@ void force_error_handler(ap_uint<1> *force_error,stream<ap_uint<1> >& force_erro
 
 	static ap_uint<1> sig_r = 0;
 
-	if(sig_r != *force_error){
-		if((*force_error == 1) && (sig_r == 0)){
-			force_error_trig.write(1);
-		}
-		sig_r = *force_error;
+	if((sig_r != *force_error) && (*force_error == 1)){
+		force_error_trig.write(1);
 	}
+	sig_r = *force_error;
 }
 
 
-/* ----------------------------------------------
- * TXC Transmit handler
- * ----------------------------------------------
- * Transmits control frames to the AXI Ethernet Subsystem.
- *
- */
-void txc_handler(stream<axiWord>& txc,
-				stream<ap_uint<1> >& txc_trig){
-#pragma HLS pipeline II=1 enable_flush
-	static enum txcState {TXC_IDLE = 0, TXC_CTRLFRAME_0,TXC_CTRLFRAME_1} txcState;
-
-	static axiWord currWord = {0, 0xF, 0};
-	static ap_uint<32> i = 0;
-	ap_uint<1> trig = 0;
-
-	switch(txcState) {
-	case TXC_IDLE:
-		// Wait for the TXD handler to trigger a frame
-		if(!txc_trig.empty()){
-			txc_trig.read(trig);
-			// Start sending the control frame
-			currWord.last = 0;
-			currWord.data = 0xA0000000;
-			txc.write(currWord);
-			i = 0;
-			txcState = TXC_CTRLFRAME_0;
-		}
-		break;
-	case TXC_CTRLFRAME_0:
-		// Send the rest of the control frame
-		currWord.data = 0;
-		txc.write(currWord);
-		if(i == 3)
-			txcState = TXC_CTRLFRAME_1;
-		i++;
-		break;
-	case TXC_CTRLFRAME_1:
-		// Send the last word
-		currWord.data = 0;
-		currWord.last = 1;
-		txc.write(currWord);
-		txcState = TXC_IDLE;
-		break;
-	  }
-}
 
 
 /* ----------------------------------------------
@@ -220,91 +129,135 @@ void txc_handler(stream<axiWord>& txc,
  * calculator will be a future addition to this example design.
  */
 void txd_handler(stream<axiWord>& txd,
-		stream<ap_uint<1> >& txc_trig,
+		stream<axiWord>& txc,
 		stream<ap_uint<1> >& force_error_trig,
-		stream<param_struct>& param_strm){
+		ap_uint<32> *dst_mac_lo,
+		ap_uint<32> *dst_mac_hi,
+		ap_uint<32> *src_mac_lo,
+		ap_uint<32> *src_mac_hi,
+		ap_uint<32> *pkt_len){
 #pragma HLS pipeline II=1 enable_flush
 
-	  static enum tState {TXD_INIT = 0, TXD_IDLE, TXD_MAC_0, TXD_MAC_1, TXD_MAC_2,
+	  static enum tState {TXD_INIT = 0, TXC_IDLE,
+		  TXC_CTRLFRAME_0,TXC_CTRLFRAME_1,TXD_MAC_0, TXD_MAC_1, TXD_MAC_2,
 		  TXD_ETHERTYPE,TXD_PAYLOAD,TXD_FCS} txdState;
 	  static ap_uint<32> lfsr = 0xFFFFFFFF;
+#pragma HLS reset variable=lfsr
 	  static ap_uint<32> i = 0;
+#pragma HLS reset variable=i
+	  static ap_uint<32> j = 0;
+#pragma HLS reset variable=j
+	  static ap_uint<32> fcs_r = 0x58309809;
+#pragma HLS reset variable=fcs_r
 	  static ap_uint<1> force_err = 0;
+#pragma HLS reset variable=force_err
+	  static ap_uint<32> pkt_len_r = 0;
+#pragma HLS reset variable=pkt_len_r
+	  static ap_uint<32> ethertype_r = 0;
+#pragma HLS reset variable=ethertype_r
 
-	  static axiWord currWord = {0, 0xF, 0};
-	  static param_struct params = {0,0,0,0,0,0};
+	  static axiWord txcWord = {0, 0xF, 0};
+	  static axiWord txdWord = {0, 0xF, 0};
 
 	  switch(txdState) {
 	  case TXD_INIT:
-		  if(!param_strm.empty()){
-			  // Read the parameters
-			  param_strm.read(params);
-			  // Trigger the TXC handler to start a frame
-			  txc_trig.write(1);
-			  txdState = TXD_IDLE;
+		  // Wait for a valid packet length from the software
+		  if((*pkt_len > 0) && (*pkt_len <= 374)){
+			  pkt_len_r = *pkt_len;
+			  // Calculate FCS
+			  if(pkt_len_r == 16){
+				  fcs_r = 0x58309809;
+			  }
+			  else if(pkt_len_r == 374){
+				  fcs_r = 0x89C8FF96;
+			  }
+			  // Calculate ethertype
+			  ethertype_r = calc_ethertype(pkt_len_r);
+			  txdState = TXC_IDLE;
 		  }
 		  break;
 
-	  case TXD_IDLE:
-		  // Reset the LFSR
-		  lfsr = 0xFFFFFDA3;
-		  // Reset the AXIS last signal
-		  currWord.last = 0;
-		  txdState = TXD_MAC_0;
+	  case TXC_IDLE:
+		  // Start sending the control frame
+		  txcWord.last = 0;
+		  txcWord.data = 0xA0000000;
+		  txc.write(txcWord);
+		  i = 0;
+		  txdState = TXC_CTRLFRAME_0;
 		  break;
 
+		case TXC_CTRLFRAME_0:
+			// Send the rest of the control frame
+			txcWord.data = 0;
+			txc.write(txcWord);
+			if(i == 3)
+				txdState = TXC_CTRLFRAME_1;
+			i++;
+			break;
+		case TXC_CTRLFRAME_1:
+			// Send the last word
+			txcWord.data = 0;
+			txcWord.last = 1;
+			txc.write(txcWord);
+			// Reset the LFSR
+			lfsr = 0xFFFFFDA3;
+			// Reset the AXIS last signal
+			txdWord.last = 0;
+			txdState = TXD_MAC_0;
+			break;
 	  case TXD_MAC_0:
-		  // Output the MAC address word 0
-		  currWord.data = params.mac_addr_0;
-		  txd.write(currWord);
+			// Output the MAC address word 0
+			txdWord.data(15,0) = (*dst_mac_lo)(31,16);
+			txdWord.data(31,16) = (*dst_mac_hi)(15,0);
+		  txd.write(txdWord);
 		  txdState = TXD_MAC_1;
 		  break;
 
 	  case TXD_MAC_1:
 		  // Output the MAC address word 1
-		  currWord.data = params.mac_addr_1;
-		  txd.write(currWord);
+		  txdWord.data(31,16) = (*dst_mac_lo)(15,0);
+		  txdWord.data(15,0) = (*src_mac_hi)(15,0);
+		  txd.write(txdWord);
 		  txdState = TXD_MAC_2;
 		  break;
 
 	  case TXD_MAC_2:
 		  // Output the MAC address word 2
-		  currWord.data = params.mac_addr_2;
-		  txd.write(currWord);
+		  txdWord.data = (*src_mac_lo);
+		  txd.write(txdWord);
 		  txdState = TXD_ETHERTYPE;
 		  break;
 
 	  case TXD_ETHERTYPE:
 		  // Output the EtherType word + padding
-		  currWord.data = params.ethertype;
-		  txd.write(currWord);
+		  txdWord.data = ethertype_r;
+		  txd.write(txdWord);
 		  txdState = TXD_PAYLOAD;
-		  i = 0;
+		  j = 0;
 		  break;
 
 	  case TXD_PAYLOAD:
 		  // Output the payload (random data)
 		  // Calculate new LFSR value, replace old one
-		  currWord.data = lfsr_next(&lfsr);
-		  txd.write(currWord);
-		  if(i == (params.pkt_len - 1))
+		  txdWord.data = lfsr_next(&lfsr);
+		  txd.write(txdWord);
+		  if(j == (pkt_len_r - 1))
 			  txdState = TXD_FCS;
-		  i++;
+		  j++;
 		  break;
 
 	  case TXD_FCS:
 		  // Output the FCS and generate error if requested
 		  if(!force_error_trig.empty()){
 			  force_error_trig.read(force_err);
-			  currWord.data = params.fcs xor 0x10000000;
+			  txdWord.data = fcs_r xor 0x10000000;
 		  } else {
-			  currWord.data = params.fcs;
+			  txdWord.data = fcs_r;
 		  }
-		  currWord.last = 1;
-		  txd.write(currWord);
-		  // Trigger the TXC handler to start another frame
-		  txc_trig.write(1);
-		  txdState = TXD_IDLE;
+		  txdWord.last = 1;
+		  txd.write(txdWord);
+		  // Start another frame
+		  txdState = TXD_INIT;
 		  break;
 
 	  }
@@ -377,29 +330,49 @@ ap_uint<32> error_count(ap_uint<32> data, ap_uint<32> expected){
  *
  */
 void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
-		stream<param_struct>& param_strm){
+		ap_uint<32> *dst_mac_lo,
+				ap_uint<32> *dst_mac_hi,
+				ap_uint<32> *src_mac_lo,
+				ap_uint<32> *src_mac_hi,
+				ap_uint<32> *pkt_len){
 #pragma HLS pipeline II=1 enable_flush
 	  static enum rdState {R_INIT = 0, R_MAC_0, R_MAC_1, R_MAC_2,
 		  R_ETHERTYPE, R_PAYLOAD, R_FCS, R_TRAILER} rxdState;
 
 	  axiWord rxWord = {0, 0xF, 0};
-	  static param_struct params = {0,0,0,0,0,0};
 	  static ap_uint<32> lfsr = 0xFFFFFFFF;
+#pragma HLS reset variable=lfsr
 	  static ap_uint<32> i = 0;
+#pragma HLS reset variable=i
+	  static ap_uint<32> fcs_r = 0x58309809;
+#pragma HLS reset variable=fcs_r
+	  static ap_uint<32> pkt_len_r = 16;
+#pragma HLS reset variable=pkt_len_r
+	  static ap_uint<32> ethertype_r = 0;
+#pragma HLS reset variable=ethertype_r
 
 	  switch(rxdState) {
 	  case R_INIT:
-		  if(!param_strm.empty()){
-			  // Read the parameters
-			  param_strm.read(params);
-			  rxdState = R_MAC_0;
+		  // Wait for a valid packet length from the software
+		  if((*pkt_len > 0) && (*pkt_len <= 374)){
+			  pkt_len_r = *pkt_len;
+				// Calculate FCS
+				if(pkt_len_r == 16){
+					fcs_r = 0x58309809;
+				}
+				else if(pkt_len_r == 374){
+					fcs_r = 0x89C8FF96;
+				}
+				// Calculate ethertype
+				ethertype_r = calc_ethertype(pkt_len_r);
+				rxdState = R_MAC_0;
 		  }
 		  break;
 	  case R_MAC_0:
 		  // Wait for MAC0 word
 		  if(!rxd.empty()){
 			  rxd.read(rxWord);
-			  err_strm.write(error_count(rxWord.data,params.mac_addr_0));
+			  err_strm.write(error_count(rxWord.data,((*dst_mac_lo)(31,16),(*dst_mac_hi)(15,0))));
 			  if(rxWord.last == 1){
 				  rxdState = R_MAC_0;
 			  } else {
@@ -413,7 +386,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 		  // Wait for MAC1 word
 		  if(!rxd.empty()){
 			  rxd.read(rxWord);
-			  err_strm.write(error_count(rxWord.data,params.mac_addr_1));
+			  err_strm.write(error_count(rxWord.data,((*dst_mac_lo)(15,0),(*src_mac_hi)(15,0))));
 			  if(rxWord.last == 1)
 				  rxdState = R_MAC_0;
 			  else
@@ -424,7 +397,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 		  // Wait for MAC2 word
 		  if(!rxd.empty()){
 			  rxd.read(rxWord);
-			  err_strm.write(error_count(rxWord.data,params.mac_addr_2));
+			  err_strm.write(error_count(rxWord.data,(*src_mac_lo)));
 			  if(rxWord.last == 1)
 				  rxdState = R_MAC_0;
 			  else
@@ -435,7 +408,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 		  // Wait for Ethertype word
 		  if(!rxd.empty()){
 			  rxd.read(rxWord);
-			  err_strm.write(error_count(rxWord.data,params.ethertype));
+			  err_strm.write(error_count(rxWord.data,ethertype_r));
 			  if(rxWord.last == 1)
 				  rxdState = R_MAC_0;
 			  else {
@@ -452,7 +425,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 				err_strm.write(error_count(rxWord.data,lfsr_next(&lfsr)));
 				if(rxWord.last == 1)
 					rxdState = R_MAC_0;
-				else if(i == (params.pkt_len - 1))
+				else if(i == (pkt_len_r - 1))
 					rxdState = R_FCS;
 				i++;
 			}
@@ -461,7 +434,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 		  // Wait for FCS (should be the last word in the frame)
 		  if(!rxd.empty()){
 			  rxd.read(rxWord);
-			  err_strm.write(error_count(rxWord.data,params.fcs));
+			  err_strm.write(error_count(rxWord.data,fcs_r));
 			  if(rxWord.last == 1)
 				  rxdState = R_MAC_0;
 			  else
@@ -475,7 +448,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 		  if(!rxd.empty()){
 			  rxd.read(rxWord);
 			  if(rxWord.last == 1)
-				  rxdState = R_MAC_0;
+				  rxdState = R_INIT;
 		  }
 		  break;
 
@@ -493,7 +466,8 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 void error_counter(stream<ap_uint<32> >& err_strm,ap_uint<32> *err_count) {
 #pragma HLS pipeline II=1 enable_flush
 	static ap_uint<32> errors = 0;
-	  ap_uint<32> count = 0;
+#pragma HLS reset variable=errors
+	ap_uint<32> count;
 
 	if(!err_strm.empty()){
 		err_strm.read(count);
@@ -502,52 +476,6 @@ void error_counter(stream<ap_uint<32> >& err_strm,ap_uint<32> *err_count) {
 	*err_count = errors;
 }
 
-
-/* ----------------------------------------------
- * Initialize parameters
- * ----------------------------------------------
- * Waits for valid values on the software registers and sends
- * them to the TXD and RXD handlers over a stream.
- *
- */
-void init_params(ap_uint<32> *dst_mac_lo,
-		ap_uint<32> *dst_mac_hi,
-		ap_uint<32> *src_mac_lo,
-		ap_uint<32> *src_mac_hi,
-		ap_uint<32> *pkt_len,
-		stream<param_struct>& param_strm_txd,
-		stream<param_struct>& param_strm_rxd) {
-#pragma HLS pipeline II=1 enable_flush
-	static ap_uint<1> init_flag = 0;
-
-	param_struct params = {0,0,0,0,0,0};
-
-	// Initialize sub-blocks with software register values
-	// Only gets executed once
-	if(init_flag == 0){
-		if((*pkt_len != 0)){
-			// calculate the MAC address frame words
-			combine_mac_addr(*dst_mac_lo,*dst_mac_hi,*src_mac_lo,*src_mac_hi,
-					&params.mac_addr_0,&params.mac_addr_1,&params.mac_addr_2);
-			// Calculate the Ethertype
-			params.ethertype = calc_ethertype(*pkt_len);
-			// Calculate FCS
-			if(*pkt_len == 16){
-				params.fcs = 0x58309809;
-			}
-			else if(*pkt_len == 374){
-				params.fcs = 0x89C8FF96;
-			}
-			// Packet length
-			params.pkt_len = *pkt_len;
-			// Pass parameters to TXD handler
-			param_strm_txd.write(params);
-			// Pass parameters to RXD handler
-			param_strm_rxd.write(params);
-			init_flag = 1;
-		}
-	}
-}
 
 
 // Top level function
@@ -578,14 +506,6 @@ void eth_traffic_gen(stream<axiWord>& m_axis_txc,stream<axiWord>& m_axis_txd,
 	static stream<ap_uint<1> > force_error_trig;
 #pragma HLS STREAM variable=force_error_trig depth=4 dim=1
 
-	// Configuration parameter stream for TXD
-	static stream<param_struct> param_strm_txd;
-#pragma HLS STREAM variable=param_strm_txd depth=4 dim=1
-
-	// Configuration parameter stream for RXD
-	static stream<param_struct> param_strm_rxd;
-#pragma HLS STREAM variable=param_strm_rxd depth=4 dim=1
-
 	// Stream for synchronization of TXC and TXD handlers
 	static stream<ap_uint<1> > txc_trig;
 #pragma HLS STREAM variable=txc_trig depth=4 dim=1
@@ -594,18 +514,14 @@ void eth_traffic_gen(stream<axiWord>& m_axis_txc,stream<axiWord>& m_axis_txd,
 	static stream<ap_uint<32> > err_strm;
 #pragma HLS STREAM variable=err_strm depth=128 dim=1
 
-	// Initialize parameters
-	init_params(dst_mac_lo,dst_mac_hi,src_mac_lo,src_mac_hi,pkt_len,param_strm_txd,param_strm_rxd);
-
 	// Waits for force error register toggle and triggers error
 	force_error_handler(force_error,force_error_trig);
 
+	// Run the transmit and receive handlers
+	txd_handler(m_axis_txd,m_axis_txc,force_error_trig,dst_mac_lo,dst_mac_hi,src_mac_lo,src_mac_hi,pkt_len);
+	rxs_handler(s_axis_rxs);
+	rxd_handler(s_axis_rxd,err_strm,dst_mac_lo,dst_mac_hi,src_mac_lo,src_mac_hi,pkt_len);
+
 	// Error counter
 	error_counter(err_strm,err_count);
-
-	// Run the transmit and receive handlers
-	txc_handler(m_axis_txc,txc_trig);
-	txd_handler(m_axis_txd,txc_trig,force_error_trig,param_strm_txd);
-	rxs_handler(s_axis_rxs);
-	rxd_handler(s_axis_rxd,err_strm,param_strm_rxd);
 }

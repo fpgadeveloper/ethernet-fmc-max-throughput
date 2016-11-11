@@ -180,12 +180,14 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf util_ds_buf_0
 endgroup
 connect_bd_net [get_bd_pins util_ds_buf_0/IBUF_OUT] [get_bd_pins axi_ethernet_0/gtx_clk]
 startgroup
-create_bd_port -dir I -from 0 -to 0 ref_clk_p
+create_bd_port -dir I -from 0 -to 0 -type clk ref_clk_p
 connect_bd_net [get_bd_pins /util_ds_buf_0/IBUF_DS_P] [get_bd_ports ref_clk_p]
+set_property CONFIG.FREQ_HZ 125000000 [get_bd_ports ref_clk_p]
 endgroup
 startgroup
-create_bd_port -dir I -from 0 -to 0 ref_clk_n
+create_bd_port -dir I -from 0 -to 0 -type clk ref_clk_n
 connect_bd_net [get_bd_pins /util_ds_buf_0/IBUF_DS_N] [get_bd_ports ref_clk_n]
+set_property CONFIG.FREQ_HZ 125000000 [get_bd_ports ref_clk_n]
 endgroup
 
 # Connect port 2 to a different 125MHz clock
@@ -275,22 +277,22 @@ connect_bd_net -net [get_bd_nets processing_system7_0_FCLK_CLK0] [get_bd_pins ax
 
 # Connect the resets
 
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_txd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_txc_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_rxd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_rxs_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_1/axi_txd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_1/axi_txc_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_1/axi_rxd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_1/axi_rxs_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_2/axi_txd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_2/axi_txc_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_2/axi_rxd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_2/axi_rxs_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_txd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_txc_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_rxd_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
-connect_bd_net -net [get_bd_nets rst_processing_system7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_rxs_arstn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_txd_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_txc_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_rxd_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_0/axi_rxs_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_1/axi_txd_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_1/axi_txc_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_1/axi_rxd_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_1/axi_rxs_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_2/axi_txd_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_2/axi_txc_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_2/axi_rxd_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_2/axi_rxs_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_txd_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_txc_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_rxd_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
+connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_rxs_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
 
 
 # Restore current instance

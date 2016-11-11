@@ -92,7 +92,7 @@ endgroup
 
 # Add Ethernet Traffic Generator to address space
 include_bd_addr_seg [get_bd_addr_segs -excluded axi_init_0/Data_m_axi_a/SEG_eth_traffic_gen_0_Reg]
-set_property offset 0x440A0000 [get_bd_addr_segs {axi_init_0/Data_m_axi_a/SEG_eth_traffic_gen_0_Reg}]
+set_property offset 0x44A00000 [get_bd_addr_segs {axi_init_0/Data_m_axi_a/SEG_eth_traffic_gen_0_Reg}]
 
 # Restore current instance
 current_bd_instance $oldCurInst
