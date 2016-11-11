@@ -17,12 +17,11 @@ generate the SDK workspace. Windows users can run the `build-sdk.bat` file which
 launches the Tcl script.
 
 The build script does three things:
-1. Prepares a local SDK repository containing a modified version of lwIP library,
-required by the echo server example application.
-2. Adds the ../EmbeddedSw directory as a local SDK repository.
-3. Generates a lwIP Echo Server example application for each exported Vivado design
+1. Generates a Hello World example application for each exported Vivado design
 that is found in the ../Vivado directory. Most users will only have one exported
 Vivado design.
+2. Deletes the "helloworld.c" source file from the application.
+3. Copies the sources from the "common/src" directory into the application.
 
 ### Run the application
 
@@ -35,14 +34,3 @@ once, each time you power up your hardware platform.
 and click Run as many times as you like, without going through
 the other steps.
 
-### How to change the Ethernet port targetted by the application
-
-The echo server example design currently can only target one Ethernet port at a time.
-Selection of the Ethernet port can be changed by modifying the defines contained in the
-`platform_config.h` file in the application sources. Set `PLATFORM_EMAC_BASEADDR`
-to one of the following values:
-
-* Ethernet FMC Port 0: `XPAR_AXIETHERNET_0_BASEADDR`
-* Ethernet FMC Port 1: `XPAR_AXIETHERNET_1_BASEADDR`
-* Ethernet FMC Port 2: `XPAR_AXIETHERNET_2_BASEADDR`
-* Ethernet FMC Port 3: `XPAR_AXIETHERNET_3_BASEADDR`
