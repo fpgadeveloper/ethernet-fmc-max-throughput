@@ -1,6 +1,6 @@
 /* ----------------------------------------------
  * Ethernet Traffic Generator
- * Opsero Electronic Design Inc. 2016
+ * Opsero Electronic Design Inc. 2017
  * ----------------------------------------------
  *
  * Description:
@@ -28,8 +28,8 @@
  * Limitations:
  * ------------
  * This design does not currently contain an FCS calculator, so instead it contains
- * 2 fixed FCS values, which correspond to a pkt_len of 16 words and 374 words
- * respectively. The FCS values are based on MAC dst and src addresses of
+ * one fixed FCS value, which corresponds to a pkt_len of 374 words.
+ * The FCS value is based on MAC dst and src addresses of
  * FF FF FF FF 1E 00 and FF FF A4 A5 27 37 respectively. So although the design
  * allows for configuration of MAC addresses and packet length, it will only
  * function using the values mentioned above. An FCS calculator will be a future
@@ -165,11 +165,8 @@ void txd_handler(stream<axiWord>& txd,
 		  if((*pkt_len > 0) && (*pkt_len <= 374)){
 			  pkt_len_r = *pkt_len;
 			  // Calculate FCS
-			  if(pkt_len_r == 16){
-				  fcs_r = 0x58309809;
-			  }
-			  else if(pkt_len_r == 374){
-				  fcs_r = 0x89C8FF96;
+			  if(pkt_len_r == 374){
+				  fcs_r = 0x1942A4BF;
 			  }
 			  // Calculate ethertype
 			  ethertype_r = calc_ethertype(pkt_len_r);
@@ -207,23 +204,30 @@ void txd_handler(stream<axiWord>& txd,
 			break;
 	  case TXD_MAC_0:
 			// Output the MAC address word 0
-			txdWord.data(15,0) = (*dst_mac_lo)(31,16);
-			txdWord.data(31,16) = (*dst_mac_hi)(15,0);
+			txdWord.data(7,0) = (*dst_mac_hi)(15,8);
+			txdWord.data(15,8) = (*dst_mac_hi)(7,0);
+			txdWord.data(23,16) = (*dst_mac_lo)(31,24);
+			txdWord.data(31,24) = (*dst_mac_lo)(23,16);
 		  txd.write(txdWord);
 		  txdState = TXD_MAC_1;
 		  break;
 
 	  case TXD_MAC_1:
 		  // Output the MAC address word 1
-		  txdWord.data(31,16) = (*dst_mac_lo)(15,0);
-		  txdWord.data(15,0) = (*src_mac_hi)(15,0);
+		  txdWord.data(7,0) = (*dst_mac_lo)(15,8);
+		  txdWord.data(15,8) = (*dst_mac_lo)(7,0);
+		  txdWord.data(23,16) = (*src_mac_hi)(15,8);
+		  txdWord.data(31,24) = (*src_mac_hi)(7,0);
 		  txd.write(txdWord);
 		  txdState = TXD_MAC_2;
 		  break;
 
 	  case TXD_MAC_2:
 		  // Output the MAC address word 2
-		  txdWord.data = (*src_mac_lo);
+		  txdWord.data(7,0) = (*src_mac_lo)(31,24);
+		  txdWord.data(15,8) = (*src_mac_lo)(23,16);
+		  txdWord.data(23,16) = (*src_mac_lo)(15,8);
+		  txdWord.data(31,24) = (*src_mac_lo)(7,0);
 		  txd.write(txdWord);
 		  txdState = TXD_ETHERTYPE;
 		  break;
@@ -357,11 +361,8 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 		  if((*pkt_len > 0) && (*pkt_len <= 374)){
 			  pkt_len_r = *pkt_len;
 				// Calculate FCS
-				if(pkt_len_r == 16){
-					fcs_r = 0x58309809;
-				}
-				else if(pkt_len_r == 374){
-					fcs_r = 0x89C8FF96;
+				if(pkt_len_r == 374){
+					fcs_r = 0x1942A4BF;
 				}
 				// Calculate ethertype
 				ethertype_r = calc_ethertype(pkt_len_r);
@@ -372,7 +373,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 		  // Wait for MAC0 word
 		  if(!rxd.empty()){
 			  rxd.read(rxWord);
-			  err_strm.write(error_count(rxWord.data,((*dst_mac_lo)(31,16),(*dst_mac_hi)(15,0))));
+			  err_strm.write(error_count(rxWord.data,((*dst_mac_lo)(23,16),(*dst_mac_lo)(31,24),(*dst_mac_hi)(7,0),(*dst_mac_hi)(15,8))));
 			  if(rxWord.last == 1){
 				  rxdState = R_MAC_0;
 			  } else {
@@ -386,7 +387,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 		  // Wait for MAC1 word
 		  if(!rxd.empty()){
 			  rxd.read(rxWord);
-			  err_strm.write(error_count(rxWord.data,((*dst_mac_lo)(15,0),(*src_mac_hi)(15,0))));
+			  err_strm.write(error_count(rxWord.data,((*src_mac_hi)(7,0),(*src_mac_hi)(15,8),(*dst_mac_lo)(7,0),(*dst_mac_lo)(15,8))));
 			  if(rxWord.last == 1)
 				  rxdState = R_MAC_0;
 			  else
@@ -397,7 +398,7 @@ void rxd_handler(stream<axiWord>& rxd,stream<ap_uint<32> >& err_strm,
 		  // Wait for MAC2 word
 		  if(!rxd.empty()){
 			  rxd.read(rxWord);
-			  err_strm.write(error_count(rxWord.data,(*src_mac_lo)));
+			  err_strm.write(error_count(rxWord.data,((*src_mac_lo)(7,0),(*src_mac_lo)(15,8),(*src_mac_lo)(23,16),(*src_mac_lo)(31,24))));
 			  if(rxWord.last == 1)
 				  rxdState = R_MAC_0;
 			  else

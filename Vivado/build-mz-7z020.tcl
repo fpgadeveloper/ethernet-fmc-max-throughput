@@ -61,7 +61,6 @@ set file "$origin_dir/src/constraints/axi_ethernet.xdc"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
 set_property "file_type" "XDC" $file_obj
-set_property "processing_order" "LATE" $file_obj
 
 # Set 'constrs_1' fileset properties
 set obj [get_filesets constrs_1]

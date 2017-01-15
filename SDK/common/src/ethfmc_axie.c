@@ -189,12 +189,10 @@ int EthFMC_init_axiemac(unsigned mac_address,unsigned char *mac_eth_addr)
 	options |= XAE_RECEIVER_ENABLE_OPTION;
 	// Disable FCS strip
 	options &= ~XAE_FCS_STRIP_OPTION;
-	// Disable length/type error checking
-	options &= ~XAE_LENTYPE_ERR_OPTION;
 	// Disable FCS insert (we have included it in the frame)
 	options &= ~XAE_FCS_INSERT_OPTION;
 	//options |= XAE_FCS_INSERT_OPTION;
-	//options |= XAE_MULTICAST_OPTION;
+	options |= XAE_MULTICAST_OPTION;
 	// Using promiscuous option to disable mac address filtering
 	// and allow the loopback to function.
 	options |= XAE_PROMISC_OPTION;

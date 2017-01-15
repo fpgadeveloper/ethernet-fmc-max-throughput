@@ -44,8 +44,11 @@ endgroup
 apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_external "FIXED_IO, DDR" apply_board_preset "1" Master "Disable" Slave "Disable" }  [get_bd_cells processing_system7_0]
 
 # Configure the PS: Generate 200MHz clock, Enable M_AXI_GP0, Enable interrupts
+# We have to disable SD1 for the PicoZed because it's enabled by default and
+# conflicts with I2C0.
 startgroup
 set_property -dict [list CONFIG.PCW_USE_M_AXI_GP0 {1} \
+CONFIG.PCW_SD1_PERIPHERAL_ENABLE {0} \
 CONFIG.PCW_I2C0_PERIPHERAL_ENABLE {1} \
 CONFIG.PCW_I2C0_I2C0_IO {MIO 14 .. 15} \
 CONFIG.PCW_I2C1_PERIPHERAL_ENABLE {1} \
