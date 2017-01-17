@@ -39,11 +39,13 @@ unsigned EthFMC_get_IEEE_phy_speed(XAxiEthernet *xaxiemacp)
 		xil_printf("PHY model is NOT 88E1510: 0x%04X\n\r",phy_model);
 	xil_printf("Start PHY autonegotiation \r\n");
 
-	XAxiEthernet_PhyWrite(xaxiemacp,phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 2);
-	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, &control);
-	//control |= IEEE_RGMII_TXRX_CLOCK_DELAYED_MASK;
-	control &= ~(0x10);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, control);
+  /* RGMII with only RX internal delay enabled */
+  /* For explanation: http://ethernetfmc.com/rgmii-interface-timing-considerations/ */
+  XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 2);
+  XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, &control);
+  control &= ~IEEE_RGMII_TX_CLOCK_DELAYED_MASK;
+  control |= IEEE_RGMII_RX_CLOCK_DELAYED_MASK;
+  XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, control);
 
 	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 0);
 
