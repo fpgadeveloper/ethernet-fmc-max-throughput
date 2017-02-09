@@ -43,6 +43,33 @@ You will also need the following:
 * Two Ethernet cables
 * [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 
+### Build instructions
+
+To use the sources in this repository, please follow these steps:
+
+1. Download the repo as a zip file and extract the files to a directory
+   on your hard drive --OR-- Git users: clone the repo to your hard drive
+2. Open Windows Explorer, browse to the repo files on your hard drive.
+3. In the HLS directory, double-click on the `build-hls-cores.bat` batch file.
+4. In the Vivado directory, you will find multiple batch files (*.bat).
+   Double click on the batch file that is appropriate to your hardware,
+   for example, double-click `build-zedboard.bat` if you are using the ZedBoard.
+   This will generate a Vivado project for your hardware platform.
+5. Run Vivado and open the project that was just created.
+6. Click Generate bitstream.
+7. When the bitstream is successfully generated, select `File->Export->Export Hardware`.
+   In the window that opens, tick "Include bitstream" and "Local to project".
+8. Return to Windows Explorer and browse to the SDK directory in the repo.
+9. Double click the `build-sdk.bat` batch file. The batch file will run the
+   `build-sdk.tcl` script and build the SDK workspace containing the hardware
+   design and the software application.
+10. Run Xilinx SDK (DO NOT use the Launch SDK option from Vivado) and select the workspace to be the SDK directory of the repo.
+11. Select `Project->Build automatically`.
+12. Connect and power up the hardware.
+13. Open a Putty terminal to view the UART output.
+14. In the SDK, select `Xilinx Tools->Program FPGA`.
+15. Right-click on the application and select `Run As->Launch on Hardware (System Debugger)`
+
 ## Background
 
 In order to test an Ethernet device at maximum throughput (back-to-back
