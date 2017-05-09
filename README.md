@@ -8,16 +8,26 @@ packet generator/checker to demonstrate maximum throughput.
 
 * [ZedBoard](http://zedboard.org "ZedBoard")
   * LPC connector (use zedboard.xdc)
-* [MicroZed 7Z020](http://microzed.org "MicroZed 7Z020") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
-  * LPC connector (use mzfmc-7z020.xdc)
+* [MicroZed 7Z010 and 7Z020](http://microzed.org "MicroZed") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
+  * LPC connector (use mzfmc-7z010-7z020.xdc)
 * [PicoZed 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier Card V2](http://zedboard.org/product/picozed-fmc-carrier-card-v2 "PicoZed FMC Carrier Card V2")
   * LPC connector (use pzfmc-7z015.xdc, or pzfmc-7z020.xdc, or pzfmc-7z030.xdc)
+* Kintex-7 [KC705 Evaluation board](http://www.xilinx.com/products/boards-and-kits/ek-k7-kc705-g.html "KC705 Evaluation board")
+  * LPC connector (use kc705-lpc.xdc)
+  * HPC connector (use kc705-hpc.xdc)
 
 ### Note about 7Z010 devices:
 
-This repository contains the build scripts and constraints for the MicroZed 7Z010 and PicoZed 7Z010, however
-those devices do not contain sufficient resources for the design, so those versions of the project do not
-result in a bitstream. The project will eventually be redesigned to fit those devices.
+The designs for the 7Z010 device differ slightly from the main design, using less resources to allow
+them to fit within the resource constraints of the smaller device. These designs use only 2 traffic
+generators, connected to ports 0 and 1, while ports 2 and 3 are connected to AXI Ethernet Subsystem
+blocks that are looped back on themselves. In this configuration, we can still test all ports at
+maximum throughput and detect dropped frames on all 4 ports, however we lose the ability to detect bit errors on
+two of the ports.
+
+When testing these designs, note that we cannot force bit errors on ports 2 and 3, because they are connected
+in loopback; hence you can expect the dropped frame counters of ports 0 and 1 to always read 0 unless
+frames are being corrupted elsewhere in the system.
 
 ## Description
 

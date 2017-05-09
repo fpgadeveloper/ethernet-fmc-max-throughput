@@ -49,12 +49,9 @@
  */
 
 #include "xparameters.h"
-#include "xgpiops.h"
 #include <stdio.h>
 #include "xil_types.h"
 #include "platform.h"
-#include "xscugic.h"
-#include "xiicps.h"
 #include "ethfmc_axie.h"
 #include "xeth_traffic_gen.h"
 
@@ -74,49 +71,24 @@
 
 #define PAYLOAD_BYTE_SIZE	((PAYLOAD_WORD_SIZE*4)+2)
 
-#define OUTPUT_PIN		10	/* Pin connected to LED/Output */
+// Ethernet traffic generators and pointers to them
+XEth_traffic_gen eth_pkt_gen[XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES];
 
-XEth_traffic_gen eth_pkt_gen_0;
-XEth_traffic_gen eth_pkt_gen_1;
-XEth_traffic_gen eth_pkt_gen_2;
-XEth_traffic_gen eth_pkt_gen_3;
-
-// Pointers to the Ethernet traffic generators
-XEth_traffic_gen *eth_pkt_gen_0_p = &eth_pkt_gen_0;
-XEth_traffic_gen *eth_pkt_gen_1_p = &eth_pkt_gen_1;
-XEth_traffic_gen *eth_pkt_gen_2_p = &eth_pkt_gen_2;
-XEth_traffic_gen *eth_pkt_gen_3_p = &eth_pkt_gen_3;
-
-XGpioPs Gpio;	/* The driver instance for GPIO Device. */
+XAxiEthernet *axi_ethernet[4];
 
 int main()
 {
 	int Status;
-	XGpioPs_Config *ConfigPtr;
-	volatile u32 reg;
+	u32 reg;
 	volatile u32 i;
-	volatile u32 dropped_frames_0;
-	volatile u32 dropped_frames_1;
-	volatile u32 dropped_frames_2;
-	volatile u32 dropped_frames_3;
-	volatile u32 bit_errors_0;
-	volatile u32 bit_errors_1;
-	volatile u32 bit_errors_2;
-	volatile u32 bit_errors_3;
+	volatile u32 dropped_frames[4];
+	volatile u32 bit_errors[XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES];
 
-	/*
-	 * Initialize the GPIO driver.
-	 */
-	ConfigPtr = XGpioPs_LookupConfig(XPAR_XGPIOPS_0_DEVICE_ID);
-	Status = XGpioPs_CfgInitialize(&Gpio, ConfigPtr,
-					ConfigPtr->BaseAddr);
-	if (Status != XST_SUCCESS) {
-		return XST_FAILURE;
-	}
-
-	XGpioPs_SetDirectionPin(&Gpio, OUTPUT_PIN, 1);
-	XGpioPs_SetOutputEnablePin(&Gpio, OUTPUT_PIN, 1);
-	XGpioPs_WritePin(&Gpio, OUTPUT_PIN, 0x0);
+	xil_printf("\n\r");
+	xil_printf("##########################################\n\r");
+	xil_printf("## Ethernet FMC Maximum Throughput Test ##\n\r");
+	xil_printf("##########################################\n\r");
+	xil_printf("\n\r");
 
 	/* the mac address of the board. this should be unique per board */
 	unsigned char mac_ethernet_address[] =
@@ -125,81 +97,53 @@ int main()
 	init_platform();
 
 	// Initialize Ethernet Traffic Generators
-	Status = XEth_traffic_gen_Initialize(eth_pkt_gen_0_p,XPAR_ETH_TRAFFIC_GEN_0_DEVICE_ID);
-	if (Status != XST_SUCCESS) {
-		xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 0\n\r");
-		return XST_FAILURE;
-	}
-	Status = XEth_traffic_gen_Initialize(eth_pkt_gen_1_p,XPAR_ETH_TRAFFIC_GEN_1_DEVICE_ID);
-	if (Status != XST_SUCCESS) {
-		xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 1\n\r");
-		return XST_FAILURE;
-	}
-	Status = XEth_traffic_gen_Initialize(eth_pkt_gen_2_p,XPAR_ETH_TRAFFIC_GEN_2_DEVICE_ID);
-	if (Status != XST_SUCCESS) {
-		xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 2\n\r");
-		return XST_FAILURE;
-	}
-	Status = XEth_traffic_gen_Initialize(eth_pkt_gen_3_p,XPAR_ETH_TRAFFIC_GEN_3_DEVICE_ID);
-	if (Status != XST_SUCCESS) {
-		xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 3\n\r");
-		return XST_FAILURE;
+	for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
+		Status = XEth_traffic_gen_Initialize(&(eth_pkt_gen[i]),i);
+		if (Status != XST_SUCCESS) {
+			xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 0\n\r");
+			return XST_FAILURE;
+		}
 	}
 	
-  // Set MAC addresses
-  XEth_traffic_gen_Set_dst_mac_lo_V(eth_pkt_gen_0_p,0xFFFF1E00);
-  XEth_traffic_gen_Set_dst_mac_hi_V(eth_pkt_gen_0_p,0xFFFF);
-  XEth_traffic_gen_Set_src_mac_lo_V(eth_pkt_gen_0_p,0xA4A52737);
-  XEth_traffic_gen_Set_src_mac_hi_V(eth_pkt_gen_0_p,0xFFFF);
+	// Set MAC addresses
+	for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
+	  XEth_traffic_gen_Set_dst_mac_lo_V(&(eth_pkt_gen[i]),0xFFFF1E00);
+	  XEth_traffic_gen_Set_dst_mac_hi_V(&(eth_pkt_gen[i]),0xFFFF);
+	  XEth_traffic_gen_Set_src_mac_lo_V(&(eth_pkt_gen[i]),0xA4A52737);
+	  XEth_traffic_gen_Set_src_mac_hi_V(&(eth_pkt_gen[i]),0xFFFF);
+	}
 
-  XEth_traffic_gen_Set_dst_mac_lo_V(eth_pkt_gen_1_p,0xFFFF1E00);
-  XEth_traffic_gen_Set_dst_mac_hi_V(eth_pkt_gen_1_p,0xFFFF);
-  XEth_traffic_gen_Set_src_mac_lo_V(eth_pkt_gen_1_p,0xA4A52737);
-  XEth_traffic_gen_Set_src_mac_hi_V(eth_pkt_gen_1_p,0xFFFF);
+	// Set packet payload length
+	for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
+		XEth_traffic_gen_Set_pkt_len_V(&(eth_pkt_gen[i]),PAYLOAD_WORD_SIZE);
+	}
 
-  XEth_traffic_gen_Set_dst_mac_lo_V(eth_pkt_gen_2_p,0xFFFF1E00);
-  XEth_traffic_gen_Set_dst_mac_hi_V(eth_pkt_gen_2_p,0xFFFF);
-  XEth_traffic_gen_Set_src_mac_lo_V(eth_pkt_gen_2_p,0xA4A52737);
-  XEth_traffic_gen_Set_src_mac_hi_V(eth_pkt_gen_2_p,0xFFFF);
+	// Reset force error
+	for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
+		XEth_traffic_gen_Set_force_error_V(&(eth_pkt_gen[i]),0);
+	}
 
-  XEth_traffic_gen_Set_dst_mac_lo_V(eth_pkt_gen_3_p,0xFFFF1E00);
-  XEth_traffic_gen_Set_dst_mac_hi_V(eth_pkt_gen_3_p,0xFFFF);
-  XEth_traffic_gen_Set_src_mac_lo_V(eth_pkt_gen_3_p,0xA4A52737);
-  XEth_traffic_gen_Set_src_mac_hi_V(eth_pkt_gen_3_p,0xFFFF);
+	// Initialize the AXI Ethernet MACs
+	axi_ethernet[0] = EthFMC_init_axiemac(XPAR_AXIETHERNET_0_BASEADDR,mac_ethernet_address);
+	axi_ethernet[1] = EthFMC_init_axiemac(XPAR_AXIETHERNET_1_BASEADDR,mac_ethernet_address);
+	axi_ethernet[2] = EthFMC_init_axiemac(XPAR_AXIETHERNET_2_BASEADDR,mac_ethernet_address);
+	axi_ethernet[3] = EthFMC_init_axiemac(XPAR_AXIETHERNET_3_BASEADDR,mac_ethernet_address);
 
-  // Set packet payload length
-  XEth_traffic_gen_Set_pkt_len_V(eth_pkt_gen_0_p,PAYLOAD_WORD_SIZE);
-  XEth_traffic_gen_Set_pkt_len_V(eth_pkt_gen_1_p,PAYLOAD_WORD_SIZE);
-  XEth_traffic_gen_Set_pkt_len_V(eth_pkt_gen_2_p,PAYLOAD_WORD_SIZE);
-  XEth_traffic_gen_Set_pkt_len_V(eth_pkt_gen_3_p,PAYLOAD_WORD_SIZE);
-
-  // Reset force error
-  XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_0_p,0);
-  XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_1_p,0);
-  XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,0);
-  XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,0);
-
-  /* Configure the AXI Ethernet MACs and the PHYs */
-	xil_printf("Ethernet Port 0:\n\r");
-	EthFMC_init_axiemac(XPAR_AXIETHERNET_0_BASEADDR,mac_ethernet_address);
-	xil_printf("Ethernet Port 1:\n\r");
-	EthFMC_init_axiemac(XPAR_AXIETHERNET_1_BASEADDR,mac_ethernet_address);
-	xil_printf("Ethernet Port 2:\n\r");
-	EthFMC_init_axiemac(XPAR_AXIETHERNET_2_BASEADDR,mac_ethernet_address);
-	xil_printf("Ethernet Port 3:\n\r");
-	EthFMC_init_axiemac(XPAR_AXIETHERNET_3_BASEADDR,mac_ethernet_address);
+	sleep(1);
+	
+	// Start the AXI Ethernet MACs and the PHYs
+	for(i = 0; i < 4; i++){
+		xil_printf("Port %d:\n\r",i);
+		EthFMC_start_axiemac(axi_ethernet[i]);
+		// Reset the dropped frame counters
+		dropped_frames[i] = 0;
+	}
 
 	// Reset the reject frame interrupt flags
 	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_0_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_1_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_2_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_3_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
-
-	// Reset the dropped frame counters
-	dropped_frames_0 = 0;
-	dropped_frames_1 = 0;
-	dropped_frames_2 = 0;
-	dropped_frames_3 = 0;
 
 	while (1) {
 		/* Force an error to be sent by all ports
@@ -215,10 +159,9 @@ int main()
 		 * working.
 		 */
 		// Set force error
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_0_p,1);
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_1_p,1);
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,1);
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,1);
+		for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
+			XEth_traffic_gen_Set_force_error_V(&(eth_pkt_gen[i]),1);
+		}
 
 		/* Poll for dropped packets and increment counters
 		 * -----------------------------------------------
@@ -235,7 +178,7 @@ int main()
 				// Reset the interrupt
 				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_0_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 				// Increment the counter
-				dropped_frames_0++;
+				dropped_frames[0]++;
 			}
 			// Read the interrupt status register
 			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_1_BASEADDR,XAE_IS_OFFSET);
@@ -243,7 +186,7 @@ int main()
 				// Reset the interrupt
 				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_1_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 				// Increment the counter
-				dropped_frames_1++;
+				dropped_frames[1]++;
 			}
 			// Read the interrupt status register
 			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_2_BASEADDR,XAE_IS_OFFSET);
@@ -251,7 +194,7 @@ int main()
 				// Reset the interrupt
 				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_2_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 				// Increment the counter
-				dropped_frames_2++;
+				dropped_frames[2]++;
 			}
 			// Read the interrupt status register
 			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_3_BASEADDR,XAE_IS_OFFSET);
@@ -259,21 +202,19 @@ int main()
 				// Reset the interrupt
 				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_3_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 				// Increment the counter
-				dropped_frames_3++;
+				dropped_frames[3]++;
 			}
 		}
 
 		// Reset force error
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_0_p,0);
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_1_p,0);
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_2_p,0);
-		XEth_traffic_gen_Set_force_error_V(eth_pkt_gen_3_p,0);
+		for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
+			XEth_traffic_gen_Set_force_error_V(&(eth_pkt_gen[i]),0);
+		}
 
 		// Read the bit error counters
-		bit_errors_0 = XEth_traffic_gen_Get_err_count_V(eth_pkt_gen_0_p);
-		bit_errors_1 = XEth_traffic_gen_Get_err_count_V(eth_pkt_gen_1_p);
-		bit_errors_2 = XEth_traffic_gen_Get_err_count_V(eth_pkt_gen_2_p);
-		bit_errors_3 = XEth_traffic_gen_Get_err_count_V(eth_pkt_gen_3_p);
+		for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
+			bit_errors[i] = XEth_traffic_gen_Get_err_count_V(&(eth_pkt_gen[i]));
+		}
 
 		/* Display the dropped frame counter values
 		 * ----------------------------------------
@@ -286,17 +227,10 @@ int main()
 		 *
 		 */
 		xil_printf("Dropped frames:Bit errors (P0,P1,P2,P3): %4d:%-4d %4d:%-4d %4d:%-4d %4d:%-4d\n\r",
-					dropped_frames_0,bit_errors_0,
-					dropped_frames_1,bit_errors_1,
-					dropped_frames_2,bit_errors_2,
-					dropped_frames_3,bit_errors_3);
-
-		if((dropped_frames_0 == dropped_frames_1) &&
-				(dropped_frames_1 == dropped_frames_2) &&
-				(dropped_frames_2 == dropped_frames_3) &&
-				(dropped_frames_0 >= 10)){
-			XGpioPs_WritePin(&Gpio, OUTPUT_PIN, 0x1);
-		}
+					dropped_frames[0],bit_errors[0],
+					dropped_frames[1],bit_errors[1],
+					dropped_frames[2],bit_errors[2],
+					dropped_frames[3],bit_errors[3]);
 	}
 
 	return 0;

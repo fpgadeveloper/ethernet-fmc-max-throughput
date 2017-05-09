@@ -83,7 +83,8 @@ extern "C" {
 unsigned EthFMC_get_IEEE_phy_speed(XAxiEthernet *xaxiemacp);
 unsigned EthFMC_Phy_Setup (XAxiEthernet *xaxiemacp);
 XAxiEthernet_Config *EthFMC_xaxiemac_lookup_config(unsigned mac_base);
-int EthFMC_init_axiemac(unsigned mac_address,unsigned char *mac_eth_addr);
+XAxiEthernet *EthFMC_init_axiemac(unsigned mac_address,unsigned char *mac_eth_addr);
+int EthFMC_start_axiemac(XAxiEthernet *axi_ethernet);
 
 #ifdef __cplusplus
 }

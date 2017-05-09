@@ -162,9 +162,10 @@ XAxiEthernet_Config *EthFMC_xaxiemac_lookup_config(unsigned mac_base)
 }
 
 
-int EthFMC_init_axiemac(unsigned mac_address,unsigned char *mac_eth_addr)
+
+
+XAxiEthernet *EthFMC_init_axiemac(unsigned mac_address,unsigned char *mac_eth_addr)
 {
-	unsigned link_speed = 1000;
 	unsigned options;
 	XAxiEthernet *axi_ethernet;
 	XAxiEthernet_Config *mac_config;
@@ -172,7 +173,7 @@ int EthFMC_init_axiemac(unsigned mac_address,unsigned char *mac_eth_addr)
 	axi_ethernet = malloc(sizeof(XAxiEthernet));
 	if (axi_ethernet == NULL) {
 		xil_printf("EthFMC_low_level_init: out of memory\r\n");
-		return -1;
+		return NULL;
 	}
 
 	/* obtain config of this emac */
@@ -203,8 +204,16 @@ int EthFMC_init_axiemac(unsigned mac_address,unsigned char *mac_eth_addr)
 
 	/* set mac address */
 	XAxiEthernet_SetMacAddress(axi_ethernet, mac_eth_addr);
+  
+  return axi_ethernet;
+}
+
+int EthFMC_start_axiemac(XAxiEthernet *axi_ethernet)
+{
+	unsigned link_speed = 1000;
+
 	link_speed = EthFMC_Phy_Setup(axi_ethernet);
-    	XAxiEthernet_SetOperatingSpeed(axi_ethernet, link_speed);
+    XAxiEthernet_SetOperatingSpeed(axi_ethernet, link_speed);
 
 	/* Setting the operating speed of the MAC needs a delay. */
 	{
@@ -238,9 +247,11 @@ int EthFMC_init_axiemac(unsigned mac_address,unsigned char *mac_eth_addr)
 
 	/* enable MAC interrupts */
 	XAxiEthernet_IntEnable(axi_ethernet, XAE_INT_RECV_ERROR_MASK);
-  
+
   return 0;
 }
+
+
 
 static void __attribute__ ((noinline)) AxiEthernetUtilPhyDelay(unsigned int Seconds)
 {
