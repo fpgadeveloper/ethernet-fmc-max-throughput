@@ -133,8 +133,6 @@ set_property PACKAGE_PIN C22 [get_ports mdio_io_port_3_mdc]
 set_property PACKAGE_PIN D21 [get_ports mdio_io_port_3_mdio_io]
 set_property PACKAGE_PIN C21 [get_ports reset_port_3]
 
-create_clock -period 8.000 -name ref_clk_p -waveform {0.000 4.000} [get_ports ref_clk_p]
-
 # Uncomment these lines to remove the RGMII TX clock skew in the FPGA (AXI Ethernet IP).
 # Note that if you disable TX clock skew in the FPGA, you will need to enable it in the PHY.
 # See here for more info: http://ethernetfmc.com/rgmii-interface-timing-considerations/
