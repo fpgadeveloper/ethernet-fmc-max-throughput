@@ -142,6 +142,6 @@ create_clock -period 8.000 -name ref_clk_p -waveform {0.000 4.000} [get_ports re
 # Uncomment these lines to remove the RGMII TX clock skew in the FPGA (AXI Ethernet IP).
 # Note that if you disable TX clock skew in the FPGA, you will need to enable it in the PHY.
 # See here for more info: http://ethernetfmc.com/rgmii-interface-timing-considerations/
-#set_property CLKOUT1_PHASE 0 [get_cells *_i/axi_ethernet_0/U0/eth_mac/U0/tri_mode_ethernet_mac_support_clocking_i/mmcm_adv_inst]
-#set_property CLKOUT1_PHASE 0 [get_cells *_i/axi_ethernet_2/U0/eth_mac/U0/tri_mode_ethernet_mac_support_clocking_i/mmcm_adv_inst]
+set_property CLKOUT1_PHASE 0 [get_cells *_i/axi_ethernet_0/U0/eth_mac/U0/tri_mode_ethernet_mac_support_clocking_i/mmcm_adv_inst]
+set_property CLKOUT1_PHASE 0 [get_cells *_i/axi_ethernet_2/U0/eth_mac/U0/tri_mode_ethernet_mac_support_clocking_i/mmcm_adv_inst]
 

@@ -133,7 +133,7 @@ int main()
 	
 	// Start the AXI Ethernet MACs and the PHYs
 	for(i = 0; i < 4; i++){
-		xil_printf("Port %d:\n\r",i);
+		xil_printf("Ethernet Port %d:\n\r",i);
 		EthFMC_start_axiemac(axi_ethernet[i]);
 		// Reset the dropped frame counters
 		dropped_frames[i] = 0;

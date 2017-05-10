@@ -136,6 +136,6 @@ set_property PACKAGE_PIN C21 [get_ports reset_port_3]
 # Uncomment these lines to remove the RGMII TX clock skew in the FPGA (AXI Ethernet IP).
 # Note that if you disable TX clock skew in the FPGA, you will need to enable it in the PHY.
 # See here for more info: http://ethernetfmc.com/rgmii-interface-timing-considerations/
-#set_property CLKOUT1_PHASE 0 [get_cells *_i/axi_ethernet_0/inst/eth_mac/inst/tri_mode_ethernet_mac_support_clocking_i/mmcm_adv_inst]
+set_property CLKOUT1_PHASE 0 [get_cells *_i/axi_ethernet_0/inst/eth_mac/inst/tri_mode_ethernet_mac_support_clocking_i/mmcm_adv_inst]
 
 

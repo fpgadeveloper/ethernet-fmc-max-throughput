@@ -37,15 +37,18 @@ unsigned EthFMC_get_IEEE_phy_speed(XAxiEthernet *xaxiemacp)
 	/* The PHY model for 88E1510 is 0x01D0 */
 	if(phy_model != 0x01D0)
 		xil_printf("PHY model is NOT 88E1510: 0x%04X\n\r",phy_model);
-	xil_printf("Start PHY autonegotiation \r\n");
+	xil_printf("Starting PHY autonegotiation\r\n");
 
-  /* RGMII with only RX internal delay enabled */
-  /* For explanation: http://ethernetfmc.com/rgmii-interface-timing-considerations/ */
-  XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 2);
-  XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, &control);
-  control &= ~IEEE_RGMII_TX_CLOCK_DELAYED_MASK;
-  control |= IEEE_RGMII_RX_CLOCK_DELAYED_MASK;
-  XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, control);
+	/* RGMII with both TX and RX internal delays enabled (the default for 88E1510)
+	   Note that the Vivado designs for "max throughput" example designs all contain a
+	   constraint that disables the TX clock skew in the FPGA, hence the need to enable
+	   the TX clock skew in the PHY (done in the lines below).
+	   For explanation: http://ethernetfmc.com/rgmii-interface-timing-considerations/ */
+	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 2);
+	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, &control);
+	control |= IEEE_RGMII_TX_CLOCK_DELAYED_MASK;
+	control |= IEEE_RGMII_RX_CLOCK_DELAYED_MASK;
+	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, control);
 
 	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 0);
 
@@ -87,7 +90,7 @@ unsigned EthFMC_get_IEEE_phy_speed(XAxiEthernet *xaxiemacp)
 		else
 			break;
 	}
-	xil_printf("Waiting for PHY to complete autonegotiation.\r\n");
+	xil_printf("Waiting for PHY to complete autonegotiation...\r\n");
 
 	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_STATUS_REG_OFFSET, &status);
 	while ( !(status & IEEE_STAT_AUTONEGOTIATE_COMPLETE) ) {
@@ -101,7 +104,7 @@ unsigned EthFMC_get_IEEE_phy_speed(XAxiEthernet *xaxiemacp)
 																&status);
 		}
 
-	xil_printf("autonegotiation complete \r\n");
+	xil_printf("Autonegotiation complete\r\n");
 
 	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_SPECIFIC_STATUS_REG, &partner_capabilities);
 
@@ -141,7 +144,7 @@ unsigned EthFMC_Phy_Setup (XAxiEthernet *xaxiemacp)
 	}
 /* set PHY <--> MAC data clock */
 	link_speed = EthFMC_get_IEEE_phy_speed(xaxiemacp);
-	xil_printf("auto-negotiated link speed: %d\r\n", link_speed);
+	xil_printf("Auto-negotiated link speed: %d Mbps\r\n", link_speed);
 	return link_speed;
 }
 
