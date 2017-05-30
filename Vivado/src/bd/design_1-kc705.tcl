@@ -130,7 +130,7 @@ connect_bd_net [get_bd_pins axi_ethernet_0/gtx_clk90_out] [get_bd_pins axi_ether
 
 # Create clock wiz for the Ethernet FMC 125MHz clock and 200MHz clock
 
-create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:5.3 clk_wiz_0
+create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:5.4 clk_wiz_0
 set_property -dict [list CONFIG.PRIM_IN_FREQ.VALUE_SRC USER] [get_bd_cells clk_wiz_0]
 set_property -dict [list CONFIG.PRIM_SOURCE {Differential_clock_capable_pin} \
 CONFIG.PRIM_IN_FREQ {125} \
