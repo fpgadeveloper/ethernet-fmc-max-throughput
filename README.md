@@ -4,6 +4,23 @@ ethernet-fmc-max-throughput
 Example design for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") using an FPGA based hardware
 packet generator/checker to demonstrate maximum throughput.
 
+## Requirements
+
+This project is designed for Vivado 2017.2. If you are using an older version of Vivado, then you *MUST* use an older version
+of this repository. Refer to the [list of commits](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/commits/master "list of commits")
+to find links to the older versions of this repository.
+
+In order to test the Ethernet FMC using this design, you need to use an
+Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
+You will also need the following:
+
+* Vivado 2017.2
+* Vivado HLS 2017.2
+* [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
+* Supported FMC carrier board (see list of supported carriers above)
+* Two Ethernet cables
+* [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
+
 ## Supported carrier boards
 
 * [ZedBoard](http://zedboard.org "ZedBoard")
@@ -39,19 +56,6 @@ transmitted frames contain fixed destination and source MAC addresses,
 the Ethertype, a payload of random data and the FCS checksum.
 
 ![Ethernet FMC Max Throughput Test design](http://ethernetfmc.com/wp-content/uploads/2014/10/qgige_max_throughput.png "Ethernet FMC Max Throughput Test design")
-
-## Requirements
-
-In order to test the Ethernet FMC using this design, you need to use an
-Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
-You will also need the following:
-
-* Vivado 2017.2
-* Vivado HLS 2017.2
-* [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
-* Supported FMC carrier board (see list of supported carriers above)
-* Two Ethernet cables
-* [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 
 ### Build instructions
 
