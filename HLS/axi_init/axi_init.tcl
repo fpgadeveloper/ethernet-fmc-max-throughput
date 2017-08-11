@@ -10,4 +10,9 @@ set_part {xc7z020clg484-1}
 create_clock -period 10 -name default
 csynth_design
 export_design -format ip_catalog -description "AXI Initializer" -vendor "opsero.com" -display_name "AXI Initializer"
+open_solution -reset "solution4"
+set_part {xczu9eg-ffvb1156-2-i}
+create_clock -period 10 -name default
+csynth_design
+export_design -format ip_catalog -description "AXI Initializer" -vendor "opsero.com" -display_name "AXI Initializer"
 exit
