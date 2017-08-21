@@ -47,7 +47,7 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 # Set IP repository paths
 set obj [get_filesets sources_1]
-set_property "ip_repo_paths" "[file normalize "$origin_dir/../HLS/axi_init/solution4"] [file normalize "$origin_dir/../HLS/eth_traffic_gen/proj_eth_traffic_gen/solution4"]" $obj
+set_property "ip_repo_paths" "[file normalize "$origin_dir/../HLS/axi_init/proj_axi_init/solution4"] [file normalize "$origin_dir/../HLS/eth_traffic_gen/proj_eth_traffic_gen/solution4"]" $obj
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
