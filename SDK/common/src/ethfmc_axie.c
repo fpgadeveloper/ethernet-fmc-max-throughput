@@ -13,6 +13,7 @@
 
 #include "ethfmc_axie.h"
 #include "stdlib.h"
+#include "board.h"
 
 static void __attribute__ ((noinline)) AxiEthernetUtilPhyDelay(unsigned int Seconds);
 
@@ -43,10 +44,17 @@ unsigned EthFMC_get_IEEE_phy_speed(XAxiEthernet *xaxiemacp)
 	   Note that the Vivado designs for "max throughput" example designs all contain a
 	   constraint that disables the TX clock skew in the FPGA, hence the need to enable
 	   the TX clock skew in the PHY (done in the lines below).
-	   For explanation: http://ethernetfmc.com/rgmii-interface-timing-considerations/ */
+	   For explanation: http://ethernetfmc.com/rgmii-interface-timing-considerations/ 
+	   DOES NOT APPLY TO ULTRASCALE DESIGNS */
 	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 2);
 	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, &control);
-	control |= IEEE_RGMII_TX_CLOCK_DELAYED_MASK;
+	// Ultrascale designs implement TX clock skew in the FPGA
+	if(strcmp(BOARD_NAME,"ZCU102") == 0){
+		control &= ~(IEEE_RGMII_TX_CLOCK_DELAYED_MASK);
+	}
+	else {
+		control |= IEEE_RGMII_TX_CLOCK_DELAYED_MASK;
+	}
 	control |= IEEE_RGMII_RX_CLOCK_DELAYED_MASK;
 	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, control);
 
