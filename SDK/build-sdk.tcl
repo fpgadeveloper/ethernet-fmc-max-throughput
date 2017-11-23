@@ -49,6 +49,21 @@ proc copy-r {{dir .} target_dir} {
   }
 } ;# RS
 
+# Fill in the local libraries with original sources without overwriting existing code
+proc fill_local_libraries {} {
+  # Xilinx SDK install directory
+  set sdk_dir $::env(XILINX_SDK)
+  # For each of the custom axi_ethernet driver versions in our local repo
+  foreach driver_dir [glob -type d "../EmbeddedSw/XilinxProcessorIPLib/drivers/*"] {
+    # Work out the original version library directory name by removing the appended "9"
+    set lib_name [string range [lindex [split $driver_dir /] end] 0 end-1]
+    set orig_dir "$sdk_dir/data/embeddedsw/XilinxProcessorIPLib/drivers/$lib_name"
+    puts "Copying files from $orig_dir to $driver_dir"
+    # Copy the original files to local repo, without overwriting existing code
+    copy-r $orig_dir $driver_dir
+  }
+}
+
 # Add a hardware design to the SDK workspace
 proc add_hw_to_sdk {vivado_folder} {
   global vivado_dir
@@ -192,6 +207,11 @@ proc create_sdk_ws {} {
   # Set the workspace directory
   setws [pwd]
   
+  # Add local SDK repo
+  # Now when we create an application, SDK will automatically use the lwIP library from the local repo
+  puts "Adding SDK repo to the workspace."
+  repo -set "../EmbeddedSw"
+
   # Add each Vivado project to SDK workspace
   foreach {vivado_folder} $vivado_proj_list {
     # Get the name of the board
@@ -333,6 +353,10 @@ proc check_apps {} {
   }
 }
   
+
+# Copy original library sources into the local SDK repo
+puts "Building the local SDK repo from original sources"
+fill_local_libraries
 
 # Create the SDK workspace
 puts "Creating the SDK workspace"

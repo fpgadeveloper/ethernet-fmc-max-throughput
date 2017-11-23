@@ -4,7 +4,7 @@
 #*****************************************************************************************
 
 # Check the version of Vivado used
-set version_required "2017.2"
+set version_required "2017.3"
 set ver [lindex [split $::env(XILINX_VIVADO) /] 3]
 if {![string equal $ver $version_required]} {
   puts "###############################"
@@ -47,7 +47,7 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 # Set IP repository paths
 set obj [get_filesets sources_1]
-set_property "ip_repo_paths" "[file normalize "$origin_dir/../HLS/axi_init"] [file normalize "$origin_dir/../HLS/eth_traffic_gen/proj_eth_traffic_gen/solution1"]" $obj
+set_property "ip_repo_paths" "[file normalize "$origin_dir/../HLS/axi_init/proj_axi_init/solution1"] [file normalize "$origin_dir/../HLS/eth_traffic_gen/proj_eth_traffic_gen/solution1"]" $obj
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]

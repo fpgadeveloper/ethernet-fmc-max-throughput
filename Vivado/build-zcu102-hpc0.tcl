@@ -4,7 +4,7 @@
 #*****************************************************************************************
 
 # Check the version of Vivado used
-set version_required "2017.2"
+set version_required "2017.3"
 set ver [lindex [split $::env(XILINX_VIVADO) /] 3]
 if {![string equal $ver $version_required]} {
   puts "###############################"
@@ -151,10 +151,10 @@ set_property used_in_simulation false [get_files ${design_name}.bd]
 source $origin_dir/src/bd/design_2-zcu102.tcl
 
 # Generate the wrapper
-make_wrapper -files [get_files design_2-zcu102.bd] -top -import
-set_property used_in_synthesis false [get_files design_2-zcu102_wrapper.v]
-set_property used_in_synthesis false [get_files design_2-zcu102.bd]
-set_property used_in_implementation false [get_files design_2-zcu102.bd]
+make_wrapper -files [get_files design_2_zcu102.bd] -top -import
+set_property used_in_synthesis false [get_files design_2_zcu102_wrapper.v]
+set_property used_in_synthesis false [get_files design_2_zcu102.bd]
+set_property used_in_implementation false [get_files design_2_zcu102.bd]
 
 # Update the compile order
 update_compile_order -fileset sources_1
