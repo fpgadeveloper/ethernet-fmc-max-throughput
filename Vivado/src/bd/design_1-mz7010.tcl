@@ -197,9 +197,13 @@ connect_bd_intf_net [get_bd_intf_pins axi_ethernet_3/m_axis_rxs] [get_bd_intf_pi
 # Connect the AXI-lite buses
 
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_0/s_axi]
+set_property range 256K [get_bd_addr_segs {processing_system7_0/Data/SEG_axi_ethernet_0_Reg0}]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_1/s_axi]
+set_property range 256K [get_bd_addr_segs {processing_system7_0/Data/SEG_axi_ethernet_1_Reg0}]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_2/s_axi]
+set_property range 256K [get_bd_addr_segs {processing_system7_0/Data/SEG_axi_ethernet_2_Reg0}]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_3/s_axi]
+set_property range 256K [get_bd_addr_segs {processing_system7_0/Data/SEG_axi_ethernet_3_Reg0}]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_0/s_axi_p0]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_1/s_axi_p0]
 

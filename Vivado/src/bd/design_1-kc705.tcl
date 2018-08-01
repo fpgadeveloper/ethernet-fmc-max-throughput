@@ -130,7 +130,7 @@ connect_bd_net [get_bd_pins axi_ethernet_0/gtx_clk90_out] [get_bd_pins axi_ether
 
 # Create clock wiz for the Ethernet FMC 125MHz clock and 200MHz clock
 
-create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:5.4 clk_wiz_0
+create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz clk_wiz_0
 set_property -dict [list CONFIG.PRIM_IN_FREQ.VALUE_SRC USER] [get_bd_cells clk_wiz_0]
 set_property -dict [list CONFIG.PRIM_SOURCE {Differential_clock_capable_pin} \
 CONFIG.PRIM_IN_FREQ {125} \
@@ -221,9 +221,13 @@ connect_bd_intf_net [get_bd_intf_pins axi_ethernet_3/m_axis_rxd] [get_bd_intf_pi
 connect_bd_intf_net [get_bd_intf_pins axi_ethernet_3/m_axis_rxs] [get_bd_intf_pins eth_traffic_gen_2/s_axis_rxs]
 
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/microblaze_0 (Periph)" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_0/s_axi]
+set_property range 256K [get_bd_addr_segs {microblaze_0/Data/SEG_axi_ethernet_0_Reg0}]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/microblaze_0 (Periph)" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_1/s_axi]
+set_property range 256K [get_bd_addr_segs {microblaze_0/Data/SEG_axi_ethernet_1_Reg0}]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/microblaze_0 (Periph)" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_2/s_axi]
+set_property range 256K [get_bd_addr_segs {microblaze_0/Data/SEG_axi_ethernet_2_Reg0}]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/microblaze_0 (Periph)" Clk "Auto" }  [get_bd_intf_pins axi_ethernet_3/s_axi]
+set_property range 256K [get_bd_addr_segs {microblaze_0/Data/SEG_axi_ethernet_3_Reg0}]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/microblaze_0 (Periph)" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_0/s_axi_p0]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/microblaze_0 (Periph)" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_1/s_axi_p0]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/microblaze_0 (Periph)" Clk "Auto" }  [get_bd_intf_pins eth_traffic_gen_2/s_axi_p0]

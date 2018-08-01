@@ -6,7 +6,7 @@ packet generator/checker to demonstrate maximum throughput.
 
 ## Requirements
 
-This project is designed for Vivado 2017.3. If you are using an older version of Vivado, then you *MUST* use an older version
+This project is designed for Vivado 2018.2. If you are using an older version of Vivado, then you *MUST* use an older version
 of this repository. Refer to the [list of commits](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/commits/master "list of commits")
 to find links to the older versions of this repository.
 
@@ -14,8 +14,8 @@ In order to test the Ethernet FMC using this design, you need to use an
 Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
-* Vivado 2017.3 (requires patch, see notes below)
-* Vivado HLS 2017.3
+* Vivado 2018.2
+* Vivado HLS 2018.2
 * [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 * Supported FMC carrier board (see list of supported carriers above)
 * Two Ethernet cables
@@ -23,32 +23,17 @@ You will also need the following:
 
 ## Supported carrier boards
 
-* [ZedBoard](http://zedboard.org "ZedBoard")
+* Zynq-7000 [ZedBoard](http://zedboard.org "ZedBoard")
   * LPC connector (use zedboard.xdc)
-* [MicroZed 7Z010 and 7Z020](http://microzed.org "MicroZed") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
+* Zynq-7000 [MicroZed 7Z010 and 7Z020](http://microzed.org "MicroZed") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
   * LPC connector (use mzfmc-7z010-7z020.xdc)
-* [PicoZed 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier Card V2](http://zedboard.org/product/picozed-fmc-carrier-card-v2 "PicoZed FMC Carrier Card V2")
+* Zynq-7000 [PicoZed 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier Card V2](http://zedboard.org/product/picozed-fmc-carrier-card-v2 "PicoZed FMC Carrier Card V2")
   * LPC connector (use pzfmc-7z015.xdc, or pzfmc-7z020.xdc, or pzfmc-7z030.xdc)
 * Kintex-7 [KC705 Evaluation board](http://www.xilinx.com/products/boards-and-kits/ek-k7-kc705-g.html "KC705 Evaluation board")
   * LPC connector (use kc705-lpc.xdc)
   * HPC connector (use kc705-hpc.xdc)
 * Zynq UltraScale+ [ZCU102 Evaluation board Rev 1.0](https://www.xilinx.com/products/boards-and-kits/ek-u1-zcu102-g.html "ZCU102 Evaluation board")
   * HPC0 connector (use zcu102-hpc0.xdc)
-
-## Vivado 2017.3 patch for TEMAC hardware evaluation license
-
-If you are using a TEMAC hardware evaluation license, required to evaluate the AXI Ethernet Subsystem IP core, 
-then you will need to apply this patch to Vivado 2017.3 in order to build these example designs.
-
-Create a text file called `init.tcl` in the folder `C:\Xilinx\Vivado\2017.3\scripts`. This script will run each
-time a Vivado instance is launched. Copy and paste the code below into the file, and then save it:
-```
-# Workaround for Vivado 2017.3 issue with AXI Ethernet IP Hardware Eval licence
-# https://forums.xilinx.com/t5/Networking-and-Connectivity/AXI-Ethernet-generated-file-not-found-in-Vivado-2017-3/td-p/800348
-set_param ips.generation.cacheXitResults false
-```
-For more information regarding this patch, please see this Xilinx 
-[forum post](https://forums.xilinx.com/t5/Networking-and-Connectivity/AXI-Ethernet-generated-file-not-found-in-Vivado-2017-3/td-p/800348 "AXI Ethernet generated file not found in Vivado 2017.3").
 
 ### Note about 7Z010 devices:
 
@@ -100,6 +85,25 @@ To use the sources in this repository, please follow these steps:
 13. Open a Putty terminal to view the UART output.
 14. In the SDK, select `Xilinx Tools->Program FPGA`.
 15. Right-click on the application and select `Run As->Launch on Hardware (System Debugger)`
+
+### Installation of MicroZed and PicoZed board definition files
+
+To use the projects for the MicroZed and PicoZed, you must first install the board definition files
+for those boards into your Vivado and Xilinx SDK installation.
+
+The following folders contain the board definition files and can be found in this project repository at this location:
+
+https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/tree/master/Vivado/boards/board_files
+
+* `microzed_7010`
+* `microzed_7020`
+* `picozed_7015_fmc2`
+* `picozed_7020_fmc2`
+* `picozed_7030_fmc2`
+
+Copy those folders and their contents into the `C:\Xilinx\Vivado\2018.2\data\boards\board_files` folder (this may
+be different on your machine, depending on your Vivado installation directory). You also need to make a copy into the
+Xilinx SDK installation at this location: `C:\Xilinx\SDK\2018.2\data\boards\board_files`.
 
 ## Background
 
