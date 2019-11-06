@@ -243,10 +243,12 @@ connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins
 connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_rxd_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
 connect_bd_net -net [get_bd_nets rst_ps7_0_100M_peripheral_aresetn] [get_bd_pins axi_ethernet_3/axi_rxs_arstn] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
 
-# Add AXI GPIO to drive the LEDs (LD0 to LD7)
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_gpio_0
-apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/processing_system7_0/FCLK_CLK0 (100 MHz)} Clk_slave {Auto} Clk_xbar {/processing_system7_0/FCLK_CLK0 (100 MHz)} Master {/processing_system7_0/M_AXI_GP0} Slave {/axi_gpio_0/S_AXI} intc_ip {/ps7_0_axi_periph} master_apm {0}}  [get_bd_intf_pins axi_gpio_0/S_AXI]
-apply_bd_automation -rule xilinx.com:bd_rule:board -config { Board_Interface {leds_8bits ( LED ) } Manual_Source {Auto}}  [get_bd_intf_pins axi_gpio_0/GPIO]
+# Add AXI GPIO to drive the LEDs (LD0 to LD7) for the ZedBoard design
+if { $design_name == "zedboard_max_tp" } {
+  create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_gpio_0
+  apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/processing_system7_0/FCLK_CLK0 (100 MHz)} Clk_slave {Auto} Clk_xbar {/processing_system7_0/FCLK_CLK0 (100 MHz)} Master {/processing_system7_0/M_AXI_GP0} Slave {/axi_gpio_0/S_AXI} intc_ip {/ps7_0_axi_periph} master_apm {0}}  [get_bd_intf_pins axi_gpio_0/S_AXI]
+  apply_bd_automation -rule xilinx.com:bd_rule:board -config { Board_Interface {leds_8bits ( LED ) } Manual_Source {Auto}}  [get_bd_intf_pins axi_gpio_0/GPIO]
+}
 
 # Restore current instance
 current_bd_instance $oldCurInst
