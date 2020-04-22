@@ -72,14 +72,14 @@
 // Ethernet traffic generators and pointers to them
 XEth_traffic_gen eth_pkt_gen[XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES];
 
-XAxiEthernet *axi_ethernet[XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES];
+XAxiEthernet *axi_ethernet[4];
 
 int main()
 {
 	int Status;
 	u32 reg;
 	volatile u32 i;
-	volatile u32 dropped_frames[XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES];
+	volatile u32 dropped_frames[4];
 
 	xil_printf("\n\r");
 	xil_printf("##########################################\n\r");
