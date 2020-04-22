@@ -6,9 +6,9 @@ packet generator/checker to demonstrate maximum throughput.
 
 ## Requirements
 
-This project is designed for Vivado 2019.2. If you are using an older version of Vivado, then you *MUST* use an older version
-of this repository. Refer to the [list of commits](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/commits/master "list of commits")
-to find links to the older versions of this repository.
+This project is designed for version 2019.2 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
+Xilinx tools, then refer to the [release tags](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/releases "releases")
+to find the version of this repository that matches your version of the tools.
 
 In order to test the Ethernet FMC using this design, you need to use an
 Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
@@ -17,23 +17,23 @@ You will also need the following:
 * Vivado 2019.2
 * Vivado HLS 2019.2
 * [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
-* Supported FMC carrier board (see list of supported carriers above)
+* Supported FMC carrier board (see list of supported carriers below)
 * Two Ethernet cables
 * [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 
 ## Supported carrier boards
 
 * Zynq-7000 [ZedBoard](http://zedboard.org "ZedBoard")
-  * LPC connector (use zedboard.xdc)
+  * LPC connector
 * Zynq-7000 [MicroZed 7Z010 and 7Z020](http://microzed.org "MicroZed") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
-  * LPC connector (use mzfmc-7z010-7z020.xdc)
+  * LPC connector
 * Zynq-7000 [PicoZed 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier Card V2](http://zedboard.org/product/picozed-fmc-carrier-card-v2 "PicoZed FMC Carrier Card V2")
-  * LPC connector (use pzfmc-7z015.xdc, or pzfmc-7z020.xdc, or pzfmc-7z030.xdc)
+  * LPC connector
 * Kintex-7 [KC705 Evaluation board](http://www.xilinx.com/products/boards-and-kits/ek-k7-kc705-g.html "KC705 Evaluation board")
-  * LPC connector (use kc705-lpc.xdc)
-  * HPC connector (use kc705-hpc.xdc)
+  * LPC connector
+  * HPC connector
 * Zynq UltraScale+ [ZCU102 Evaluation board Rev 1.0](https://www.xilinx.com/products/boards-and-kits/ek-u1-zcu102-g.html "ZCU102 Evaluation board")
-  * HPC0 connector (use zcu102-hpc0.xdc)
+  * HPC0 connector
 
 ### Note about 7Z010 devices:
 
@@ -41,8 +41,7 @@ The designs for the 7Z010 device differ slightly from the main design, using les
 them to fit within the resource constraints of the smaller device. These designs use only 2 traffic
 generators, connected to ports 0 and 1, while ports 2 and 3 are connected to AXI Ethernet Subsystem
 blocks that are looped back on themselves. In this configuration, we can still test all ports at
-maximum throughput and detect dropped frames on all 4 ports, however we lose the ability to detect bit errors on
-two of the ports.
+maximum throughput and detect dropped frames on all 4 ports.
 
 When testing these designs, note that we cannot force bit errors on ports 2 and 3, because they are connected
 in loopback; hence you can expect the dropped frame counters of ports 0 and 1 to always read 0 unless
@@ -52,16 +51,16 @@ frames are being corrupted elsewhere in the system.
 
 This project is used for testing the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") at
 maximum throughput. The design contains 4 AXI Ethernet blocks and 4
-hardware traffic generators/checkers. The traffic generators will both
-generate Ethernet frames and check received frames for bit errors. The
-transmitted frames contain fixed destination and source MAC addresses,
+hardware traffic generators. The transmitted frames contain fixed destination and source MAC addresses,
 the Ethertype, a payload of random data and the FCS checksum.
 
 ![Ethernet FMC Max Throughput Test design](http://ethernetfmc.com/wp-content/uploads/2014/10/qgige_max_throughput.png "Ethernet FMC Max Throughput Test design")
 
-### Build instructions
+## Build instructions
 
 To use the sources in this repository, please follow these steps:
+
+### Windows users
 
 1. Download the repo as a zip file and extract the files to a directory
    on your hard drive --OR-- Git users: clone the repo to your hard drive
@@ -75,16 +74,68 @@ To use the sources in this repository, please follow these steps:
 6. Click Generate bitstream.
 7. When the bitstream is successfully generated, select `File->Export->Export Hardware`.
    In the window that opens, tick "Include bitstream" and "Local to project".
-8. Return to Windows Explorer and browse to the SDK directory in the repo.
-9. Double click the `build-sdk.bat` batch file. The batch file will run the
+8. To export the project for SDK 2019.1, copy and paste the following script into the Tcl console of Vivado:
+```
+set proj_path [get_property DIRECTORY [current_project]]
+set proj_name [get_property NAME [current_project]]
+set top_module_name [get_property top [current_fileset]]
+set bit_filename [lindex [glob -dir "${proj_path}/${proj_name}.runs/impl_1" *.bit] 0]
+set export_dir "${proj_path}/${proj_name}.sdk"
+set hwdef_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.hwdef"
+set bit_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.bit"
+set mmi_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.mmi"
+file mkdir $export_dir
+write_sysdef -force -hwdef $hwdef_filename -bitfile $bit_filename -meminfo $mmi_filename $export_dir/$top_module_name.hdf
+```
+9. Return to Windows Explorer and browse to the SDK directory in the repo.
+10. Double click the `build-sdk.bat` batch file. The batch file will run the
    `build-sdk.tcl` script and build the SDK workspace containing the hardware
    design and the software application.
-10. Run Xilinx SDK (DO NOT use the Launch SDK option from Vivado) and select the workspace to be the SDK directory of the repo.
-11. Select `Project->Build automatically`.
-12. Connect and power up the hardware.
-13. Open a Putty terminal to view the UART output.
-14. In the SDK, select `Xilinx Tools->Program FPGA`.
-15. Right-click on the application and select `Run As->Launch on Hardware (System Debugger)`
+11. Run Xilinx SDK (DO NOT use the Launch SDK option from Vivado) and select the workspace to be the SDK directory of the repo.
+12. Select `Project->Build automatically`.
+13. Connect and power up the hardware.
+14. Open a Putty terminal to view the UART output.
+15. In the SDK, select `Xilinx Tools->Program FPGA`.
+16. Right-click on the application and select `Run As->Launch on Hardware (System Debugger)`
+
+### Linux users
+
+1. Download the repo as a zip file and extract the files to a directory
+   on your hard drive --OR-- Git users: clone the repo to your hard drive
+2. Launch the Vivado GUI.
+3. Open the Tcl console from the Vivado welcome page. In the console, `cd` to the repo files
+   on your hard drive and into the Vivado subdirectory. For example: `cd /media/projects/ethernet-fmc-max-throughput/Vivado`.
+3. In the Vivado subdirectory, you will find multiple Tcl files. To list them, type `exec ls {*}[glob *.tcl]`.
+   Determine the Tcl script for the example project that you would like to generate (for example: `build-zedboard.tcl`), 
+   then `source` the script in the Tcl console: For example: `source build-zedboard.tcl`
+4. Vivado will run the script and generate the project. When it's finished, click Generate bitstream.
+5. When the bitstream is successfully generated, select `File->Export->Export Hardware`.
+   In the window that opens, tick "Include bitstream" and "Local to project".
+6. To export the project for SDK 2019.1, copy and paste the following script into the Tcl console of Vivado:
+```
+set proj_path [get_property DIRECTORY [current_project]]
+set proj_name [get_property NAME [current_project]]
+set top_module_name [get_property top [current_fileset]]
+set bit_filename [lindex [glob -dir "${proj_path}/${proj_name}.runs/impl_1" *.bit] 0]
+set export_dir "${proj_path}/${proj_name}.sdk"
+set hwdef_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.hwdef"
+set bit_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.bit"
+set mmi_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.mmi"
+file mkdir $export_dir
+write_sysdef -force -hwdef $hwdef_filename -bitfile $bit_filename -meminfo $mmi_filename $export_dir/$top_module_name.hdf
+```
+7. To build the SDK workspace, open a Linux command terminal and `cd` to the SDK directory in the repo.
+8. The SDK directory contains the `build-sdk.tcl` script that will build the SDK workspace containing the hardware design and
+   the software application. Run the build script by typing the following command: 
+   `<path-of-xilinx-sdk>/bin/xsdk -batch -source build-sdk.tcl`. Note that you must replace `<path-of-xilinx-sdk>` with the 
+   actual path to your Xilinx SDK installation.
+9. Run Xilinx SDK (DO NOT use the Launch SDK option from Vivado) and select the workspace to be the SDK subdirectory of the 
+   repo.
+10. Select `Project->Build automatically`.
+11. Connect and power up the hardware.
+12. Open a Putty terminal to view the UART output.
+13. In the SDK, select `Xilinx Tools->Program FPGA`.
+14. Right-click on the application and select `Run As->Launch on Hardware (System Debugger)`
 
 ### Installation of MicroZed and PicoZed board definition files
 
@@ -142,14 +193,6 @@ one bit error into one packet per second, on all 4 ports. Our design supplies
 the FCS to the transmit interface of the MACs, rather than having the MACs 
 calculate and append the FCS. This allows us to inject a bit error that should
 render the FCS incorrect for the frame.
-
-### Checking Received Frames
-
-The checksum should prevent most bit errors from getting through the receiving MAC
-however it is not an infallible detection system. To detect the errors that do not
-result in rejected frames, the Ethernet Traffic Generator IP reads the received packets
-and compares them with the known transmitted frame. Any bit errors are counted and
-accessible to the processor through a software register.
 
 ## Ethernet Traffic Generator IP
 

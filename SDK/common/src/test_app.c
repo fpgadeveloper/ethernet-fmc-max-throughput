@@ -15,12 +15,10 @@
  *  - poll the rejected frame interrupt flag for about 1 second
  *  - increment counters when dropped frames are detected
  *  - display the value of the counters
- *  - display the value of the bit error counters
  *
- * The console will display the dropped frame and bit error
+ * The console will display the dropped frame 
  * counts for all ports about once a second. The dropped frame
  * values should be incrementing by one for each reading.
- * The bit error counts should always be zero.
  * In normal operation, the dropped frame counter for each
  * port should be the same which indicates that there have
  * been no dropped packets besides those in which an error was
@@ -28,23 +26,23 @@
  *
  * Example (normal) output:
  *
- * Dropped frames:Bit errors (P0,P1,P2,P3):    1:0     1:0     1:0     1:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    2:0     2:0     2:0     2:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    3:0     3:0     3:0     3:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    4:0     4:0     4:0     4:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    5:0     5:0     5:0     5:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    6:0     6:0     6:0     6:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    7:0     7:0     7:0     7:0
+ * Dropped frames (P0,P1,P2,P3):    1     1     1     1
+ * Dropped frames (P0,P1,P2,P3):    2     2     2     2
+ * Dropped frames (P0,P1,P2,P3):    3     3     3     3
+ * Dropped frames (P0,P1,P2,P3):    4     4     4     4
+ * Dropped frames (P0,P1,P2,P3):    5     5     5     5
+ * Dropped frames (P0,P1,P2,P3):    6     6     6     6
+ * Dropped frames (P0,P1,P2,P3):    7     7     7     7
  *
  * Example output where a frame was lost on port 2:
  *
- * Dropped frames:Bit errors (P0,P1,P2,P3):    1:0     1:0     1:0     1:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    2:0     2:0     2:0     2:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    3:0     3:0     4:0     3:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    4:0     4:0     5:0     4:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    5:0     5:0     6:0     5:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    6:0     6:0     7:0     6:0
- * Dropped frames:Bit errors (P0,P1,P2,P3):    7:0     7:0     8:0     7:0
+ * Dropped frames (P0,P1,P2,P3):    1     1     1     1
+ * Dropped frames (P0,P1,P2,P3):    2     2     2     2
+ * Dropped frames (P0,P1,P2,P3):    3     3     4     3
+ * Dropped frames (P0,P1,P2,P3):    4     4     5     4
+ * Dropped frames (P0,P1,P2,P3):    5     5     6     5
+ * Dropped frames (P0,P1,P2,P3):    6     6     7     6
+ * Dropped frames (P0,P1,P2,P3):    7     7     8     7
  *
  */
 
@@ -74,15 +72,14 @@
 // Ethernet traffic generators and pointers to them
 XEth_traffic_gen eth_pkt_gen[XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES];
 
-XAxiEthernet *axi_ethernet[4];
+XAxiEthernet *axi_ethernet[XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES];
 
 int main()
 {
 	int Status;
 	u32 reg;
 	volatile u32 i;
-	volatile u32 dropped_frames[4];
-	volatile u32 bit_errors[XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES];
+	volatile u32 dropped_frames[XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES];
 
 	xil_printf("\n\r");
 	xil_printf("##########################################\n\r");
@@ -211,11 +208,6 @@ int main()
 			XEth_traffic_gen_Set_force_error_V(&(eth_pkt_gen[i]),0);
 		}
 
-		// Read the bit error counters
-		for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
-			bit_errors[i] = XEth_traffic_gen_Get_err_count_V(&(eth_pkt_gen[i]));
-		}
-
 		/* Display the dropped frame counter values
 		 * ----------------------------------------
 		 * Using good Ethernet cables and an environment with low EMI,
@@ -226,11 +218,11 @@ int main()
 		 * the same value always.
 		 *
 		 */
-		xil_printf("Dropped frames:Bit errors (P0,P1,P2,P3): %4d:%-4d %4d:%-4d %4d:%-4d %4d:%-4d\n\r",
-					dropped_frames[0],bit_errors[0],
-					dropped_frames[1],bit_errors[1],
-					dropped_frames[2],bit_errors[2],
-					dropped_frames[3],bit_errors[3]);
+		xil_printf("Dropped frames (P0,P1,P2,P3): %4d %4d %4d %4d\n\r",
+					dropped_frames[0],
+					dropped_frames[1],
+					dropped_frames[2],
+					dropped_frames[3]);
 	}
 
 	return 0;
