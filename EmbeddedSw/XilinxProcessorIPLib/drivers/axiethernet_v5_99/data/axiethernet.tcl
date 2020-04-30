@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Copyright (C) 2010 - 2014 Xilinx, Inc.  All rights reserved.
+# Copyright (C) 2010 - 2018 Xilinx, Inc.  All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -15,14 +15,12 @@
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-# XILINX  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-# OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Except as contained in this notice, the name of the Xilinx shall not be used
-# in advertising or otherwise to promote the sale, use or other dealings in
-# this Software without prior written authorization from Xilinx.
+#
 #
 # MODIFICATION HISTORY:
 #
@@ -48,25 +46,29 @@
 # 03/07/17 adk Fixed issue lwip stops working as soon as something is plugged
 #	       to it's AXI stream buf(CR#979634).
 # 01/09/18 rsp Added support for C_Number_of_Table_Entries parameter.
+# 08/31/18 rsp Improve error message when ethernet AXI4-Stream is connected
+#              to non-supported IP.
+# 09/01/18 rsp Fixed interrupt ID generation for ZynqMP designs.
+# 10/31/18 rsp Use identifiable suffix for global variables to avoid conflicts.
 #
 ###############################################################################
 #uses "xillib.tcl"
 
-set periph_config_params 	0
-set periph_ninstances    	0
+set periph_config_params_axieth 	0
+set periph_ninstances_axieth    	0
 
 proc init_periph_config_struct { deviceid } {
-    global periph_config_params
-    set periph_config_params($deviceid) [list]
+    global periph_config_params_axieth
+    set periph_config_params_axieth($deviceid) [list]
 }
 
 proc get_periph_config_struct_fields { deviceid } {
-    global periph_config_params
-    return $periph_config_params($deviceid)
+    global periph_config_params_axieth
+    return $periph_config_params_axieth($deviceid)
 }
 proc add_field_to_periph_config_struct { deviceid fieldval } {
-    global periph_config_params
-    lappend periph_config_params($deviceid) $fieldval
+    global periph_config_params_axieth
+    lappend periph_config_params_axieth($deviceid) $fieldval
 }
 proc display_avb_warning_if_applicable { periph } {
         set avb_param_val ""
@@ -93,7 +95,7 @@ proc display_avb_warning_if_applicable { periph } {
 #
 # ------------------------------------------------------------------
 proc xdefine_axiethernet_include_file {drv_handle file_name drv_string} {
-    global periph_ninstances
+    global periph_ninstances_axieth
 
     # Open include file
     set file_handle [::hsi::utils::open_include_file $file_name]
@@ -106,14 +108,14 @@ proc xdefine_axiethernet_include_file {drv_handle file_name drv_string} {
     # ----------------------------------------------
 
     # Handle NUM_INSTANCES
-    set periph_ninstances 0
+    set periph_ninstances_axieth 0
 	set uSuffix "U"
     puts $file_handle "/* Definitions for driver [string toupper [get_property NAME $drv_handle]] */"
     foreach periph $periphs {
-	init_periph_config_struct $periph_ninstances
-	incr periph_ninstances 1
+	init_periph_config_struct $periph_ninstances_axieth
+	incr periph_ninstances_axieth 1
     }
-    puts $file_handle "\#define [::hsi::utils::get_driver_param_name $drv_string NUM_INSTANCES] $periph_ninstances$uSuffix"
+    puts $file_handle "\#define [::hsi::utils::get_driver_param_name $drv_string NUM_INSTANCES] $periph_ninstances_axieth$uSuffix"
 
     close $file_handle
     # Now print all useful parameters for all peripherals
@@ -167,7 +169,7 @@ proc generate {drv_handle} {
 # ---------------------------------------------------------------------------
 proc xdefine_axi_target_params {periphs file_handle} {
     set uSuffix "U"
-    global periph_ninstances
+    global periph_ninstances_axieth
 
      #
     # First dump some enumerations on AXI_TYPE
@@ -306,7 +308,7 @@ proc xdefine_axi_target_params {periphs file_handle} {
 
        if {$validentry !=1} {
 		 puts "*******************************************************************************\r\n"
-		 puts "The target Peripheral(Axi DMA or AXI MCDMA or AXI FIFO) is not connected properly to the AXI Ethernet core."
+		 puts "ERROR: The target Peripheral(Axi DMA or AXI MCDMA or AXI FIFO) is not connected properly to the AXI Ethernet core."
 		 puts "*******************************************************************************\r\n"
       }
    }
@@ -529,7 +531,7 @@ proc xdefine_temac_params_canonical {file_handle periph device_id} {
 # Use the config field list technique
 # ------------------------------------------------------------------
 proc xdefine_axiethernet_config_file {file_name drv_string} {
-    global periph_ninstances
+    global periph_ninstances_axieth
 
     set filename [file join "src" $file_name]
     set config_file [open $filename w]
@@ -543,7 +545,7 @@ proc xdefine_axiethernet_config_file {file_name drv_string} {
     puts $config_file "\{"
 
     set start_comma ""
-    for {set i 0} {$i < $periph_ninstances} {incr i} {
+    for {set i 0} {$i < $periph_ninstances_axieth} {incr i} {
 
         set k 1
         puts $config_file [format "%s\t\{" $start_comma]
@@ -627,7 +629,7 @@ proc xdefine_dma_interrupts {file_handle target_periph deviceid canonical_tag dm
             set intc_periph_type [get_property IP_NAME $pname_type]
             set intc_name [string toupper [get_property NAME $pname_type]]
 	    if { [llength $intc_periph_type] > 1 } {
-                set intc_periph_type [lindex $intc_periph_type 1]
+                set intc_periph_type [lindex $intc_periph_type [lsearch $intc_periph_type "psu_acpu_gic"]]
             }
         } else {
             puts "Info: $target_periph_name interrupt signal $interrupt_signal_name not connected"
@@ -735,7 +737,7 @@ proc xdefine_mcdma_rx_interrupts {file_handle target_periph deviceid canonical_t
             set intc_periph_type [get_property IP_NAME $pname_type]
             set intc_name [string toupper [get_property NAME $pname_type]]
 	    if { [llength $intc_periph_type] > 1 } {
-                set intc_periph_type [lindex $intc_periph_type 1]
+                set intc_periph_type [lindex $intc_periph_type [lsearch $intc_periph_type "psu_acpu_gic"]]
             }
         } else {
             puts "Info: $target_periph_name interrupt signal $interrupt_signal_name not connected"
@@ -836,7 +838,7 @@ proc xdefine_mcdma_tx_interrupts {file_handle target_periph deviceid canonical_t
             set intc_periph_type [get_property IP_NAME $pname_type]
             set intc_name [string toupper [get_property NAME $pname_type]]
 	    if { [llength $intc_periph_type] > 1 } {
-                set intc_periph_type [lindex $intc_periph_type 1]
+                set intc_periph_type [lindex $intc_periph_type [lsearch $intc_periph_type "psu_acpu_gic"]]
             }
         } else {
             puts "Info: $target_periph_name interrupt signal $interrupt_signal_name not connected"
@@ -932,7 +934,7 @@ proc xdefine_temac_interrupt {file_handle periph device_id} {
         set intc_name [string toupper [get_property NAME $intc_periph]]
 	#Handling for ZYNQMP
 	if { [llength $intc_periph_type] > 1 } {
-		set intc_periph_type [lindex $intc_periph_type 1]
+		set intc_periph_type [lindex $intc_periph_type [lsearch $intc_periph_type "psu_acpu_gic"]]
 	}
     } else {
          puts "Info: $periph_name interrupt signal $interrupt_signal_name not connected"
@@ -1050,7 +1052,14 @@ proc get_mactype {value} {
 }
 
 proc is_ethsupported_target {connected_ip} {
-   set connected_ipname [get_property IP_NAME [get_cells -hier $connected_ip]]
+   set connected_ipname ""
+   if {$connected_ip == ""} {
+      return "false"
+   }
+   set ipname [get_cells -hier $connected_ip]
+   if {$ipname != ""} {
+      set connected_ipname [get_property IP_NAME $ipname]
+   }
    if {$connected_ipname == "axi_dma" || $connected_ipname == "axi_fifo_mm_s" || $connected_ipname == "axi_mcdma"} {
       return "true"
    } else {
@@ -1059,11 +1068,17 @@ proc is_ethsupported_target {connected_ip} {
 }
 
 proc get_targetip {ip} {
+   set target_periph ""
+   if {$ip == ""} {
+      return $target_periph
+   }
    set p2p_busifs_i [get_intf_pins -of_objects $ip -filter "TYPE==INITIATOR || TYPE==MASTER"]
    foreach p2p_busif $p2p_busifs_i {
       set busif_name [string toupper [get_property NAME  $p2p_busif]]
       set conn_busif_handle [::hsi::utils::get_connected_intf $ip $busif_name]
-      set target_periph [get_cells -of_objects $conn_busif_handle]
+      if {$conn_busif_handle != ""} {
+         set target_periph [get_cells -of_objects $conn_busif_handle]
+      }
    }
    return $target_periph
 }

@@ -15,6 +15,7 @@ Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
 * Vivado 2019.2
+* Vitis 2019.2
 * Vivado HLS 2019.2
 * [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 * Supported FMC carrier board (see list of supported carriers below)
@@ -74,29 +75,15 @@ To use the sources in this repository, please follow these steps:
 6. Click Generate bitstream.
 7. When the bitstream is successfully generated, select `File->Export->Export Hardware`.
    In the window that opens, tick "Include bitstream" and "Local to project".
-8. To export the project for SDK 2019.1, copy and paste the following script into the Tcl console of Vivado:
-```
-set proj_path [get_property DIRECTORY [current_project]]
-set proj_name [get_property NAME [current_project]]
-set top_module_name [get_property top [current_fileset]]
-set bit_filename [lindex [glob -dir "${proj_path}/${proj_name}.runs/impl_1" *.bit] 0]
-set export_dir "${proj_path}/${proj_name}.sdk"
-set hwdef_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.hwdef"
-set bit_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.bit"
-set mmi_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.mmi"
-file mkdir $export_dir
-write_sysdef -force -hwdef $hwdef_filename -bitfile $bit_filename -meminfo $mmi_filename $export_dir/$top_module_name.hdf
-```
-9. Return to Windows Explorer and browse to the SDK directory in the repo.
-10. Double click the `build-sdk.bat` batch file. The batch file will run the
-   `build-sdk.tcl` script and build the SDK workspace containing the hardware
+8. Return to Windows Explorer and browse to the Vitis directory in the repo.
+9. Double click the `build-vitis.bat` batch file. The batch file will run the
+   `build-vitis.tcl` script and build the Vitis workspace containing the hardware
    design and the software application.
-11. Run Xilinx SDK (DO NOT use the Launch SDK option from Vivado) and select the workspace to be the SDK directory of the repo.
-12. Select `Project->Build automatically`.
-13. Connect and power up the hardware.
-14. Open a Putty terminal to view the UART output.
-15. In the SDK, select `Xilinx Tools->Program FPGA`.
-16. Right-click on the application and select `Run As->Launch on Hardware (System Debugger)`
+10. Run Xilinx Vitis and select the workspace to be the Vitis directory of the repo.
+11. Connect and power up the hardware.
+12. Open a Putty terminal to view the UART output.
+13. In Vitis, select `Xilinx Tools->Program FPGA`.
+14. Right-click on the application and select `Run As->Launch on Hardware (Single Application Debug)`
 
 ### Linux users
 
@@ -111,36 +98,22 @@ write_sysdef -force -hwdef $hwdef_filename -bitfile $bit_filename -meminfo $mmi_
 4. Vivado will run the script and generate the project. When it's finished, click Generate bitstream.
 5. When the bitstream is successfully generated, select `File->Export->Export Hardware`.
    In the window that opens, tick "Include bitstream" and "Local to project".
-6. To export the project for SDK 2019.1, copy and paste the following script into the Tcl console of Vivado:
-```
-set proj_path [get_property DIRECTORY [current_project]]
-set proj_name [get_property NAME [current_project]]
-set top_module_name [get_property top [current_fileset]]
-set bit_filename [lindex [glob -dir "${proj_path}/${proj_name}.runs/impl_1" *.bit] 0]
-set export_dir "${proj_path}/${proj_name}.sdk"
-set hwdef_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.hwdef"
-set bit_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.bit"
-set mmi_filename "${proj_path}/${proj_name}.runs/impl_1/$top_module_name.mmi"
-file mkdir $export_dir
-write_sysdef -force -hwdef $hwdef_filename -bitfile $bit_filename -meminfo $mmi_filename $export_dir/$top_module_name.hdf
-```
-7. To build the SDK workspace, open a Linux command terminal and `cd` to the SDK directory in the repo.
-8. The SDK directory contains the `build-sdk.tcl` script that will build the SDK workspace containing the hardware design and
+6. To build the Vitis workspace, open a Linux command terminal and `cd` to the Vitis directory in the repo.
+7. The Vitis directory contains the `build-vitis.tcl` script that will build the Vitis workspace containing the hardware design and
    the software application. Run the build script by typing the following command: 
-   `<path-of-xilinx-sdk>/bin/xsdk -batch -source build-sdk.tcl`. Note that you must replace `<path-of-xilinx-sdk>` with the 
-   actual path to your Xilinx SDK installation.
-9. Run Xilinx SDK (DO NOT use the Launch SDK option from Vivado) and select the workspace to be the SDK subdirectory of the 
+   `<path-of-xilinx-vitis>/bin/xsct build-vitis.tcl`. Note that you must replace `<path-of-xilinx-vitis>` with the 
+   actual path to your Xilinx Vitis installation.
+8. Run Xilinx Vitis and select the workspace to be the Vitis subdirectory of the 
    repo.
-10. Select `Project->Build automatically`.
-11. Connect and power up the hardware.
-12. Open a Putty terminal to view the UART output.
-13. In the SDK, select `Xilinx Tools->Program FPGA`.
-14. Right-click on the application and select `Run As->Launch on Hardware (System Debugger)`
+9. Connect and power up the hardware.
+10. Open a Putty terminal to view the UART output.
+11. In Vitis, select `Xilinx Tools->Program FPGA`.
+12. Right-click on the application and select `Run As->Launch on Hardware (Single Application Debug)`
 
 ### Installation of MicroZed and PicoZed board definition files
 
 To use the projects for the MicroZed and PicoZed, you must first install the board definition files
-for those boards into your Vivado and Xilinx SDK installation.
+for those boards into your Vivado and Vitis installation.
 
 The following folders contain the board definition files and can be found in this project repository at this location:
 
@@ -154,7 +127,7 @@ https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/tree/master/Vivado/
 
 Copy those folders and their contents into the `C:\Xilinx\Vivado\2019.2\data\boards\board_files` folder (this may
 be different on your machine, depending on your Vivado installation directory). You also need to make a copy into the
-Xilinx SDK installation at this location: `C:\Xilinx\SDK\2019.2\data\boards\board_files`.
+Vitis installation at this location: `C:\Xilinx\Vitis\2019.2\data\boards\board_files`.
 
 ## Background
 
@@ -243,7 +216,7 @@ that are normally generated by Vivado (FIFOs, etc).
 We encourage contribution to these projects. If you spot issues or you want to add designs for other platforms, please
 make a pull request.
 
-### About us
+## About us
 
 This project was developed by [Opsero Inc.](http://opsero.com "Opsero Inc."),
 a tight-knit team of FPGA experts delivering FPGA products and design services to start-ups and tech companies. 
