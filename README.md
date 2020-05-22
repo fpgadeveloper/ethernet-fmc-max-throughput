@@ -33,6 +33,8 @@ You will also need the following:
 * Kintex-7 [KC705 Evaluation board](http://www.xilinx.com/products/boards-and-kits/ek-k7-kc705-g.html "KC705 Evaluation board")
   * LPC connector
   * HPC connector
+* Zynq UltraScale+ [ZCU104 Evaluation board](https://www.xilinx.com/products/boards-and-kits/zcu104.html "ZCU104 Evaluation board")
+  * LPC connector
 * Zynq UltraScale+ [ZCU102 Evaluation board Rev 1.0](https://www.xilinx.com/products/boards-and-kits/ek-u1-zcu102-g.html "ZCU102 Evaluation board")
   * HPC0 connector
 

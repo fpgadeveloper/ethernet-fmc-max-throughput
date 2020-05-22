@@ -224,22 +224,22 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/zynq_ultra_p
 
 # Connect the resets
 
-connect_bd_net [get_bd_pins axi_ethernet_0/axi_txd_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_0/axi_txc_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_0/axi_rxd_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_0/axi_rxs_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_1/axi_txd_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_1/axi_txc_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_1/axi_rxd_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_1/axi_rxs_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_2/axi_txd_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_2/axi_txc_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_2/axi_rxd_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_2/axi_rxs_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_3/axi_txd_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_3/axi_txc_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_3/axi_rxd_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
-connect_bd_net [get_bd_pins axi_ethernet_3/axi_rxs_arstn] [get_bd_pins rst_ps8_0_99M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_0/axi_txd_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_0/axi_txc_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_0/axi_rxd_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_0/axi_rxs_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_1/axi_txd_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_1/axi_txc_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_1/axi_rxd_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_1/axi_rxs_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_2/axi_txd_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_2/axi_txc_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_2/axi_rxd_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_2/axi_rxs_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_3/axi_txd_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_3/axi_txc_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_3/axi_rxd_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
+connect_bd_net [get_bd_pins axi_ethernet_3/axi_rxs_arstn] [get_bd_pins rst_ps8_0_*M/peripheral_aresetn]
 
 # Restore current instance
 current_bd_instance $oldCurInst

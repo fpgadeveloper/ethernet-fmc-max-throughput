@@ -1,7 +1,7 @@
 ################################################################
 # Block design build script
 ################################################################
-set design_name design_2_zcu102
+set design_name design_2_zynqmp
 
 # CHECKING IF PROJECT EXISTS
 if { [get_projects -quiet] eq "" } {

@@ -11,6 +11,7 @@
  * swaps the MAC addresses when it returns packets.
  */
 
+#include "xparameters.h"
 #include "ethfmc_axie.h"
 #include "stdlib.h"
 #include "board.h"
@@ -49,12 +50,11 @@ unsigned EthFMC_get_IEEE_phy_speed(XAxiEthernet *xaxiemacp)
 	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 2);
 	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, &control);
 	// Ultrascale designs implement TX clock skew in the FPGA
-	if(strcmp(BOARD_NAME,"ZCU102") == 0){
-		control &= ~(IEEE_RGMII_TX_CLOCK_DELAYED_MASK);
-	}
-	else {
-		control |= IEEE_RGMII_TX_CLOCK_DELAYED_MASK;
-	}
+#ifdef PLATFORM_ZYNQMP
+  control &= ~(IEEE_RGMII_TX_CLOCK_DELAYED_MASK);
+#else
+  control |= IEEE_RGMII_TX_CLOCK_DELAYED_MASK;
+#endif
 	control |= IEEE_RGMII_RX_CLOCK_DELAYED_MASK;
 	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_CONTROL_REG_MAC, control);
 

@@ -62,6 +62,12 @@ proc fill_local_libraries {} {
     # Copy the original files to local repo, without overwriting existing code
     copy-r $orig_dir $driver_dir
   }
+  # Copy the FSBL for ZCU104 patch
+  set fsbl_dir "../EmbeddedSw/lib/sw_apps/zynqmp_fsbl"
+  set orig_dir "$vitis_dir/data/embeddedsw/lib/sw_apps/zynqmp_fsbl"
+  puts "Copying files from $orig_dir to $fsbl_dir"
+  # Copy the original files to local repo, without overwriting existing code
+  copy-r $orig_dir $fsbl_dir
 }
 
 # Get the first processor name from a hardware design
@@ -240,7 +246,7 @@ proc create_vitis_ws {} {
     # Copy common sources into the application
     copy-r "common/src" "${app_name}/src"
     # Create the board.h file
-    set board_name_only [string replace $board_name [string first "_" $board_name] end ""]
+    set board_name_only [lindex [split $board_name _] 0]
     create_board_h $board_name_only "${app_name}/src"
     # Build the application
     puts "Building application $app_name."
