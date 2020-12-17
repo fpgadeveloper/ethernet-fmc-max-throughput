@@ -1,6 +1,6 @@
 @ECHO OFF
 
-SET vivado_hls=C:\Xilinx\Vivado\2019.2\bin\vivado_hls.bat
+SET vivado_hls=C:\Xilinx\Vivado\2020.2\bin\vivado_hls.bat
 
 for /d %%a in (*) do call :build %%a
 
