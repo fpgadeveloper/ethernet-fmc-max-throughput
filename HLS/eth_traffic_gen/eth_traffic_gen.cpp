@@ -1,6 +1,6 @@
 /* ----------------------------------------------
  * Ethernet Traffic Generator
- * Opsero Electronic Design Inc. 2017
+ * Opsero Electronic Design Inc. 2020
  * ----------------------------------------------
  *
  * Description:
@@ -32,16 +32,13 @@
  *
  */
 #include <stdio.h>
-#include <hls_stream.h>
-#include <ap_int.h>
+#include "hls_stream.h"
+#include "ap_int.h"
+#include "ap_axi_sdata.h"
 
 using namespace hls;
 
-struct axiWord {
-  ap_uint<32> data;
-  ap_uint<4> keep;
-  ap_uint<1> last;
-};
+typedef ap_axis<32,0,0,0> axiWord;
 
 /* ----------------------------------------------
  * Ethertype calculator

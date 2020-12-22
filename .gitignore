@@ -1,0 +1,8 @@
+Vivado/.Xil/
+Vivado/*.log
+Vivado/*.jou
+Vivado/*_max_tp/
+HLS/axi_init/*.log
+HLS/axi_init/proj_axi_init/
+HLS/eth_traffic_gen/*.log
+HLS/eth_traffic_gen/proj_eth_traffic_gen/
