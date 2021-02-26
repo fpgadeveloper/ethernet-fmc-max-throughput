@@ -3,6 +3,22 @@ Vitis HLS Cores
 
 The files contained in this folder contain IP cores developed in Vitis HLS.
 
+Important patch for Vitis HLS 2020.2
+------------------------------------
+
+There is an issue with the automatically generated makefiles in Vitis HLS 2020.2 release.
+We correct for this issue with a script in this repository called `patch_makefiles.tcl`.
+The script is to be run after the HLS IP cores have been generated. For Windows users,
+the script is called by the `build-hls-cores.bat` batch file. Linux users will have to 
+source the script directly using this command after the IP cores have been generated:
+
+`<path-to-vitis-hls>/bin/vitis_hls -f patch_makefiles.tcl`
+
+You can read more about this issue on these forum posts:
+
+https://forums.xilinx.com/t5/High-Level-Synthesis-HLS/Vitis-for-Windows-can-t-build-platform-for-Vitis-HLS-project/m-p/1203180
+https://forums.xilinx.com/t5/High-Level-Synthesis-HLS/Bug-HLS-2020-2-generated-makefile-compilation-error-in-vitis/td-p/1206772
+
 How to build the HLS IP cores
 -----------------------------
 

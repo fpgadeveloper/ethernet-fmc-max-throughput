@@ -1,6 +1,6 @@
 Vivado/.Xil/
-Vivado/*.log
-Vivado/*.jou
+*.log
+*.jou
 Vivado/*_max_tp/
 HLS/axi_init/*.log
 HLS/axi_init/proj_axi_init/
@@ -10,7 +10,5 @@ Vitis/*_test_app*/
 Vitis/*_max_tp_*/
 Vitis/.*/
 Vitis/.*
-Vitis/*.log
-Vitis/*.jou
 Vitis/boot/
 Vitis/embeddedsw/
