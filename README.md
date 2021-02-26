@@ -6,7 +6,7 @@ packet generator/checker to demonstrate maximum throughput.
 
 ## Requirements
 
-This project is designed for version 2019.2 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
+This project is designed for version 2020.2 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
 Xilinx tools, then refer to the [release tags](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/releases "releases")
 to find the version of this repository that matches your version of the tools.
 
@@ -14,9 +14,9 @@ In order to test the Ethernet FMC using this design, you need to use an
 Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
-* Vivado 2019.2
-* Vitis 2019.2
-* Vivado HLS 2019.2
+* Vivado 2020.2
+* Vitis 2020.2
+* Vivado HLS 2020.2
 * [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 * Supported FMC carrier board (see list of supported carriers below)
 * Two Ethernet cables
@@ -127,9 +127,9 @@ https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/tree/master/Vivado/
 * `picozed_7020_fmc2`
 * `picozed_7030_fmc2`
 
-Copy those folders and their contents into the `C:\Xilinx\Vivado\2019.2\data\boards\board_files` folder (this may
+Copy those folders and their contents into the `C:\Xilinx\Vivado\2020.2\data\boards\board_files` folder (this may
 be different on your machine, depending on your Vivado installation directory). You also need to make a copy into the
-Vitis installation at this location: `C:\Xilinx\Vitis\2019.2\data\boards\board_files`.
+Vitis installation at this location: `C:\Xilinx\Vitis\2020.2\data\boards\board_files`.
 
 ## Background
 

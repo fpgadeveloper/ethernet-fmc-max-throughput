@@ -142,7 +142,6 @@ CONFIG.USE_RESET {false} \
 CONFIG.CLKIN1_JITTER_PS {80.0} \
 CONFIG.MMCM_DIVCLK_DIVIDE {1} \
 CONFIG.MMCM_CLKFBOUT_MULT_F {8.000} \
-CONFIG.MMCM_CLKIN1_PERIOD {8.0} \
 CONFIG.MMCM_CLKOUT0_DIVIDE_F {5.000} \
 CONFIG.MMCM_CLKOUT1_DIVIDE {8} \
 CONFIG.NUM_OUT_CLKS {2} \
@@ -152,12 +151,9 @@ CONFIG.CLKOUT2_JITTER {119.348} \
 CONFIG.CLKOUT2_PHASE_ERROR {96.948}] [get_bd_cells clk_wiz_0]
 
 # Connect the Ref clk ports to the clock wiz
-create_bd_port -dir I -from 0 -to 0 -type clk ref_clk_p
-set_property CONFIG.FREQ_HZ 125000000 [get_bd_ports ref_clk_p]
-create_bd_port -dir I -from 0 -to 0 -type clk ref_clk_n
-set_property CONFIG.FREQ_HZ 125000000 [get_bd_ports ref_clk_n]
-connect_bd_net [get_bd_ports ref_clk_p] [get_bd_pins clk_wiz_0/clk_in1_p]
-connect_bd_net [get_bd_ports ref_clk_n] [get_bd_pins clk_wiz_0/clk_in1_n]
+create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk
+set_property -dict [list CONFIG.FREQ_HZ {125000000}] [get_bd_intf_ports ref_clk]
+connect_bd_intf_net [get_bd_intf_ports ref_clk] [get_bd_intf_pins clk_wiz_0/CLK_IN1_D]
 connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins axi_ethernet_0/ref_clk]
 connect_bd_net [get_bd_pins clk_wiz_0/clk_out2] [get_bd_pins axi_ethernet_0/gtx_clk]
 

@@ -1,7 +1,7 @@
-Vivado HLS Cores
-================
+Vitis HLS Cores
+===============
 
-The files contained in this folder contain IP cores developed in Vivado HLS.
+The files contained in this folder contain IP cores developed in Vitis HLS.
 
 How to build the HLS IP cores
 -----------------------------
@@ -12,7 +12,7 @@ script for each individual IP core.
 
 Each IP core has its own build script (.tcl) and sources in C/C++ (.c, .cpp).
 The build script for each core will generate the HDL sources for the core,
-as well as a Vivado HLS project for developing/testing/simulating the core.
+as well as a Vitis HLS project for developing/testing/simulating the core.
 The generated project will be named `proj_<ip_core_name>` and will be contained in
 the same location as the build script.
 
@@ -37,7 +37,7 @@ in this location:
 Simulation of the cores
 -----------------------
 
-Vivado HLS IP cores can be verified by C/RTL co-simulation within Vivado HLS, or by simulation
+Vitis HLS IP cores can be verified by C/RTL co-simulation within Vitis HLS, or by simulation
 with an RTL testbench in Vivado.
 
 * For C/RTL co-simulation, the C testbench and test data will be included in the Vivado

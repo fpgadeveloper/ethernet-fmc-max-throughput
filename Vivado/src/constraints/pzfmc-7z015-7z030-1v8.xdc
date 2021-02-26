@@ -1,6 +1,6 @@
 # Enable internal termination resistor on LVDS 125MHz ref_clk
-set_property DIFF_TERM TRUE [get_ports ref_clk_p]
-set_property DIFF_TERM TRUE [get_ports ref_clk_n]
+set_property DIFF_TERM TRUE [get_ports ref_clk_clk_p]
+set_property DIFF_TERM TRUE [get_ports ref_clk_clk_n]
 
 # Define I/O standards
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_1_rd[0]}]
@@ -43,8 +43,8 @@ set_property IOSTANDARD LVCMOS18 [get_ports mdio_io_port_2_mdio_io]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_3_td[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_3_td[2]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_3_td[3]}]
-set_property IOSTANDARD LVDS [get_ports ref_clk_p]
-set_property IOSTANDARD LVDS [get_ports ref_clk_n]
+set_property IOSTANDARD LVDS [get_ports ref_clk_clk_p]
+set_property IOSTANDARD LVDS [get_ports ref_clk_clk_n]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_0_rd[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_0_rd[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_0_td[0]}]
@@ -110,8 +110,8 @@ set_property PACKAGE_PIN M1 [get_ports mdio_io_port_2_mdio_io]
 set_property PACKAGE_PIN R4 [get_ports {rgmii_port_3_td[0]}]
 set_property PACKAGE_PIN P6 [get_ports {rgmii_port_3_td[2]}]
 set_property PACKAGE_PIN P5 [get_ports {rgmii_port_3_td[3]}]
-set_property PACKAGE_PIN D5 [get_ports ref_clk_p]
-set_property PACKAGE_PIN C4 [get_ports ref_clk_n]
+set_property PACKAGE_PIN D5 [get_ports ref_clk_clk_p]
+set_property PACKAGE_PIN C4 [get_ports ref_clk_clk_n]
 set_property PACKAGE_PIN E4 [get_ports {rgmii_port_0_rd[0]}]
 set_property PACKAGE_PIN E3 [get_ports {rgmii_port_0_rd[1]}]
 set_property PACKAGE_PIN B2 [get_ports {rgmii_port_0_td[0]}]
@@ -137,7 +137,7 @@ set_property PACKAGE_PIN K8 [get_ports reset_port_3]
 set_property PACKAGE_PIN C8 [get_ports iic_fmc_sda_io]
 set_property PACKAGE_PIN B8 [get_ports iic_fmc_scl_io]
 
-create_clock -period 8.000 -name ref_clk_p -waveform {0.000 4.000} [get_ports ref_clk_p]
+create_clock -period 8.000 -name ref_clk_clk_p -waveform {0.000 4.000} [get_ports ref_clk_clk_p]
 
 # Uncomment these lines to remove the RGMII TX clock skew in the FPGA (AXI Ethernet IP).
 # Note that if you disable TX clock skew in the FPGA, you will need to enable it in the PHY.

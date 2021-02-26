@@ -146,12 +146,9 @@ connect_bd_net [get_bd_pins axi_ethernet_2/ref_clk] [get_bd_pins processing_syst
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf util_ds_buf_0
 connect_bd_net [get_bd_pins util_ds_buf_0/IBUF_OUT] [get_bd_pins axi_ethernet_0/gtx_clk]
-create_bd_port -dir I -from 0 -to 0 -type clk ref_clk_p
-connect_bd_net [get_bd_pins /util_ds_buf_0/IBUF_DS_P] [get_bd_ports ref_clk_p]
-set_property CONFIG.FREQ_HZ 125000000 [get_bd_ports ref_clk_p]
-create_bd_port -dir I -from 0 -to 0 -type clk ref_clk_n
-connect_bd_net [get_bd_pins /util_ds_buf_0/IBUF_DS_N] [get_bd_ports ref_clk_n]
-set_property CONFIG.FREQ_HZ 125000000 [get_bd_ports ref_clk_n]
+create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk
+set_property -dict [list CONFIG.FREQ_HZ {125000000}] [get_bd_intf_ports ref_clk]
+connect_bd_intf_net [get_bd_intf_ports ref_clk] [get_bd_intf_pins util_ds_buf_0/CLK_IN_D]
 
 # Connect port 2 to a different 125MHz clock
 

@@ -1,6 +1,6 @@
 @ECHO OFF
 
-SET vivado_hls=C:\Xilinx\Vivado\2019.2\bin\vivado_hls.bat
+SET vitis_hls=C:\Xilinx\Vitis_HLS\2020.2\bin\vitis_hls.bat
 
 for /d %%a in (*) do call :build %%a
 
@@ -13,7 +13,7 @@ if exist .\%1.tcl (
     echo Core %1 already built
   ) else (
     echo Building core %1
-    call %vivado_hls% -f %1.tcl
+    call %vitis_hls% -f %1.tcl
   )
 )
 cd ..
