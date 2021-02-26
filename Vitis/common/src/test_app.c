@@ -49,7 +49,6 @@
 #include "xparameters.h"
 #include <stdio.h>
 #include "xil_types.h"
-#include "platform.h"
 #include "ethfmc_axie.h"
 #include "xeth_traffic_gen.h"
 
@@ -91,8 +90,6 @@ int main()
 	unsigned char mac_ethernet_address[] =
 	{ 0x00, 0x0a, 0x35, 0x00, 0x01, 0x02 };
 
-	init_platform();
-
 	// Initialize Ethernet Traffic Generators
 	for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
 		Status = XEth_traffic_gen_Initialize(&(eth_pkt_gen[i]),i);
@@ -104,20 +101,20 @@ int main()
 	
 	// Set MAC addresses
 	for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
-	  XEth_traffic_gen_Set_dst_mac_lo_V(&(eth_pkt_gen[i]),0xFFFF1E00);
-	  XEth_traffic_gen_Set_dst_mac_hi_V(&(eth_pkt_gen[i]),0xFFFF);
-	  XEth_traffic_gen_Set_src_mac_lo_V(&(eth_pkt_gen[i]),0xA4A52737);
-	  XEth_traffic_gen_Set_src_mac_hi_V(&(eth_pkt_gen[i]),0xFFFF);
+	  XEth_traffic_gen_Set_dst_mac_lo(&(eth_pkt_gen[i]),0xFFFF1E00);
+	  XEth_traffic_gen_Set_dst_mac_hi(&(eth_pkt_gen[i]),0xFFFF);
+	  XEth_traffic_gen_Set_src_mac_lo(&(eth_pkt_gen[i]),0xA4A52737);
+	  XEth_traffic_gen_Set_src_mac_hi(&(eth_pkt_gen[i]),0xFFFF);
 	}
 
 	// Set packet payload length
 	for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
-		XEth_traffic_gen_Set_pkt_len_V(&(eth_pkt_gen[i]),PAYLOAD_WORD_SIZE);
+		XEth_traffic_gen_Set_pkt_len(&(eth_pkt_gen[i]),PAYLOAD_WORD_SIZE);
 	}
 
 	// Reset force error
 	for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
-		XEth_traffic_gen_Set_force_error_V(&(eth_pkt_gen[i]),0);
+		XEth_traffic_gen_Set_force_error(&(eth_pkt_gen[i]),0);
 	}
 
 	// Initialize the AXI Ethernet MACs
@@ -157,7 +154,7 @@ int main()
 		 */
 		// Set force error
 		for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
-			XEth_traffic_gen_Set_force_error_V(&(eth_pkt_gen[i]),1);
+			XEth_traffic_gen_Set_force_error(&(eth_pkt_gen[i]),1);
 		}
 
 		/* Poll for dropped packets and increment counters
@@ -205,7 +202,7 @@ int main()
 
 		// Reset force error
 		for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
-			XEth_traffic_gen_Set_force_error_V(&(eth_pkt_gen[i]),0);
+			XEth_traffic_gen_Set_force_error(&(eth_pkt_gen[i]),0);
 		}
 
 		/* Display the dropped frame counter values

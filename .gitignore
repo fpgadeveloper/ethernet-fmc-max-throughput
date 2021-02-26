@@ -6,3 +6,11 @@ HLS/axi_init/*.log
 HLS/axi_init/proj_axi_init/
 HLS/eth_traffic_gen/*.log
 HLS/eth_traffic_gen/proj_eth_traffic_gen/
+Vitis/*_test_app*/
+Vitis/*_max_tp_*/
+Vitis/.*/
+Vitis/.*
+Vitis/*.log
+Vitis/*.jou
+Vitis/boot/
+Vitis/embeddedsw/
