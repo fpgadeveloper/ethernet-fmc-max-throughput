@@ -1,13 +1,11 @@
+RemoteSystemsTempFiles/
 Vivado/.Xil/
 *.log
 *.jou
-Vivado/*_max_tp/
-HLS/axi_init/*.log
-HLS/axi_init/proj_axi_init/
+Vivado/zedboard/
 HLS/eth_traffic_gen/*.log
 HLS/eth_traffic_gen/proj_eth_traffic_gen/
-Vitis/*_test_app*/
-Vitis/*_max_tp_*/
+Vitis/zedboard*/
 Vitis/.*/
 Vitis/.*
 Vitis/boot/

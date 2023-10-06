@@ -6,7 +6,7 @@ packet generator/checker to demonstrate maximum throughput.
 
 ## Requirements
 
-This project is designed for version 2020.2 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
+This project is designed for version 2022.1 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
 Xilinx tools, then refer to the [release tags](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/releases "releases")
 to find the version of this repository that matches your version of the tools.
 
@@ -14,9 +14,9 @@ In order to test the Ethernet FMC using this design, you need to use an
 Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
-* Vivado 2020.2
-* Vitis 2020.2
-* Vivado HLS 2020.2
+* Vivado 2022.1
+* Vitis 2022.1
+* Vivado HLS 2022.1
 * [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
 * Supported FMC carrier board (see list of supported carriers below)
 * Two Ethernet cables
@@ -26,29 +26,6 @@ You will also need the following:
 
 * Zynq-7000 [ZedBoard](http://zedboard.org "ZedBoard")
   * LPC connector
-* Zynq-7000 [MicroZed 7Z010 and 7Z020](http://microzed.org "MicroZed") with [MicroZed FMC Carrier](http://zedboard.org/product/microzed-fmc-carrier "MicroZed FMC Carrier")
-  * LPC connector
-* Zynq-7000 [PicoZed 7Z015, 7Z020 and 7Z030](http://zedboard.org/product/picozed "PicoZed") with [PicoZed FMC Carrier Card V2](http://zedboard.org/product/picozed-fmc-carrier-card-v2 "PicoZed FMC Carrier Card V2")
-  * LPC connector
-* Kintex-7 [KC705 Evaluation board](http://www.xilinx.com/products/boards-and-kits/ek-k7-kc705-g.html "KC705 Evaluation board")
-  * LPC connector
-  * HPC connector
-* Zynq UltraScale+ [ZCU104 Evaluation board](https://www.xilinx.com/products/boards-and-kits/zcu104.html "ZCU104 Evaluation board")
-  * LPC connector
-* Zynq UltraScale+ [ZCU102 Evaluation board Rev 1.0](https://www.xilinx.com/products/boards-and-kits/ek-u1-zcu102-g.html "ZCU102 Evaluation board")
-  * HPC0 connector
-
-### Note about 7Z010 devices:
-
-The designs for the 7Z010 device differ slightly from the main design, using less resources to allow
-them to fit within the resource constraints of the smaller device. These designs use only 2 traffic
-generators, connected to ports 0 and 1, while ports 2 and 3 are connected to AXI Ethernet Subsystem
-blocks that are looped back on themselves. In this configuration, we can still test all ports at
-maximum throughput and detect dropped frames on all 4 ports.
-
-When testing these designs, note that we cannot force bit errors on ports 2 and 3, because they are connected
-in loopback; hence you can expect the dropped frame counters of ports 0 and 1 to always read 0 unless
-frames are being corrupted elsewhere in the system.
 
 ## Description
 
@@ -57,7 +34,7 @@ maximum throughput. The design contains 4 AXI Ethernet blocks and 4
 hardware traffic generators. The transmitted frames contain fixed destination and source MAC addresses,
 the Ethertype, a payload of random data and the FCS checksum.
 
-![Ethernet FMC Max Throughput Test design](http://ethernetfmc.com/wp-content/uploads/2014/10/qgige_max_throughput.png "Ethernet FMC Max Throughput Test design")
+![Ethernet FMC Max Throughput Test design](docs/source/images/max-tp-block-diagram.png "Ethernet FMC Max Throughput Test design")
 
 ## Build instructions
 
@@ -112,25 +89,6 @@ To use the sources in this repository, please follow these steps:
 11. In Vitis, select `Xilinx Tools->Program FPGA`.
 12. Right-click on the application and select `Run As->Launch on Hardware (Single Application Debug)`
 
-### Installation of MicroZed and PicoZed board definition files
-
-To use the projects for the MicroZed and PicoZed, you must first install the board definition files
-for those boards into your Vivado and Vitis installation.
-
-The following folders contain the board definition files and can be found in this project repository at this location:
-
-https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/tree/master/Vivado/boards/board_files
-
-* `microzed_7010`
-* `microzed_7020`
-* `picozed_7015_fmc2`
-* `picozed_7020_fmc2`
-* `picozed_7030_fmc2`
-
-Copy those folders and their contents into the `C:\Xilinx\Vivado\2020.2\data\boards\board_files` folder (this may
-be different on your machine, depending on your Vivado installation directory). You also need to make a copy into the
-Vitis installation at this location: `C:\Xilinx\Vitis\2020.2\data\boards\board_files`.
-
 ## Background
 
 In order to test an Ethernet device at maximum throughput (back-to-back
@@ -180,11 +138,10 @@ processing algorithms with the Ethernet FMC.
 ## Simulation
 
 The Ethernet Traffic Generator IP can be simulated in Vivado by using the RTL testbench that
-is included with the project. The Vivado project contains two block designs, `design_1` and `design_2`,
-used for implementation and simulation respectively. The `design_2` block design contains one
-instantiation of the Ethernet Traffic Generator IP (the DUT) and one IP core that is designed to initialize the
-software registers of the DUT. The RTL testbench connects the output of the DUT (TX frames) to the input
-of the DUT (RX frames). To run the simulation, simply open the Vivado project and select 
+is included with the project. The Vivado project contains two block designs, `maxtp` and `maxtp_sim`,
+used for implementation and simulation respectively. The `maxtp_sim` block design contains one
+instantiation of the Ethernet Traffic Generator IP (the DUT) and one AXI VPI IP core that we use to initialize the
+software registers of the DUT. To run the simulation, simply open the Vivado project and select 
 Run Simulation->Run Behavioral Simulation.
 
 ## Other applications

@@ -1,15 +1,16 @@
 Modified BSP files
 ==================
 
-### AXI Ethernet driver modifications (applies only to versions 5.6, 5.7, 5.8 and 5.9)
+### AXI Ethernet driver modifications (applies to versions 5.6-5.14)
 
-This repo contains a modified version of the AXI Ethernet driver to fix the following issues:
+For designs using the AXI FIFO (instead of AXI DMA), the `axiethernet.tcl` script requires correcting for the
+following issues:
 
-1. There is a bug in the TCL script for the AXI Ethernet driver since version 5.6 (released with Xilinx SDK 2017.3).
-For designs using the AXI FIFO (instead of AXI DMA), the below script fails at line 234 because variable
-`target_periph_name` is not defined.
-2. AXI Ethernet driver (since version 5.6, released with Xilinx SDK 2017.3) expects AXI Ethernet Subsystem IP to
-be connected to either AXI DMA or AXI FIFO. If this is not the case, this build script fails.
+1. Variable `target_periph_name` is not defined in function `xdefine_axi_target_params`. This causes the script
+to fail for the case when the device is Zynq and FIFO is used.
+2. FIFO interrupt IDs are not correctly defined for the case when the device is ZynqMP and FIFO is used. This
+is because the interrupt controller for ZynqMP is `psu_acpu_gic`, but this is not checked for, hence this case
+is treated as a non-Zynq case.
 
-Location of the original TCL script for Vitis 2019.2:
-`\Xilinx\Vitis\2019.2\data\embeddedsw\XilinxProcessorIPLib\drivers\axiethernet_v5_9\data\axiethernet.tcl`
+Both issues are corrected by the sources in this repo. Location of the original TCL script for Vitis 2020.2:
+`\Xilinx\Vitis\2022.1\data\embeddedsw\XilinxProcessorIPLib\drivers\axiethernet_v5_14\data\axiethernet.tcl`

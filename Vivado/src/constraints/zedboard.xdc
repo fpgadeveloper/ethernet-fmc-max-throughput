@@ -144,3 +144,31 @@ create_clock -period 8.000 -name ref_clk_clk_p -waveform {0.000 4.000} [get_port
 set_property CLKOUT1_PHASE 0 [get_cells *_i/axi_ethernet_0/inst/mac/inst/tri_mode_ethernet_mac_support_clocking_i/mmcm_adv_inst]
 set_property CLKOUT1_PHASE 0 [get_cells *_i/axi_ethernet_2/inst/mac/inst/tri_mode_ethernet_mac_support_clocking_i/mmcm_adv_inst]
 
+# The following constraints are here to override some of the automatically
+# generated constraints for the AXI Ethernet IPs. Specifically the
+# grouping of the IDELAY_CTRLs and the IDELAYs, and setting of the IDELAY values for timing closure.
+
+set port_0_iodelay [get_cells -hierarchical -filter { PRIMITIVE_TYPE == IO.IODELAY.IDELAYE2 && NAME =~  "*/axi_ethernet_0/*delay_rgmii_rx*" } ]
+set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp0 $port_0_iodelay
+set_property IDELAY_VALUE 12 $port_0_iodelay
+set port_1_iodelay [get_cells -hierarchical -filter { PRIMITIVE_TYPE == IO.IODELAY.IDELAYE2 && NAME =~  "*/axi_ethernet_1/*delay_rgmii_rx*" } ] 
+set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp0 $port_1_iodelay
+set_property IDELAY_VALUE 12 $port_1_iodelay
+set port_2_iodelay [get_cells -hierarchical -filter { PRIMITIVE_TYPE == IO.IODELAY.IDELAYE2 && NAME =~  "*/axi_ethernet_2/*delay_rgmii_rx*" } ] 
+set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp1 $port_2_iodelay
+set_property IDELAY_VALUE 12 $port_2_iodelay
+set port_3_iodelay [get_cells -hierarchical -filter { PRIMITIVE_TYPE == IO.IODELAY.IDELAYE2 && NAME =~  "*/axi_ethernet_3/*delay_rgmii_rx*" } ] 
+set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp1 $port_3_iodelay
+set_property IDELAY_VALUE 12 $port_3_iodelay
+
+# Constraints for IDELAY_CTRL grouping
+# The automatically generated constraints group the IDELAY_CTRLs into the
+# same group, however in a design with 4 AXI Ethernet IPs, this is not
+# possible to achieve because they will be spread across 2 banks.
+# The following constraints group the IDELAY_CTRLs into two separate
+# groups, one for each bank.
+
+set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp0 [get_cells *_i/axi_ethernet_0/inst/mac/inst/tri_mode_ethernet_mac_idelayctrl_common_i]
+set_property IODELAY_GROUP tri_mode_ethernet_mac_iodelay_grp1 [get_cells *_i/axi_ethernet_2/inst/mac/inst/tri_mode_ethernet_mac_idelayctrl_common_i]
+
+
