@@ -10,3 +10,4 @@ Vitis/.*/
 Vitis/.*
 Vitis/boot/
 Vitis/embeddedsw/
+bootimages/

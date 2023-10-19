@@ -12,14 +12,7 @@ TARGET ?= none
 JOBS ?= 8
 
 # valid targets (template name, both (plnx+baremetal) or baremetal_only)
-kc705_hpc_target := microblaze both
-kc705_lpc_target := microblaze both
-pz_7015_target := zynq both
-pz_7020_target := zynq both
-pz_7030_target := zynq both
-zcu102_hpc0_target := zynqMP both
-zcu104_target := zynqMP both
-zedboard_target := zynq both
+zedboard_target := zynq baremetal_only
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 
