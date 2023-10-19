@@ -7,8 +7,8 @@ MKDIR = mkdir -p
 RM = rm -rf
 ROOT_DIR = $(shell pwd)
 XSCT = $(XILINX_VITIS)/bin/xsct
-BD_NAME = axieth
-APP_POSTFIX = _echo_server
+BD_NAME = maxtp
+APP_POSTFIX = _test_app
 SYS_POSTFIX = $(APP_POSTFIX)_system
 
 # defaults
@@ -17,33 +17,9 @@ TARGET ?= none
 JOBS ?= 8
 
 # valid targets
-ac701_target := 0
-kc705_hpc_target := 0
-kc705_lpc_target := 0
-kc705_lpc_hpc_target := 0
-kcu105_dual_target := 0
-kcu105_hpc_target := 0
-kcu105_lpc_target := 0
-pz_7015_target := 0
-pz_7020_target := 0
-pz_7030_target := 0
-uzev_target := 0
-vc707_hpc1_target := 0
-vc707_hpc2_target := 0
-vc707_hpc2_hpc1_target := 0
-vc709_target := 0
-vcu108_hpc0_target := 0
-vcu108_hpc1_target := 0
-vcu118_target := 0
-zc702_lpc1_target := 0
-zc702_lpc2_target := 0
-zc702_lpc2_lpc1_target := 0
-zc706_lpc_target := 0
-zcu102_hpc0_target := 0
-zcu102_hpc1_target := 0
 zedboard_target := 0
 
-TARGET_LIST := $(patsubst %_target,%,$(filter %_target,$(.VARIABLES)))
+TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 
 # Vitis paths
 VIT_SCRIPT_WS = tcl/build-vitis.tcl
@@ -69,7 +45,7 @@ help:
 	@echo 'Parameters:'
 	@echo ''
 	@echo '  TARGET: Name of the target design, must be one of the following:'
-	@$(foreach targ,$(sort $(TARGET_LIST)),echo "    - $(targ)";)
+	@$(foreach targ,$(TARGET_LIST),echo "    - $(targ)";)
 	@echo ''
 	@echo '  JOBS: Optional param to set number of synthesis jobs (default 8)'
 	@echo ''

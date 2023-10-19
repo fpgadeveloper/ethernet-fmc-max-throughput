@@ -16,43 +16,19 @@ foreach d $vivado_dirs_rel {
 
 # Set the application postfix
 # Applications will be named using the app_postfix appended to the board name
-set app_postfix "_echo_server"
+set app_postfix "_test_app"
 
-# Specify the postfix on the Vivado projects (if one is used)
+# Specify the postfix on the Vivado projects so that the workspace builder can find them
 set vivado_postfix ""
 
 # Set the app template used to create the application
-set support_app "lwip_echo_server"
-set template_app "lwIP Echo Server"
+set support_app "empty_application"
+set template_app "Empty Application"
 
 # Microblaze designs: Generate combined .bit and .elf file
-set mb_combine_bit_elf 0
+set mb_combine_bit_elf 1
 
 # Possible targets (board name in lower case for the board.h file)
-dict set target_dict ac701 { ac701 }
-dict set target_dict kc705_hpc { kc705 }
-dict set target_dict kc705_lpc { kc705 }
-dict set target_dict kc705_lpc_hpc { kc705 }
-dict set target_dict kcu105_dual { kcu105 }
-dict set target_dict kcu105_hpc { kcu105 }
-dict set target_dict kcu105_lpc { kcu105 }
-dict set target_dict pz_7015 { pz }
-dict set target_dict pz_7020 { pz }
-dict set target_dict pz_7030 { pz }
-dict set target_dict uzev { uzev }
-dict set target_dict vc707_hpc1 { vc707 }
-dict set target_dict vc707_hpc2 { vc707 }
-dict set target_dict vc707_hpc2_hpc1 { vc707 }
-dict set target_dict vc709 { vc709 }
-dict set target_dict vcu108_hpc0 { vcu108 }
-dict set target_dict vcu108_hpc1 { vcu108 }
-dict set target_dict vcu118 { vcu118 }
-dict set target_dict zc702_lpc1 { zc702 }
-dict set target_dict zc702_lpc2 { zc702 }
-dict set target_dict zc702_lpc2_lpc1 { zc702 }
-dict set target_dict zc706_lpc { zc706 }
-dict set target_dict zcu102_hpc0 { zcu102 }
-dict set target_dict zcu102_hpc1 { zcu102 }
 dict set target_dict zedboard { zedboard }
 
 # Target can be specified by creating the target variable before sourcing, or in the arguments
@@ -78,7 +54,8 @@ proc custom_platform_mods {platform_name} {
 }
 
 proc custom_app_mods {platform_name app_name} {
-  # No custom mods needed
+  # Copy common sources into the application
+  copy-r "common/src" "${app_name}/src"
 }
 
 # Call the workspace builder script

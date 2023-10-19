@@ -1,10 +1,8 @@
-Vitis HLS Core
-==============
+# Vitis HLS Core
 
 The files contained in this folder contain an IP core developed in Vitis HLS.
 
-How to build the HLS IP core
-----------------------------
+## How to build the HLS IP core
 
 If using a Windows machine, run the `build-hls-cores.bat` batch file to build
 the HLS IP core. If using a Linux machine, you can cd to the HLS folder and run
@@ -16,8 +14,7 @@ as well as a Vitis HLS project for developing/testing/simulating the core.
 The generated project will be named `proj_<ip_core_name>` and will be contained in
 the same location as the build script.
 
-How to add the core to the Vivado IP Catalog
---------------------------------------------
+## How to add the core to the Vivado IP Catalog
 
 Once built, the simple way to add all the cores to the Vivado IP Catalog is to add the `HLS`
 folder to the Vivado IP Repository Manager. With your project already opened in Vivado:
@@ -34,8 +31,7 @@ in this location:
 
 `\HLS\<ip_core_name>\proj_<ip_core_name>\solution1\impl\ip\opsero_com_hls_<ip_core_name>_1_0.zip`
 
-Simulation of the core
-----------------------
+## Simulation of the core
 
 Vitis HLS IP core can be verified by C/RTL co-simulation within Vitis HLS, or by simulation
 with an RTL testbench in Vivado.

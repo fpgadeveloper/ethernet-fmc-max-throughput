@@ -1,5 +1,4 @@
-ethernet-fmc-max-throughput
-===========================
+# Max Throughput Example Design for Ethernet FMC
 
 Example design for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") using an FPGA based hardware
 packet generator/checker to demonstrate maximum throughput.
@@ -36,58 +35,80 @@ the Ethertype, a payload of random data and the FCS checksum.
 
 ![Ethernet FMC Max Throughput Test design](docs/source/images/max-tp-block-diagram.png "Ethernet FMC Max Throughput Test design")
 
-## Build instructions
+## Build instructions for Windows users
 
-To use the sources in this repository, please follow these steps:
-
-### Windows users
+### Build Vivado project in Windows
 
 1. Download the repo as a zip file and extract the files to a directory
-   on your hard drive --OR-- Git users: clone the repo to your hard drive
+   on your hard drive --OR-- clone the repo to your hard drive
 2. Open Windows Explorer, browse to the repo files on your hard drive.
-3. In the HLS directory, double-click on the `build-hls-cores.bat` batch file.
-4. In the Vivado directory, you will find multiple batch files (*.bat).
-   Double click on the batch file that is appropriate to your hardware,
-   for example, double-click `build-zedboard.bat` if you are using the ZedBoard.
-   This will generate a Vivado project for your hardware platform.
-5. Run Vivado and open the project that was just created.
-6. Click Generate bitstream.
-7. When the bitstream is successfully generated, select `File->Export->Export Hardware`.
-   In the window that opens, tick "Include bitstream" and "Local to project".
-8. Return to Windows Explorer and browse to the Vitis directory in the repo.
-9. Double click the `build-vitis.bat` batch file. The batch file will run the
-   `build-vitis.tcl` script and build the Vitis workspace containing the hardware
-   design and the software application.
-10. Run Xilinx Vitis and select the workspace to be the Vitis directory of the repo.
-11. Connect and power up the hardware.
-12. Open a Putty terminal to view the UART output.
-13. In Vitis, select `Xilinx Tools->Program FPGA`.
-14. Right-click on the application and select `Run As->Launch on Hardware (Single Application Debug)`
+3. In the `Vivado` directory, you will find multiple batch files (.bat).
+   Double click on the batch file that corresponds to the target design you wish to build.
+   This will generate a Vivado project for your target design and it will be located in
+   the folder `Vivado/<target>`.
+4. Run Vivado and open the project that was just created.
+5. Click Generate bitstream.
+6. When the bitstream is successfully generated, select **File->Export->Export Hardware**.
+   In the window that opens, tick **Include bitstream** and use the default name and location
+   for the XSA file.
 
-### Linux users
+### Build Vitis workspace in Windows
 
-1. Download the repo as a zip file and extract the files to a directory
-   on your hard drive --OR-- Git users: clone the repo to your hard drive
-2. Launch the Vivado GUI.
-3. Open the Tcl console from the Vivado welcome page. In the console, `cd` to the repo files
-   on your hard drive and into the Vivado subdirectory. For example: `cd /media/projects/ethernet-fmc-max-throughput/Vivado`.
-3. In the Vivado subdirectory, you will find multiple Tcl files. To list them, type `exec ls {*}[glob *.tcl]`.
-   Determine the Tcl script for the example project that you would like to generate (for example: `build-zedboard.tcl`), 
-   then `source` the script in the Tcl console: For example: `source build-zedboard.tcl`
-4. Vivado will run the script and generate the project. When it's finished, click Generate bitstream.
-5. When the bitstream is successfully generated, select `File->Export->Export Hardware`.
-   In the window that opens, tick "Include bitstream" and "Local to project".
-6. To build the Vitis workspace, open a Linux command terminal and `cd` to the Vitis directory in the repo.
-7. The Vitis directory contains the `build-vitis.tcl` script that will build the Vitis workspace containing the hardware design and
-   the software application. Run the build script by typing the following command: 
-   `<path-of-xilinx-vitis>/bin/xsct build-vitis.tcl`. Note that you must replace `<path-of-xilinx-vitis>` with the 
-   actual path to your Xilinx Vitis installation.
-8. Run Xilinx Vitis and select the workspace to be the Vitis subdirectory of the 
-   repo.
-9. Connect and power up the hardware.
-10. Open a Putty terminal to view the UART output.
-11. In Vitis, select `Xilinx Tools->Program FPGA`.
-12. Right-click on the application and select `Run As->Launch on Hardware (Single Application Debug)`
+1. Return to Windows Explorer and browse to the Vitis directory in the repo.
+2. Double click the `build-vitis.bat` batch file. The batch file will run the
+   `tcl/build-vitis.tcl` script and build the Vitis workspace containing the hardware
+   platform and the software application for the target design that you built earlier.
+
+## Build instructions for Linux users
+
+### Build Vivado project in Linux
+
+1. Open a command terminal and launch the setup script for Vivado:
+   ```
+   source <path-to-vivado-install>/2022.1/settings64.sh
+   ```
+2. Clone the Git repository and `cd` into the `Vivado` folder of the repo:
+   ```
+   git clone https://github.com/fpgadeveloper/ethernet-fmc-max-throughput.git
+   cd ethernet-fmc-max-throughput/Vivado
+   ```
+3. Run make to create the Vivado project for the target board. You must replace `<target>` with a valid
+   target (alternatively, skip to step 5):
+   ```
+   make project TARGET=<target>
+   ```
+   Valid targets are: 
+   `zedboard`.
+   That will create the Vivado project and block design without generating a bitstream or exporting to XSA.
+4. Open the generated project in the Vivado GUI and click **Generate Bitstream**. Once the build is
+   complete, select **File->Export->Export Hardware** and be sure to tick **Include bitstream** and use
+   the default name and location for the XSA file.
+5. Alternatively, you can create the Vivado project, generate the bitstream and export to XSA (steps 3 and 4),
+   all from a single command:
+   ```
+   make xsa TARGET=<target>
+   ```
+   
+### Build Vitis workspace in Linux
+
+The following steps are required if you wish to build and run the [standalone application](stand_alone). You 
+are not required to have built the Vivado design before following these steps, as the Makefile triggers the 
+Vivado build for the corresponding design if it has not already been done.
+
+1. Launch the setup script for Vivado (only if you skipped the Vivado build steps above):
+   ```
+   source <path-to-vivado-install>/2022.1/settings64.sh
+   ```
+2. Launch the setup scripts for Vitis:
+   ```
+   source <path-to-vitis-install>/2022.1/settings64.sh
+   ```
+3. To build the Vitis workspace, `cd` to the Vitis directory in the repo,
+   then run make to create the Vitis workspace and compile the standalone application:
+   ```
+   cd ethernet-fmc-max-throughput/Vitis
+   make workspace TARGET=<target>
+   ```
 
 ## Background
 
