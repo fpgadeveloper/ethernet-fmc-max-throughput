@@ -6,7 +6,7 @@ packet generator/checker to demonstrate maximum throughput.
 ## Requirements
 
 This project is designed for version 2022.1 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
-Xilinx tools, then refer to the [release tags](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/releases "releases")
+Xilinx tools, then refer to the [release tags](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/tags "releases")
 to find the version of this repository that matches your version of the tools.
 
 In order to test the Ethernet FMC using this design, you need to use an
@@ -16,10 +16,10 @@ You will also need the following:
 * Vivado 2022.1
 * Vitis 2022.1
 * Vivado HLS 2022.1
-* [Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
+* [Ethernet FMC](https://ethernetfmc.com "Ethernet FMC")
 * Supported FMC carrier board (see list of supported carriers below)
 * Two Ethernet cables
-* [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
+* [Xilinx Soft TEMAC license](https://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 
 ## Supported carrier boards
 
@@ -42,9 +42,8 @@ the Ethertype, a payload of random data and the FCS checksum.
 1. Download the repo as a zip file and extract the files to a directory
    on your hard drive --OR-- clone the repo to your hard drive
 2. Open Windows Explorer, browse to the repo files on your hard drive.
-3. In the `Vivado` directory, you will find multiple batch files (.bat).
-   Double click on the batch file that corresponds to the target design you wish to build.
-   This will generate a Vivado project for your target design and it will be located in
+3. In the `Vivado` directory, double click on the `build-vivado.bat` batch file.
+   You will be prompted to select a target design to build. You will find the project in
    the folder `Vivado/<target>`.
 4. Run Vivado and open the project that was just created.
 5. Click Generate bitstream.
@@ -54,10 +53,12 @@ the Ethertype, a payload of random data and the FCS checksum.
 
 ### Build Vitis workspace in Windows
 
+Before running these steps, you must first build and export the Vivado project as described above.
+
 1. Return to Windows Explorer and browse to the Vitis directory in the repo.
-2. Double click the `build-vitis.bat` batch file. The batch file will run the
-   `tcl/build-vitis.tcl` script and build the Vitis workspace containing the hardware
-   platform and the software application for the target design that you built earlier.
+2. Double click the `build-vitis.bat` batch file. You will be prompted to select a target design.
+   A Vitis workspace with hardware platform and software application will be created for the
+   selected target design. You will find the Vitis workspace in the folder `Vitis/<target>_workspace`.
 
 ## Build instructions for Linux users
 
@@ -109,6 +110,7 @@ Vivado build for the corresponding design if it has not already been done.
    cd ethernet-fmc-max-throughput/Vitis
    make workspace TARGET=<target>
    ```
+   You will find the Vitis workspace in the folder `Vitis/<target>_workspace`.
 
 ## Background
 

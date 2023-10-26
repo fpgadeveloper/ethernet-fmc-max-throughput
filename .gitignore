@@ -5,9 +5,8 @@ Vivado/.Xil/
 Vivado/zedboard/
 HLS/eth_traffic_gen/*.log
 HLS/eth_traffic_gen/proj_eth_traffic_gen/
-Vitis/zedboard*/
+Vitis/*_workspace/
 Vitis/.*/
 Vitis/.*
 Vitis/boot/
-Vitis/embeddedsw/
 bootimages/
