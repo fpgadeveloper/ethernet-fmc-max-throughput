@@ -1,11 +1,11 @@
 # Max Throughput Example Design for Ethernet FMC
 
-Example design for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") using an FPGA based hardware
+Example design for the Opsero [Ethernet FMC] and [Robust Ethernet FMC] using an FPGA based hardware
 packet generator/checker to demonstrate maximum throughput.
 
 ## Requirements
 
-This project is designed for version 2022.1 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
+This project is designed for version 2024.1 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
 Xilinx tools, then refer to the [release tags](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/tags "releases")
 to find the version of this repository that matches your version of the tools.
 
@@ -13,10 +13,10 @@ In order to test the Ethernet FMC using this design, you need to use an
 Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
-* Vivado 2022.1
-* Vitis 2022.1
-* Vivado HLS 2022.1
-* [Ethernet FMC](https://ethernetfmc.com "Ethernet FMC")
+* Vivado 2024.1
+* Vitis 2024.1
+* Vivado HLS 2024.1
+* [Ethernet FMC] or [Robust Ethernet FMC]
 * Supported FMC carrier board (see list of supported carriers below)
 * Two Ethernet cables
 * [Xilinx Soft TEMAC license](https://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
@@ -28,7 +28,7 @@ You will also need the following:
 
 ## Description
 
-This project is used for testing the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC") at
+This project is used for testing the [Ethernet FMC] or [Robust Ethernet FMC] at
 maximum throughput. The design contains 4 AXI Ethernet blocks and 4
 hardware traffic generators. The transmitted frames contain fixed destination and source MAC addresses,
 the Ethertype, a payload of random data and the FCS checksum.
@@ -66,7 +66,7 @@ Before running these steps, you must first build and export the Vivado project a
 
 1. Open a command terminal and launch the setup script for Vivado:
    ```
-   source <path-to-vivado-install>/2022.1/settings64.sh
+   source <path-to-vivado-install>/2024.1/settings64.sh
    ```
 2. Clone the Git repository and `cd` into the `Vivado` folder of the repo:
    ```
@@ -98,11 +98,11 @@ Vivado build for the corresponding design if it has not already been done.
 
 1. Launch the setup script for Vivado (only if you skipped the Vivado build steps above):
    ```
-   source <path-to-vivado-install>/2022.1/settings64.sh
+   source <path-to-vivado-install>/2024.1/settings64.sh
    ```
 2. Launch the setup scripts for Vitis:
    ```
-   source <path-to-vitis-install>/2022.1/settings64.sh
+   source <path-to-vitis-install>/2024.1/settings64.sh
    ```
 3. To build the Vitis workspace, `cd` to the Vitis directory in the repo,
    then run make to create the Vitis workspace and compile the standalone application:
@@ -169,7 +169,7 @@ Run Simulation->Run Behavioral Simulation.
 
 ## Other applications
 
-This design is actually used as a production test for the [Quad Gigabit Ethernet FMC](http://ethernetfmc.com "Ethernet FMC")
+This design is actually used as a production test for the [Ethernet FMC] and [Robust Ethernet FMC]
 because it places maximum stress on the PHYs, which forces the maximum
 current consumption, heat dissipation and possibility for cross-talk
 between lanes. It can however be a very useful design for people who
@@ -204,3 +204,6 @@ This project was developed by [Opsero Inc.](http://opsero.com "Opsero Inc."),
 a tight-knit team of FPGA experts delivering FPGA products and design services to start-ups and tech companies. 
 Follow our blog, [FPGA Developer](http://www.fpgadeveloper.com "FPGA Developer"), for news, tutorials and
 updates on the awesome projects we work on.
+
+[Ethernet FMC]: https://ethernetfmc.com/docs/ethernet-fmc/overview/
+[Robust Ethernet FMC]: https://ethernetfmc.com/docs/robust-ethernet-fmc/overview/

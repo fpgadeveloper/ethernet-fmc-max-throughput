@@ -1,4 +1,4 @@
-# Opsero Electronic Design Inc. Copyright 2023
+# Opsero Electronic Design Inc. Copyright 2024
 #
 # Project build script
 #
@@ -17,7 +17,7 @@
 #*****************************************************************************************
 
 # Check the version of Vivado used
-set version_required "2022.1"
+set version_required "2024.1"
 set ver [lindex [split $::env(XILINX_VIVADO) /] end]
 if {![string equal $ver $version_required]} {
   puts "###############################"
@@ -110,12 +110,7 @@ set proj_board [get_board_parts "$board_url:$board_name:*" -latest_file_version]
 if { $proj_board == "" } {
     puts "Failed to find board files for $board_name. Installing board files..."
     xhub::refresh_catalog [xhub::get_xstores xilinx_board_store]
-    if { $board_name == "ultrazed_eg_pciecc_production" } {
-        # UltraZed EG board is the only one that needs to be installed with a different name
-        xhub::install [xhub::get_xitems *ultrazed_3eg_pciecc*]
-    } else {
-        xhub::install [xhub::get_xitems $board_url:xilinx_board_store:$board_name*]
-    }
+    xhub::install [xhub::get_xitems $board_url:xilinx_board_store:$board_name*]
     set proj_board [get_board_parts "$board_url:$board_name:*" -latest_file_version]
 } else {
     puts "Board files found for $board_name"
@@ -215,10 +210,10 @@ set_property "xelab.unifast" "" $obj
 
 # Create 'synth_1' run (if not found)
 if {[string equal [get_runs -quiet synth_1] ""]} {
-  create_run -name synth_1 -part ${fpga_part} -flow {Vivado Synthesis 2022} -strategy "Vivado Synthesis Defaults" -report_strategy {No Reports} -constrset constrs_1
+  create_run -name synth_1 -part ${fpga_part} -flow {Vivado Synthesis 2024} -strategy "Vivado Synthesis Defaults" -report_strategy {No Reports} -constrset constrs_1
 } else {
   set_property strategy "Vivado Synthesis Defaults" [get_runs synth_1]
-  set_property flow "Vivado Synthesis 2022" [get_runs synth_1]
+  set_property flow "Vivado Synthesis 2024" [get_runs synth_1]
 }
 set obj [get_runs synth_1]
 
@@ -227,10 +222,10 @@ current_run -synthesis [get_runs synth_1]
 
 # Create 'impl_1' run (if not found)
 if {[string equal [get_runs -quiet impl_1] ""]} {
-  create_run -name impl_1 -part ${fpga_part} -flow {Vivado Implementation 2022} -strategy "Vivado Implementation Defaults" -report_strategy {No Reports} -constrset constrs_1 -parent_run synth_1
+  create_run -name impl_1 -part ${fpga_part} -flow {Vivado Implementation 2024} -strategy "Vivado Implementation Defaults" -report_strategy {No Reports} -constrset constrs_1 -parent_run synth_1
 } else {
   set_property strategy "Vivado Implementation Defaults" [get_runs impl_1]
-  set_property flow "Vivado Implementation 2022" [get_runs impl_1]
+  set_property flow "Vivado Implementation 2024" [get_runs impl_1]
 }
 set obj [get_runs impl_1]
 set_property -name "steps.write_bitstream.args.readback_file" -value "0" -objects $obj

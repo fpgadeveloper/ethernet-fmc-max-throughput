@@ -1,6 +1,6 @@
 @ECHO OFF
 
-SET vitis_hls=C:\Xilinx\Vitis_HLS\2022.1\bin\vitis_hls.bat
+SET vitis_hls=C:\Xilinx\Vitis_HLS\2024.1\bin\vitis_hls.bat
 
 for /d %%a in (*) do call :build %%a
 
