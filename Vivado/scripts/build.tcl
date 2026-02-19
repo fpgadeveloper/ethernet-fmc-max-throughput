@@ -1,4 +1,4 @@
-# Opsero Electronic Design Inc. Copyright 2024
+# Opsero Electronic Design Inc. Copyright 2025
 #
 # Project build script
 #
@@ -17,8 +17,8 @@
 #*****************************************************************************************
 
 # Check the version of Vivado used
-set version_required "2024.1"
-set ver [lindex [split $::env(XILINX_VIVADO) /] end]
+set version_required "2025.2"
+set ver [lindex [split $::env(XILINX_VIVADO) /] end-1]
 if {![string equal $ver $version_required]} {
   puts "###############################"
   puts "### Failed to build project ###"
@@ -34,7 +34,7 @@ if {![string equal $ver $version_required]} {
 set_param board.repoPaths [get_property LOCAL_ROOT_DIR [xhub::get_xstores xilinx_board_store]]
 
 # Possible targets
-dict set target_dict zedboard { avnet.com zedboard zynq maxtp_sim rgmii-0123 solution1 solution1 }
+dict set target_dict zedboard { avnet.com zedboard zynq maxtp_sim rgmii-0123 solution1 zynq }
 
 # Function to display the options and get user input
 proc selectTarget {target_dict} {
@@ -145,7 +145,7 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 # Set IP repository paths
 set obj [get_filesets sources_1]
-set_property "ip_repo_paths" "[file normalize "$origin_dir/../HLS/eth_traffic_gen/proj_eth_traffic_gen/$traff_gen_soln"]" $obj
+set_property "ip_repo_paths" "[file normalize "$origin_dir/../HLS/eth_traffic_gen/component_eth_traffic_gen_${traff_gen_soln}/hls"]" $obj
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
@@ -210,10 +210,10 @@ set_property "xelab.unifast" "" $obj
 
 # Create 'synth_1' run (if not found)
 if {[string equal [get_runs -quiet synth_1] ""]} {
-  create_run -name synth_1 -part ${fpga_part} -flow {Vivado Synthesis 2024} -strategy "Vivado Synthesis Defaults" -report_strategy {No Reports} -constrset constrs_1
+  create_run -name synth_1 -part ${fpga_part} -flow {Vivado Synthesis 2025} -strategy "Vivado Synthesis Defaults" -report_strategy {No Reports} -constrset constrs_1
 } else {
   set_property strategy "Vivado Synthesis Defaults" [get_runs synth_1]
-  set_property flow "Vivado Synthesis 2024" [get_runs synth_1]
+  set_property flow "Vivado Synthesis 2025" [get_runs synth_1]
 }
 set obj [get_runs synth_1]
 
@@ -222,10 +222,10 @@ current_run -synthesis [get_runs synth_1]
 
 # Create 'impl_1' run (if not found)
 if {[string equal [get_runs -quiet impl_1] ""]} {
-  create_run -name impl_1 -part ${fpga_part} -flow {Vivado Implementation 2024} -strategy "Vivado Implementation Defaults" -report_strategy {No Reports} -constrset constrs_1 -parent_run synth_1
+  create_run -name impl_1 -part ${fpga_part} -flow {Vivado Implementation 2025} -strategy "Vivado Implementation Defaults" -report_strategy {No Reports} -constrset constrs_1 -parent_run synth_1
 } else {
   set_property strategy "Vivado Implementation Defaults" [get_runs impl_1]
-  set_property flow "Vivado Implementation 2024" [get_runs impl_1]
+  set_property flow "Vivado Implementation 2025" [get_runs impl_1]
 }
 set obj [get_runs impl_1]
 set_property -name "steps.write_bitstream.args.readback_file" -value "0" -objects $obj
@@ -237,14 +237,36 @@ current_run -implementation [get_runs impl_1]
 puts "INFO: Project created:${design_name}"
 
 # Create block design
-source $origin_dir/src/bd/bd_${bd_script}.tcl
+set bd_script_path "$origin_dir/src/bd/bd_${bd_script}.tcl"
+if {![file exists $bd_script_path]} {
+    puts "ERROR: Block design script not found: $bd_script_path"
+    close_project
+    return
+}
+if {[catch {source $bd_script_path} errmsg]} {
+    puts "ERROR: Block design creation failed: $errmsg"
+    catch {save_bd_design}
+    close_project
+    return
+}
 
 # Generate the wrapper
 make_wrapper -files [get_files *${block_name}.bd] -top
 add_files -norecurse ${design_name}/${design_name}.gen/sources_1/bd/${block_name}/hdl/${block_name}_wrapper.v
 
 # Create block design for simulation
-source $origin_dir/src/bd/bd_${bd_tb_script}.tcl
+set bd_tb_script_path "$origin_dir/src/bd/bd_${bd_tb_script}.tcl"
+if {![file exists $bd_tb_script_path]} {
+    puts "ERROR: Simulation block design script not found: $bd_tb_script_path"
+    close_project
+    return
+}
+if {[catch {source $bd_tb_script_path} errmsg]} {
+    puts "ERROR: Simulation block design creation failed: $errmsg"
+    catch {save_bd_design}
+    close_project
+    return
+}
 
 # Generate the wrapper
 make_wrapper -files [get_files ${bd_tb_script}.bd] -top -import

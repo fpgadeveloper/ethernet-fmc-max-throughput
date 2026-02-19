@@ -1,10 +1,13 @@
 RemoteSystemsTempFiles/
 Vivado/.Xil/
+Vivado/logs/
 *.log
 *.jou
 Vivado/zedboard/
+HLS/*/logs/
 HLS/eth_traffic_gen/*.log
-HLS/eth_traffic_gen/proj_eth_traffic_gen/
+HLS/eth_traffic_gen/component_eth_traffic_gen_zuplus/
+HLS/eth_traffic_gen/component_eth_traffic_gen_zynq/
 Vitis/*_workspace/
 Vitis/.*/
 Vitis/.*

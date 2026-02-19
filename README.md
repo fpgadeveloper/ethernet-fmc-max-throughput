@@ -5,7 +5,7 @@ packet generator/checker to demonstrate maximum throughput.
 
 ## Requirements
 
-This project is designed for version 2024.1 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
+This project is designed for version 2025.2 of the Xilinx tools (Vivado/SDK/PetaLinux). If you are using an older version of the 
 Xilinx tools, then refer to the [release tags](https://github.com/fpgadeveloper/ethernet-fmc-max-throughput/tags "releases")
 to find the version of this repository that matches your version of the tools.
 
@@ -13,9 +13,9 @@ In order to test the Ethernet FMC using this design, you need to use an
 Ethernet cable to loopback ports 0 and 2, and ports 1 and 3.
 You will also need the following:
 
-* Vivado 2024.1
-* Vitis 2024.1
-* Vivado HLS 2024.1
+* Vivado 2025.2
+* Vitis 2025.2
+* Vivado HLS 2025.2
 * [Ethernet FMC] or [Robust Ethernet FMC]
 * Supported FMC carrier board (see list of supported carriers below)
 * Two Ethernet cables
@@ -66,7 +66,7 @@ Before running these steps, you must first build and export the Vivado project a
 
 1. Open a command terminal and launch the setup script for Vivado:
    ```
-   source <path-to-vivado-install>/2024.1/settings64.sh
+   source <path-to-vivado-install>/2025.2/settings64.sh
    ```
 2. Clone the Git repository and `cd` into the `Vivado` folder of the repo:
    ```
@@ -98,11 +98,11 @@ Vivado build for the corresponding design if it has not already been done.
 
 1. Launch the setup script for Vivado (only if you skipped the Vivado build steps above):
    ```
-   source <path-to-vivado-install>/2024.1/settings64.sh
+   source <path-to-vivado-install>/2025.2/settings64.sh
    ```
 2. Launch the setup scripts for Vitis:
    ```
-   source <path-to-vitis-install>/2024.1/settings64.sh
+   source <path-to-vitis-install>/2025.2/settings64.sh
    ```
 3. To build the Vitis workspace, `cd` to the Vitis directory in the repo,
    then run make to create the Vitis workspace and compile the standalone application:

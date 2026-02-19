@@ -81,7 +81,7 @@ ap_uint<32> lfsr_next(ap_uint<32> *lfsr) {
  *
  */
 void force_error_handler(ap_uint<1> *force_error,stream<ap_uint<1> >& force_error_trig) {
-#pragma HLS pipeline II=1 enable_flush
+#pragma HLS pipeline II=1 style=flp
 
 	static ap_uint<1> sig_r = 0;
 
@@ -128,7 +128,7 @@ void txd_handler(stream<axiWord>& txd,
 		ap_uint<32> *src_mac_lo,
 		ap_uint<32> *src_mac_hi,
 		ap_uint<32> *pkt_len){
-#pragma HLS pipeline II=1 enable_flush
+#pragma HLS pipeline II=1 style=flp
 
 	  static enum tState {TXD_INIT = 0, TXC_IDLE,
 		  TXC_CTRLFRAME_0,TXC_CTRLFRAME_1,TXD_MAC_0, TXD_MAC_1, TXD_MAC_2,
@@ -148,8 +148,10 @@ void txd_handler(stream<axiWord>& txd,
 	  static ap_uint<32> ethertype_r = 0;
 #pragma HLS reset variable=ethertype_r
 
-	  static axiWord txcWord = {0, 0xF, 0};
-	  static axiWord txdWord = {0, 0xF, 0};
+	  static axiWord txcWord;
+	  txcWord.data = 0; txcWord.keep = 0xF; txcWord.last = 0;
+	  static axiWord txdWord;
+	  txdWord.data = 0; txdWord.keep = 0xF; txdWord.last = 0;
 
 	  switch(txdState) {
 	  case TXD_INIT:
@@ -267,10 +269,11 @@ void txd_handler(stream<axiWord>& txd,
  *
  */
 void rxs_handler(stream<axiWord>& rxs){
-#pragma HLS pipeline II=1 enable_flush
+#pragma HLS pipeline II=1 style=flp
 	  static enum rsState {R_INIT = 0, R_IDLE, R_FRAME} rxsState;
 
-	  axiWord rxWord = {0, 0xF, 0};
+	  axiWord rxWord;
+	  rxWord.data = 0; rxWord.keep = 0xF; rxWord.last = 0;
 
 	  switch(rxsState) {
 	  case R_INIT:
@@ -308,11 +311,12 @@ void rxd_handler(stream<axiWord>& rxd,
 				ap_uint<32> *src_mac_lo,
 				ap_uint<32> *src_mac_hi,
 				ap_uint<32> *pkt_len){
-#pragma HLS pipeline II=1 enable_flush
+#pragma HLS pipeline II=1 style=flp
 	  static enum rdState {R_INIT = 0, R_MAC_0, R_MAC_1, R_MAC_2,
 		  R_ETHERTYPE, R_PAYLOAD, R_FCS, R_TRAILER} rxdState;
 
-	  axiWord rxWord = {0, 0xF, 0};
+	  axiWord rxWord;
+	  rxWord.data = 0; rxWord.keep = 0xF; rxWord.last = 0;
 	  static ap_uint<32> lfsr = 0xFFFFFFFF;
 #pragma HLS reset variable=lfsr
 	  static ap_uint<32> i = 0;
@@ -444,11 +448,11 @@ void eth_traffic_gen(stream<axiWord>& m_axis_txc,stream<axiWord>& m_axis_txd,
 
 	// Force error trigger stream
 	static stream<ap_uint<1> > force_error_trig;
-#pragma HLS STREAM variable=force_error_trig depth=4 dim=1
+#pragma HLS STREAM variable=force_error_trig depth=4
 
 	// Stream for synchronization of TXC and TXD handlers
 	static stream<ap_uint<1> > txc_trig;
-#pragma HLS STREAM variable=txc_trig depth=4 dim=1
+#pragma HLS STREAM variable=txc_trig depth=4
 
 	// Waits for force error register toggle and triggers error
 	force_error_handler(force_error,force_error_trig);

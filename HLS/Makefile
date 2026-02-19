@@ -1,7 +1,7 @@
-# Opsero Electronic Design Inc. 2024
+# Opsero Electronic Design Inc. 2025
 
 RM = rm -rf
-HLS = vitis_hls
+HLS = vitis-run --mode hls --tcl
 
 eth_traffic_gen_target := 0
 
@@ -36,7 +36,7 @@ all:
 	done
 
 ip:  
-	cd $(TARGET) && $(HLS) -f $(TARGET).tcl
+	cd $(TARGET) && $(HLS) $(TARGET).tcl
 
 .PHONY: clean
 clean:
