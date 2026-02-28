@@ -118,10 +118,10 @@ int main()
 	}
 
 	// Initialize the AXI Ethernet MACs
-	axi_ethernet[0] = EthFMC_init_axiemac(XPAR_AXIETHERNET_0_BASEADDR,mac_ethernet_address);
-	axi_ethernet[1] = EthFMC_init_axiemac(XPAR_AXIETHERNET_1_BASEADDR,mac_ethernet_address);
-	axi_ethernet[2] = EthFMC_init_axiemac(XPAR_AXIETHERNET_2_BASEADDR,mac_ethernet_address);
-	axi_ethernet[3] = EthFMC_init_axiemac(XPAR_AXIETHERNET_3_BASEADDR,mac_ethernet_address);
+	axi_ethernet[0] = EthFMC_init_axiemac(XPAR_AXI_ETHERNET_0_BASEADDR,mac_ethernet_address);
+	axi_ethernet[1] = EthFMC_init_axiemac(XPAR_AXI_ETHERNET_1_BASEADDR,mac_ethernet_address);
+	axi_ethernet[2] = EthFMC_init_axiemac(XPAR_AXI_ETHERNET_2_BASEADDR,mac_ethernet_address);
+	axi_ethernet[3] = EthFMC_init_axiemac(XPAR_AXI_ETHERNET_3_BASEADDR,mac_ethernet_address);
 
 	sleep(1);
 	
@@ -134,10 +134,10 @@ int main()
 	}
 
 	// Reset the reject frame interrupt flags
-	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_0_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
-	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_1_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
-	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_2_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
-	XAxiEthernet_WriteReg(XPAR_AXIETHERNET_3_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+	XAxiEthernet_WriteReg(XPAR_AXI_ETHERNET_0_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+	XAxiEthernet_WriteReg(XPAR_AXI_ETHERNET_1_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+	XAxiEthernet_WriteReg(XPAR_AXI_ETHERNET_2_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+	XAxiEthernet_WriteReg(XPAR_AXI_ETHERNET_3_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 
 	while (1) {
 		/* Force an error to be sent by all ports
@@ -167,34 +167,34 @@ int main()
 		 */
 		for(i=0; i<1000000; i++){
 			// Read the interrupt status register
-			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_0_BASEADDR,XAE_IS_OFFSET);
+			reg = XAxiEthernet_ReadReg(XPAR_AXI_ETHERNET_0_BASEADDR,XAE_IS_OFFSET);
 			if((reg & XAE_INT_RXRJECT_MASK)){
 				// Reset the interrupt
-				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_0_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+				XAxiEthernet_WriteReg(XPAR_AXI_ETHERNET_0_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 				// Increment the counter
 				dropped_frames[0]++;
 			}
 			// Read the interrupt status register
-			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_1_BASEADDR,XAE_IS_OFFSET);
+			reg = XAxiEthernet_ReadReg(XPAR_AXI_ETHERNET_1_BASEADDR,XAE_IS_OFFSET);
 			if((reg & XAE_INT_RXRJECT_MASK)){
 				// Reset the interrupt
-				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_1_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+				XAxiEthernet_WriteReg(XPAR_AXI_ETHERNET_1_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 				// Increment the counter
 				dropped_frames[1]++;
 			}
 			// Read the interrupt status register
-			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_2_BASEADDR,XAE_IS_OFFSET);
+			reg = XAxiEthernet_ReadReg(XPAR_AXI_ETHERNET_2_BASEADDR,XAE_IS_OFFSET);
 			if((reg & XAE_INT_RXRJECT_MASK)){
 				// Reset the interrupt
-				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_2_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+				XAxiEthernet_WriteReg(XPAR_AXI_ETHERNET_2_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 				// Increment the counter
 				dropped_frames[2]++;
 			}
 			// Read the interrupt status register
-			reg = XAxiEthernet_ReadReg(XPAR_AXIETHERNET_3_BASEADDR,XAE_IS_OFFSET);
+			reg = XAxiEthernet_ReadReg(XPAR_AXI_ETHERNET_3_BASEADDR,XAE_IS_OFFSET);
 			if((reg & XAE_INT_RXRJECT_MASK)){
 				// Reset the interrupt
-				XAxiEthernet_WriteReg(XPAR_AXIETHERNET_3_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
+				XAxiEthernet_WriteReg(XPAR_AXI_ETHERNET_3_BASEADDR,XAE_IS_OFFSET,XAE_INT_RXRJECT_MASK);
 				// Increment the counter
 				dropped_frames[3]++;
 			}

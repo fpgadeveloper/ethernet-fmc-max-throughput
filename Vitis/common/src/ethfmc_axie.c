@@ -16,6 +16,10 @@
 #include "stdlib.h"
 #include "board.h"
 
+#ifdef SDT
+#define XAxiEthernet_GetPhysicalInterface(x) XAxiEthernet_Get_Phy_Interface(x)
+#endif
+
 static void __attribute__ ((noinline)) AxiEthernetUtilPhyDelay(unsigned int Seconds);
 
 unsigned EthFMC_get_IEEE_phy_speed(XAxiEthernet *xaxiemacp)
@@ -142,7 +146,7 @@ unsigned EthFMC_Phy_Setup (XAxiEthernet *xaxiemacp)
 		phy_wr_data &= (~PHY_R0_ISOLATE);
 
 		XAxiEthernet_PhyWrite(xaxiemacp,
-				XPAR_AXIETHERNET_0_PHYADDR,
+				XPAR_AXI_ETHERNET_0_PHYADDR,
 				IEEE_CONTROL_REG_OFFSET,
 				phy_wr_data);
 #endif

@@ -1,0 +1,12 @@
+{
+    "bd_name": "maxtp",
+    "app_name": "test_app",
+    "app_template": "None",
+    "src": {
+        "all": "common/src"
+    },
+    "boardnames": {
+        "zedboard": "zedboard"
+    },
+    "combine_bit_elf": true
+}
