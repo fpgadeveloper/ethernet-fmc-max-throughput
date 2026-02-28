@@ -66,7 +66,7 @@ Before running these steps, you must first build and export the Vivado project a
 
 1. Open a command terminal and launch the setup script for Vivado:
    ```
-   source <path-to-vivado-install>/2025.2/settings64.sh
+   source <path-to-xilinx-tools>/2025.2/Vivado/settings64.sh
    ```
 2. Clone the Git repository and `cd` into the `Vivado` folder of the repo:
    ```
@@ -98,11 +98,11 @@ Vivado build for the corresponding design if it has not already been done.
 
 1. Launch the setup script for Vivado (only if you skipped the Vivado build steps above):
    ```
-   source <path-to-vivado-install>/2025.2/settings64.sh
+   source <path-to-xilinx-tools>/2025.2/Vivado/settings64.sh
    ```
 2. Launch the setup scripts for Vitis:
    ```
-   source <path-to-vitis-install>/2025.2/settings64.sh
+   source <path-to-xilinx-tools>/2025.2/Vitis/settings64.sh
    ```
 3. To build the Vitis workspace, `cd` to the Vitis directory in the repo,
    then run make to create the Vitis workspace and compile the standalone application:
