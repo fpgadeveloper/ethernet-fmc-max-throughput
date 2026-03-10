@@ -21,7 +21,7 @@
 #     "xiltimer"                   # simple string form (no config)
 #   ],
 #   "src": {
-#     "all":   "common/src",
+#     "all":   "common/src",           # string or list of strings/dicts
 #     "mb":    "microblaze/src",
 #     "zynq":  "zynq/src",
 #     "zynqmp":"zynq/src",
@@ -39,7 +39,7 @@
 #   "combine_bit_elf": true        # ignored here; used by make-boot.py later
 # }
 
-import os, sys, re, glob, json, shutil, zipfile, xml.etree.ElementTree as ET
+import os, sys, re, glob, json, shutil, subprocess, zipfile, xml.etree.ElementTree as ET
 
 # ---------------- utilities ----------------
 def die(msg):
@@ -68,8 +68,8 @@ def copy_tree(src_dir, dst_dir):
             count += 1
     return count
 
-def copy_src_entry(entry, cwd, dst_dir):
-    """Copy source files specified by a src entry (string or dict).
+def _copy_single_src_entry(entry, cwd, dst_dir):
+    """Copy source files specified by a single src entry (string or dict).
     String: copy entire directory.
     Dict: {"dir": "path", "files": ["a.c", "b.c"]} — copy only listed files.
     """
@@ -94,6 +94,15 @@ def copy_src_entry(entry, cwd, dst_dir):
                 info(f"WARNING: source file '{src}' not found; skipping.")
         return count
     return 0
+
+def copy_src_entry(entry, cwd, dst_dir):
+    """Copy source files from a src entry: string, dict, or list of those."""
+    if isinstance(entry, list):
+        total = 0
+        for item in entry:
+            total += _copy_single_src_entry(item, cwd, dst_dir)
+        return total
+    return _copy_single_src_entry(entry, cwd, dst_dir)
 
 def sync_cmake_sources(app_src):
     """Ensure CMakeLists.txt includes all .c files present in app_src.
@@ -125,7 +134,8 @@ def sync_cmake_sources(app_src):
 # ---------------- board.h generator ----------------
 def create_board_h(board_name, target_dir):
     vitis_root = os.environ.get("XILINX_VITIS", "")
-    vitis_ver = os.path.basename(vitis_root) if vitis_root else "UNKNOWN"
+    # XILINX_VITIS is e.g. /home/jeff/Xilinx/2025.2/Vitis, so version is parent dir name
+    vitis_ver = os.path.basename(os.path.dirname(vitis_root)) if vitis_root else "UNKNOWN"
     bn_up = str(board_name).upper()
     ensure_dir(target_dir)
     path = os.path.join(target_dir, "board.h")
@@ -345,6 +355,8 @@ def main():
     src_zynqmp = src_map.get("zynqmp")
     src_versal = src_map.get("versal")
 
+    pre_build_script = cfg.get("pre_build_script")
+
     # Board name: from data.json if available, otherwise from args.json boardnames map
     target = maybe_target
     if data_json_path:
@@ -382,6 +394,8 @@ def main():
     info(f"bsp_libs        : {bsp_libs if bsp_libs else '(none)'}")
     if linker_mods:
         info(f"linker_mods     : {linker_mods}")
+    if pre_build_script:
+        info(f"pre_build_script: {pre_build_script}")
 
     if not os.path.isfile(xsa_path):
         die(f"XSA not found at: {xsa_path}")
@@ -506,6 +520,14 @@ def main():
             lscript_path = os.path.join(app_src, "lscript.ld")
             info(f"Applying linker script mod: {linker_mods[arch]}")
             modify_linker_script(lscript_path, linker_mods[arch])
+
+        # Run pre-build script (if configured)
+        if pre_build_script:
+            script_path = os.path.normpath(os.path.join(cwd, pre_build_script))
+            info(f"Running pre-build script: {script_path}")
+            result = subprocess.run([sys.executable, script_path, app_src], cwd=cwd)
+            if result.returncode != 0:
+                die(f"Pre-build script failed with exit code {result.returncode}")
 
         # Build the app
         info("Building application ...")

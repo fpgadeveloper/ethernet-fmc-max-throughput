@@ -91,10 +91,16 @@ int main()
 	{ 0x00, 0x0a, 0x35, 0x00, 0x01, 0x02 };
 
 	// Initialize Ethernet Traffic Generators
+	UINTPTR eth_tg_baseaddr[] = {
+		XPAR_XETH_TRAFFIC_GEN_0_BASEADDR,
+		XPAR_XETH_TRAFFIC_GEN_1_BASEADDR,
+		XPAR_XETH_TRAFFIC_GEN_2_BASEADDR,
+		XPAR_XETH_TRAFFIC_GEN_3_BASEADDR,
+	};
 	for(i = 0; i < XPAR_XETH_TRAFFIC_GEN_NUM_INSTANCES; i++){
-		Status = XEth_traffic_gen_Initialize(&(eth_pkt_gen[i]),i);
+		Status = XEth_traffic_gen_Initialize(&(eth_pkt_gen[i]),eth_tg_baseaddr[i]);
 		if (Status != XST_SUCCESS) {
-			xil_printf("ERROR: Failed to initialize Ethernet Packet Generator 0\n\r");
+			xil_printf("ERROR: Failed to initialize Ethernet Packet Generator %d\n\r",i);
 			return XST_FAILURE;
 		}
 	}
