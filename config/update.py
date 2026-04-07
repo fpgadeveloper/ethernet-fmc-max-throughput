@@ -49,6 +49,12 @@ def get_vivado_build_targets(data):
 def get_vitis_targets(data, args):
     templates = {'z7': 'zynq'}
     targets = []
+    # Global settings from args.json
+    targets.append('BD_NAME = {}'.format(args['bd_name']))
+    targets.append('APP_NAME = {}'.format(args.get('app_name', 'test_app')))
+    combine = str(args.get('combine_bit_elf', True)).lower()
+    targets.append('COMBINE_BIT_ELF = {}'.format(combine))
+    # Per-target arch assignments
     for design in data['designs']:
         if not design['baremetal']:
             continue

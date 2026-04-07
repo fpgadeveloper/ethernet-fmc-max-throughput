@@ -1,7 +1,10 @@
 {
   "bd_name": "maxtp",
   "groups": [
-    {"label": "z7", "name": "Zynq-7000"}
+    {
+      "label": "z7",
+      "name": "Zynq-7000"
+    }
   ],
   "designs": [
     {
