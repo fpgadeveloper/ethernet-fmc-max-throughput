@@ -1,5 +1,6 @@
 {
   "bd_name": "maxtp",
+  "prj_name": "ethernet-fmc-max-throughput",
   "groups": [
     {
       "label": "z7",

@@ -16,14 +16,19 @@ def load_json(filename):
     with open(filename) as f:
         return json.load(f)
 
-def get_root_targets(data):
+def get_root_targets(data, args):
     templates = {'z7': 'zynq'}
     targets = []
     targets.append('BD_NAME = {}'.format(data['bd_name']))
+    targets.append('PRJ_NAME = {}'.format(data.get('prj_name', data['bd_name'])))
+    combine = str(args.get('combine_bit_elf', True)).lower()
+    targets.append('COMBINE_BIT_ELF = {}'.format(combine))
     for design in data['designs']:
         template = templates[design['group']]
-        if design['petalinux']:
+        if design.get('petalinux') and design.get('baremetal'):
             sw = 'both'
+        elif design.get('petalinux'):
+            sw = 'petalinux_only'
         else:
             sw = 'baremetal_only'
         target = '{}_target := {} {}'.format(design['label'],template,sw)
@@ -32,7 +37,7 @@ def get_root_targets(data):
 
 def get_vivado_targets(data):
     targets = []
-    targets.append('BD_NAME = {}'.format(data.get('vivado_bd_name', data['bd_name'])))
+    targets.append('BD_NAME = {}'.format(data['bd_name']))
     targets += ['{}_target := 0'.format(design['label']) for design in data['designs']]
     return(targets)
 
@@ -109,7 +114,7 @@ args = load_json('../Vitis/py/args.json')
 
 # Update the root makefile
 root_makefile = '../Makefile'
-root_targets = get_root_targets(data)
+root_targets = get_root_targets(data, args)
 update_file(root_makefile,root_targets)
 
 # Update the Vivado makefile
