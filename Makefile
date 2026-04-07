@@ -4,15 +4,16 @@
 
 RM = rm -rf
 ROOT_DIR = $(shell pwd)
-BD_NAME = maxtp
-
 # defaults
 .DEFAULT_GOAL := bootimage
 TARGET ?= none
 JOBS ?= 8
 
 # valid targets (template name, both (plnx+baremetal) or baremetal_only)
+# UPDATER START
+BD_NAME = maxtp
 zedboard_target := zynq baremetal_only
+# UPDATER END
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 

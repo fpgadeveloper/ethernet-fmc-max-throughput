@@ -3,7 +3,9 @@ Vivado/.Xil/
 Vivado/logs/
 *.log
 *.jou
+# UPDATER START
 Vivado/zedboard/
+# UPDATER END
 HLS/*/logs/
 HLS/eth_traffic_gen/*.log
 HLS/eth_traffic_gen/component_eth_traffic_gen_zuplus/

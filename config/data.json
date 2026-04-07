@@ -1,0 +1,24 @@
+{
+  "bd_name": "maxtp",
+  "groups": [
+    {"label": "z7", "name": "Zynq-7000"}
+  ],
+  "designs": [
+    {
+      "label": "zedboard",
+      "board": "ZedBoard",
+      "link": "http://zedboard.org",
+      "url": "avnet.com",
+      "boardname": "zedboard",
+      "bdscript": "zynq",
+      "sim_bd": "maxtp_sim",
+      "lanecfg": "rgmii-0123",
+      "hls_solution": "solution1",
+      "arch": "zynq",
+      "connector": "LPC",
+      "group": "z7",
+      "petalinux": false,
+      "baremetal": true
+    }
+  ]
+}

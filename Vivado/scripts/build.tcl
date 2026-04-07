@@ -34,7 +34,9 @@ if {![string equal $ver $version_required]} {
 set_param board.repoPaths [get_property LOCAL_ROOT_DIR [xhub::get_xstores xilinx_board_store]]
 
 # Possible targets
+# UPDATER START
 dict set target_dict zedboard { avnet.com zedboard zynq maxtp_sim rgmii-0123 solution1 zynq }
+# UPDATER END
 
 # Function to display the options and get user input
 proc selectTarget {target_dict} {
