@@ -8,10 +8,22 @@ Vivado/zedboard/
 # UPDATER END
 HLS/*/logs/
 HLS/eth_traffic_gen/*.log
-HLS/eth_traffic_gen/component_eth_traffic_gen_zuplus/
-HLS/eth_traffic_gen/component_eth_traffic_gen_zynq/
+# Per-target generated IP (HLS/<core>/<target>/) -- build artifacts.
+HLS/eth_traffic_gen/*/
 Vitis/*_workspace/
 Vitis/.*/
 Vitis/.*
 Vitis/boot/
 bootimages/
+dfx_runtime.txt
+.repo.yaml
+.memdata_temp_mem_file.mem
+Vivado/*.bif
+Vivado/*.pdi
+Vivado/*.rcdo
+Vivado/*.rnpi
+Vivado/wdi_info.xml
+__pycache__/
+*.pyc
+Vivado/gen_files/
+Vivado/static_files/

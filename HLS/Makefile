@@ -1,44 +1,29 @@
 # Opsero Electronic Design Inc. 2025
+#
+# Thin wrapper around build.py, which builds the HLS IP cores on both
+# Windows and Linux (see ../build.sh ip). This make interface is kept for
+# compatibility and will be REMOVED at the next version update -- please
+# switch to ../build.sh.
+#
+# Note: on Windows use ../build.sh directly from git bash; GNU make is not
+# usable there (no sh-capable make is available).
 
-RM = rm -rf
-HLS = vitis-run --mode hls --tcl
+BUILD = ./build.sh
 
-eth_traffic_gen_target := 0
-
-TARGET_LIST := $(patsubst %_target,%,$(filter %_target,$(.VARIABLES)))
-
-.PHONY: help
+.PHONY: help all ip clean
 help:
 	@echo 'Usage:'
 	@echo ''
-	@echo '  make ip TARGET=<val>'
-	@echo '    Generate target IP'
-	@echo ''
 	@echo '  make all'
-	@echo '    Generate all IP'
+	@echo '    Generate all HLS IP cores (wraps: ../build.sh ip --target all).'
 	@echo ''
 	@echo '  make clean'
-	@echo '    Delete all IP output products'
+	@echo '    Delete generated HLS projects (wraps: ../build.sh clean --stage ip --target all).'
 	@echo ''
-	@echo 'Parameters:'
-	@echo ''
-	@echo '  TARGET: Name of the target IP, must be one of the following:'
-	@$(foreach targ,$(sort $(TARGET_LIST)),echo "    - $(targ)";)
-	@echo ''
-	@echo 'Example usage:'
-	@echo '  make ip TARGET=$(word 1,$(TARGET_LIST))'
-	@echo ''
+	@echo 'DEPRECATED: drive builds with ../build.sh instead (works on Windows too).'
 
-.PHONY: all
-all: 
-	for targ in $(TARGET_LIST); do \
-		$(MAKE) ip TARGET=$${targ}; \
-	done
+all ip:
+	cd .. && $(BUILD) ip --target all
 
-ip:  
-	cd $(TARGET) && $(HLS) $(TARGET).tcl
-
-.PHONY: clean
 clean:
-	$(RM) *.prj *.log
-
+	cd .. && $(BUILD) clean --stage ip --target all

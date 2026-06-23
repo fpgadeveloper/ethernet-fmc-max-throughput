@@ -4,9 +4,18 @@ The files contained in this folder contain an IP core developed in Vitis HLS.
 
 ## How to build the HLS IP core
 
-If using a Windows machine, run the `build-hls-cores.bat` batch file to build
-the HLS IP core. If using a Linux machine, you can cd to the HLS folder and run
-`make all`.
+The IP is built with the repo's cross-platform build runner, which works on
+both Windows and Linux. From the repo root:
+
+```
+./build.sh ip --target <target>
+```
+
+Cores that are already built are skipped. The IP is also generated
+automatically when the Vivado project is created (`./build.sh project`,
+`xsa` or `all`), so running this command separately is optional. On Linux,
+the legacy `make all` in this folder still works (it now wraps `build.sh`)
+but is deprecated and will be removed at the next version update.
 
 The IP core has its own build script (.tcl) and sources in C/C++ (.c, .cpp).
 The build script will generate the HDL sources for the core,

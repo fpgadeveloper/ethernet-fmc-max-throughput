@@ -35,7 +35,7 @@ set_param board.repoPaths [get_property LOCAL_ROOT_DIR [xhub::get_xstores xilinx
 
 # Possible targets
 # UPDATER START
-dict set target_dict zedboard { avnet.com zedboard zynq maxtp_sim rgmii-0123 solution1 zynq }
+dict set target_dict zedboard { avnet.com zedboard zynq maxtp_sim rgmii-0123 }
 # UPDATER END
 
 # Function to display the options and get user input
@@ -122,8 +122,6 @@ set fpga_part [get_property PART_NAME [get_board_parts $proj_board]]
 set bd_script [lindex [dict get $target_dict $target] 2]
 set bd_tb_script [lindex [dict get $target_dict $target] 3]
 set rgmii_xdc [lindex [dict get $target_dict $target] 4]
-set axi_init_soln [lindex [dict get $target_dict $target] 5]
-set traff_gen_soln [lindex [dict get $target_dict $target] 6]
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir "."
@@ -145,9 +143,10 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
   create_fileset -srcset sources_1
 }
 
-# Set IP repository paths
+# Set IP repository paths. Point at the target's own generated-IP directory;
+# Vivado scans it recursively and finds the packaged component inside.
 set obj [get_filesets sources_1]
-set_property "ip_repo_paths" "[file normalize "$origin_dir/../HLS/eth_traffic_gen/component_eth_traffic_gen_${traff_gen_soln}/hls"]" $obj
+set_property "ip_repo_paths" "[file normalize "$origin_dir/../HLS/eth_traffic_gen/${target}"]" $obj
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]

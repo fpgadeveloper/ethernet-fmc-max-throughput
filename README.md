@@ -35,82 +35,63 @@ the Ethertype, a payload of random data and the FCS checksum.
 
 ![Ethernet FMC Max Throughput Test design](docs/source/images/max-tp-block-diagram.png "Ethernet FMC Max Throughput Test design")
 
-## Build instructions for Windows users
+## Build instructions
 
-### Build Vivado project in Windows
+Clone the repo and change into its directory:
+```
+git clone https://github.com/fpgadeveloper/ethernet-fmc-max-throughput.git
+cd ethernet-fmc-max-throughput
+```
 
-1. Download the repo as a zip file and extract the files to a directory
-   on your hard drive --OR-- clone the repo to your hard drive
-2. Open Windows Explorer, browse to the repo files on your hard drive.
-3. In the `Vivado` directory, double click on the `build-vivado.bat` batch file.
-   You will be prompted to select a target design to build. You will find the project in
-   the folder `Vivado/<target>`.
-4. Run Vivado and open the project that was just created.
-5. Click Generate bitstream.
-6. When the bitstream is successfully generated, select **File->Export->Export Hardware**.
-   In the window that opens, tick **Include bitstream** and use the default name and location
-   for the XSA file.
+### Cross-platform build runner
 
-### Build Vitis workspace in Windows
+All builds are driven by `build.py` at the repo root, on both Windows
+(git bash) and Linux. The `build.sh` / `build.bat` shim finds a suitable
+Python 3 automatically (including the one bundled with the AMD tools).
+Pick a target design label from the tables above (or run `./build.sh
+list`), then run the build command for the stage(s) you want — each
+command builds whatever it depends on automatically and skips anything
+already built. On Windows without git bash, run the same commands from
+Command Prompt or PowerShell using `build.bat` (e.g. `build.bat xsa
+--target <target>`).
 
-Before running these steps, you must first build and export the Vivado project as described above.
+You don't need to source the AMD tools first — the build runner finds
+Vivado, Vitis and PetaLinux automatically in their standard install
+locations and sets up the environment each stage needs. If your tools
+are installed somewhere non-standard and the runner can't find them,
+source the tool settings yourself before running the build.
 
-1. Return to Windows Explorer and browse to the Vitis directory in the repo.
-2. Double click the `build-vitis.bat` batch file. You will be prompted to select a target design.
-   A Vitis workspace with hardware platform and software application will be created for the
-   selected target design. You will find the Vitis workspace in the folder `Vitis/<target>_workspace`.
+#### Build the Vivado project (bitstream + XSA)
 
-## Build instructions for Linux users
+```
+./build.sh xsa --target <target>
+```
 
-### Build Vivado project in Linux
+#### Build the standalone application
 
-1. Open a command terminal and launch the setup script for Vivado:
-   ```
-   source <path-to-xilinx-tools>/2025.2/Vivado/settings64.sh
-   ```
-2. Clone the Git repository and `cd` into the `Vivado` folder of the repo:
-   ```
-   git clone https://github.com/fpgadeveloper/ethernet-fmc-max-throughput.git
-   cd ethernet-fmc-max-throughput/Vivado
-   ```
-3. Run make to create the Vivado project for the target board. You must replace `<target>` with a valid
-   target (alternatively, skip to step 5):
-   ```
-   make project TARGET=<target>
-   ```
-   Valid targets are: 
-   `zedboard`.
-   That will create the Vivado project and block design without generating a bitstream or exporting to XSA.
-4. Open the generated project in the Vivado GUI and click **Generate Bitstream**. Once the build is
-   complete, select **File->Export->Export Hardware** and be sure to tick **Include bitstream** and use
-   the default name and location for the XSA file.
-5. Alternatively, you can create the Vivado project, generate the bitstream and export to XSA (steps 3 and 4),
-   all from a single command:
-   ```
-   make xsa TARGET=<target>
-   ```
-   
-### Build Vitis workspace in Linux
+Builds the Vitis workspace and the baremetal boot file (`BOOT.BIN` or
+bit file, depending on the device family):
 
-The following steps are required if you wish to build and run the [standalone application](stand_alone). You 
-are not required to have built the Vivado design before following these steps, as the Makefile triggers the 
-Vivado build for the corresponding design if it has not already been done.
+```
+./build.sh standalone --target <target>
+```
 
-1. Launch the setup script for Vivado (only if you skipped the Vivado build steps above):
-   ```
-   source <path-to-xilinx-tools>/2025.2/Vivado/settings64.sh
-   ```
-2. Launch the setup scripts for Vitis:
-   ```
-   source <path-to-xilinx-tools>/2025.2/Vitis/settings64.sh
-   ```
-3. To build the Vitis workspace, `cd` to the Vitis directory in the repo,
-   then run make to create the Vitis workspace and compile the standalone application:
-   ```
-   cd ethernet-fmc-max-throughput/Vitis
-   make workspace TARGET=<target>
-   ```
-   You will find the Vitis workspace in the folder `Vitis/<target>_workspace`.
+#### Build everything
+
+Builds all of the above that the target supports, then gathers the boot
+images into `bootimages/*.zip`:
+
+```
+./build.sh all --target <target>
+./build.sh all --target all          # every target in the repo
+```
+
+Also available: `status`, `clean`, `project` — see
+`./build.sh --help`. On Windows, the PetaLinux and Yocto stages require a
+Linux machine; the runner says so and prints the hand-off command. The
+legacy `make` interface still works on Linux (each Makefile now wraps
+`build.sh`) but is deprecated and will be removed at the next version
+update.
 
 ## Background
 

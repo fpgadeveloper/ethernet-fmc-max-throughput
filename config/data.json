@@ -17,10 +17,9 @@
       "bdscript": "zynq",
       "sim_bd": "maxtp_sim",
       "lanecfg": "rgmii-0123",
-      "hls_solution": "solution1",
-      "arch": "zynq",
       "connector": "LPC",
       "group": "z7",
+      "ip_license": true,
       "petalinux": false,
       "baremetal": true
     }
